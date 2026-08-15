@@ -1,0 +1,12 @@
+# Security
+- Laravel Breeze for authentication.
+- Policies for authorization.
+- CSRF protection.
+- Server-side validation.
+- Secure file upload with MIME/extension/size checks.
+- Generated storage filenames.
+- Eloquent/query builder to avoid SQL injection.
+- Blade escaping to avoid XSS.
+- Correct mass assignment protection.
+- Never commit .env.
+- Never log passwords, tokens, or private credentials.
