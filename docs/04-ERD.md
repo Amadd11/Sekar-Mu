@@ -2,6 +2,8 @@
 ```mermaid
 erDiagram
     USERS ||--o{ APPLICATIONS : creates
+    USERS ||--o{ MODEL_HAS_ROLES : has
+    ROLES ||--o{ MODEL_HAS_ROLES : assigned
     INSTITUTIONS ||--o{ KEPKS : owns
     KEPKS ||--o{ APPLICATIONS : submits
     APPLICATIONS ||--|| APPLICATION_INFORMATIONS : has

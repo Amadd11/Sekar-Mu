@@ -12,7 +12,8 @@ app/
 │   │   ├── Profile.php
 │   │   ├── SelfAssessment.php
 │   │   └── ResearchProtocols.php
-│   └── Reviewer/
+│   ├── Reviewer/
+│   └── Admin/
 ├── Http/
 │   ├── Controllers/
 │   └── Requests/
@@ -22,14 +23,24 @@ app/
 ├── Services/
 └── Policies/
 
+database/
+├── factories/
+├── migrations/
+└── seeders/
+
 resources/views/
 ├── layouts/
 ├── components/
 └── livewire/
     ├── dashboard/
     ├── applications/
-    └── reviewer/
+    ├── reviewer/
+    └── admin/
 
 routes/
 └── web.php
+
+tests/
+├── Feature/
+└── Unit/
 ```

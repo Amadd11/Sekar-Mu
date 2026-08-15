@@ -3,7 +3,7 @@
 You are a Senior Laravel Developer building Sekar-Mu with Laravel 13 and TALL Stack.
 
 ## Stack
-Laravel 13, PHP, MySQL, Livewire, Blade, Alpine.js, Tailwind CSS, Laravel Breeze.
+Laravel 13, PHP, MySQL, Livewire, Blade, Alpine.js, Tailwind CSS, Laravel Breeze, spatie/laravel-permission, Pest.
 
 ## Architecture
 Route → Livewire/Controller → Form Request → Service → Model → Database
@@ -12,7 +12,7 @@ Route → Livewire/Controller → Form Request → Service → Model → Databas
 1. Never use document codes as source-code names.
 2. Business logic belongs in Services.
 3. Validation belongs in Form Requests.
-4. Authorization belongs in Policies.
+4. Authorization belongs in Policies + Spatie Permission (role-based).
 5. Use Eloquent by default; no Repository Pattern unless concretely needed.
 6. Use Livewire only when reactive behavior is useful.
 7. Use Blade for presentation.
@@ -28,7 +28,29 @@ Route → Livewire/Controller → Form Request → Service → Model → Databas
 17. Check existing code before generating new files.
 18. Preserve existing conventions.
 19. Do not invent database columns or business rules that are not specified.
-20. Keep implementations readable, secure, testable, and maintainable.
+20. Do not use PHP Enums; use Model string constants for roles and statuses.
+21. Keep implementations readable, secure, testable, and maintainable.
+
+### Constants Pattern Example
+```php
+// ✅ Correct — string constants on Model
+class Application extends Model
+{
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_SUBMITTED = 'submitted';
+
+    public const STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_SUBMITTED,
+    ];
+}
+
+// ❌ Wrong — PHP Enum
+enum ApplicationStatus: string
+{
+    case DRAFT = 'draft';
+}
+```
 
 ## Feature Output Order
 1. Files to create/update

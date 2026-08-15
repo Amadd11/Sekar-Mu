@@ -1,8 +1,10 @@
 # Security
 - Laravel Breeze for authentication.
-- Policies for authorization.
+- spatie/laravel-permission for role-based access control (RBAC).
+- Policies for resource-level authorization.
+- Spatie middleware (`role:admin`, `role:reviewer`) for route protection.
 - CSRF protection.
-- Server-side validation.
+- Server-side validation via Form Requests.
 - Secure file upload with MIME/extension/size checks.
 - Generated storage filenames.
 - Eloquent/query builder to avoid SQL injection.
