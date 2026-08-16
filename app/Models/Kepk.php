@@ -11,26 +11,28 @@ class Kepk extends Model
 {
     use HasFactory;
 
+    protected $table = 'kepk';
+
     protected $fillable = [
-        'institution_id',
-        'name',
+        'institusi_id',
         'code',
+        'name',
         'status',
     ];
 
     /**
-     * @return BelongsTo<Institution, Kepk>
+     * @return BelongsTo<Institusi, Kepk>
      */
-    public function institution(): BelongsTo
+    public function institusi(): BelongsTo
     {
-        return $this->belongsTo(Institution::class);
+        return $this->belongsTo(Institusi::class, 'institusi_id');
     }
 
     /**
-     * @return HasMany<Application>
+     * @return HasMany<SuratPengajuan>
      */
-    public function applications(): HasMany
+    public function suratPengajuan(): HasMany
     {
-        return $this->hasMany(Application::class);
+        return $this->hasMany(SuratPengajuan::class, 'kepk_id');
     }
 }

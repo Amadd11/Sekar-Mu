@@ -1,8 +1,8 @@
 @php
     $user = auth()->user();
-    $latestApp = \App\Models\Application::where('user_id', $user->id)->latest()->first();
+    $latestApp = \App\Models\SuratPengajuan::where('user_id', $user->id)->latest()->first();
     if (!$latestApp && ($user->isAdmin() || $user->isReviewer())) {
-        $latestApp = \App\Models\Application::latest()->first();
+        $latestApp = \App\Models\SuratPengajuan::latest()->first();
     }
 @endphp
 
@@ -44,12 +44,12 @@
 
                 @hasanyrole('reviewer|admin')
                     <a
-                        href="{{ route('reviews.index') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('reviews.*') ? 'bg-[#225c84] text-white font-bold shadow-2xs border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        href="{{ route('penilaian.index') }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('penilaian.*') ? 'bg-[#225c84] text-white font-bold shadow-2xs border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
                         <span class="text-sm">🔍</span>
-                        <span>Portal Telaah Etik</span>
+                        <span>Portal Penilaian Etik</span>
                     </a>
                 @endhasanyrole
             </nav>
@@ -62,8 +62,8 @@
             </div>
             <nav class="space-y-1">
                 <a
-                    href="{{ route('applications.index') }}"
-                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('applications.index') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    href="{{ route('pengajuan.index') }}"
+                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.index') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                     wire:navigate
                 >
                     <span class="text-sm">📄</span>
@@ -72,8 +72,8 @@
 
                 @if ($latestApp)
                     <a
-                        href="{{ route('applications.information', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('applications.information') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        href="{{ route('pengajuan.formulir-aplikasi', $latestApp) }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.formulir-aplikasi') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
                         <span class="text-sm">📝</span>
@@ -81,8 +81,8 @@
                     </a>
 
                     <a
-                        href="{{ route('applications.self-assessment', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('applications.self-assessment') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
                         <span class="text-sm">📋</span>
@@ -90,8 +90,8 @@
                     </a>
 
                     <a
-                        href="{{ route('applications.protocols', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('applications.protocols') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        href="{{ route('pengajuan.list-protokol', $latestApp) }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.list-protokol') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
                         <span class="text-sm">📑</span>
@@ -99,8 +99,8 @@
                     </a>
 
                     <a
-                        href="{{ route('applications.documents', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('applications.documents') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        href="{{ route('pengajuan.dokumen', $latestApp) }}"
+                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.dokumen') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
                         <span class="text-sm">📁</span>
@@ -108,7 +108,7 @@
                     </a>
                 @else
                     <a
-                        href="{{ route('applications.create') }}"
+                        href="{{ route('pengajuan.create') }}"
                         class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-teal-100/80 hover:bg-[#1f5379] hover:text-white"
                         wire:navigate
                     >
@@ -126,28 +126,28 @@
             </div>
             <nav class="space-y-1">
                 @if ($latestApp)
-                    <a href="{{ route('applications.self-assessment', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">🏛️</span>
                         <span>A — Struktur & Komposisi</span>
                     </a>
-                    <a href="{{ route('applications.self-assessment', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">📜</span>
                         <span>B — Kepatuhan Kebijakan</span>
                     </a>
-                    <a href="{{ route('applications.self-assessment', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">🔍</span>
                         <span>C — Kelengkapan Telaah</span>
                     </a>
-                    <a href="{{ route('applications.self-assessment', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">📢</span>
                         <span>D — Komunikasi Keputusan</span>
                     </a>
-                    <a href="{{ route('applications.self-assessment', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">📁</span>
                         <span>E — Dokumentasi & Arsip</span>
                     </a>
                 @else
-                    <a href="{{ route('applications.create') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                    <a href="{{ route('pengajuan.create') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                         <span class="text-sm">📋</span>
                         <span>Mulai Evaluasi Diri</span>
                     </a>
@@ -161,7 +161,7 @@
                 Laporan
             </div>
             <nav class="space-y-1">
-                <a href="{{ route('applications.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
+                <a href="{{ route('pengajuan.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
                     <span class="text-sm">📊</span>
                     <span>Rekapitulasi & Laporan</span>
                 </a>

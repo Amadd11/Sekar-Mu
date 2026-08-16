@@ -34,29 +34,29 @@ class User extends Authenticatable
     }
 
     /**
-     * @return HasMany<Application>
+     * @return HasMany<SuratPengajuan>
      */
-    public function applications(): HasMany
+    public function suratPengajuan(): HasMany
     {
-        return $this->hasMany(Application::class);
+        return $this->hasMany(SuratPengajuan::class);
     }
 
     /**
-     * @return BelongsToMany<Application>
+     * @return BelongsToMany<SuratPengajuan>
      */
-    public function assignedApplications(): BelongsToMany
+    public function pengajuanDinilai(): BelongsToMany
     {
-        return $this->belongsToMany(Application::class, 'application_reviewers', 'user_id', 'application_id')
-            ->withPivot(['assigned_by', 'assigned_at'])
+        return $this->belongsToMany(SuratPengajuan::class, 'penilai_pengajuan', 'user_id', 'surat_pengajuan_id')
+            ->withPivot(['ditugaskan_oleh', 'tanggal_penugasan'])
             ->withTimestamps();
     }
 
     /**
-     * @return HasMany<Review>
+     * @return HasMany<PenilaianEtik>
      */
-    public function reviews(): HasMany
+    public function penilaianEtik(): HasMany
     {
-        return $this->hasMany(Review::class, 'reviewer_id');
+        return $this->hasMany(PenilaianEtik::class, 'penilai_id');
     }
 
     public function isAdmin(): bool

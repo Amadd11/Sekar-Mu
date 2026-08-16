@@ -1,8 +1,8 @@
 @php
     $user = auth()->user();
-    $latestApp = \App\Models\Application::where('user_id', $user->id)->latest()->first();
+    $latestApp = \App\Models\SuratPengajuan::where('user_id', $user->id)->latest()->first();
     if (!$latestApp && ($user->isAdmin() || $user->isReviewer())) {
-        $latestApp = \App\Models\Application::latest()->first();
+        $latestApp = \App\Models\SuratPengajuan::latest()->first();
     }
 @endphp
 
@@ -29,12 +29,12 @@
     <!-- Top Action Buttons -->
     <div class="flex items-center gap-2">
         @if ($latestApp)
-            <a href="{{ route('applications.self-assessment', $latestApp) }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 transition shadow-2xs" wire:navigate>
+            <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 transition shadow-2xs" wire:navigate>
                 <span>💾</span>
                 <span>Simpan Data</span>
             </a>
         @endif
-        <a href="{{ route('applications.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#1a4a6e] hover:bg-[#133e5f] transition shadow-2xs" wire:navigate>
+        <a href="{{ route('pengajuan.index') }}" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-[#1a4a6e] hover:bg-[#133e5f] transition shadow-2xs" wire:navigate>
             <span>📑</span>
             <span>Daftar Pengajuan</span>
         </a>

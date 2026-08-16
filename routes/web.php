@@ -1,16 +1,16 @@
 <?php
 
-use App\Livewire\Applications\Create as ApplicationCreate;
-use App\Livewire\Applications\Documents as ApplicationDocuments;
-use App\Livewire\Applications\Index as ApplicationIndex;
-use App\Livewire\Applications\Information as ApplicationInformation;
-use App\Livewire\Applications\Profile as ApplicationProfile;
-use App\Livewire\Applications\ResearchProtocols as ApplicationResearchProtocols;
-use App\Livewire\Applications\SelfAssessment as ApplicationSelfAssessment;
-use App\Livewire\Applications\Show as ApplicationShow;
-use App\Livewire\Reviews\AssignReviewers as AssignReviewers;
-use App\Livewire\Reviews\Index as ReviewIndex;
-use App\Livewire\Reviews\Review as ReviewWorkbench;
+use App\Livewire\Pengajuan\Create as PengajuanCreate;
+use App\Livewire\Pengajuan\Dokumen as PengajuanDokumen;
+use App\Livewire\Pengajuan\EvaluasiDiri as PengajuanEvaluasiDiri;
+use App\Livewire\Pengajuan\FormulirAplikasi as PengajuanFormulirAplikasi;
+use App\Livewire\Pengajuan\Index as PengajuanIndex;
+use App\Livewire\Pengajuan\ListProtokol as PengajuanListProtokol;
+use App\Livewire\Pengajuan\Profil as PengajuanProfil;
+use App\Livewire\Pengajuan\Show as PengajuanShow;
+use App\Livewire\Penilaian\Index as PenilaianIndex;
+use App\Livewire\Penilaian\LembarPenilaian as PenilaianWorkbench;
+use App\Livewire\Penilaian\TugaskanPenilai as PenilaianTugaskan;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -23,21 +23,21 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-// Application Management Routes (Applicant / Admin / Reviewer)
+// Modul Surat Pengajuan & Berkas KEPK (Applicant / Admin / Reviewer)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/applications', ApplicationIndex::class)->name('applications.index');
-    Route::get('/applications/create', ApplicationCreate::class)->name('applications.create');
-    Route::get('/applications/{application}', ApplicationShow::class)->name('applications.show');
-    Route::get('/applications/{application}/information', ApplicationInformation::class)->name('applications.information');
-    Route::get('/applications/{application}/profile', ApplicationProfile::class)->name('applications.profile');
-    Route::get('/applications/{application}/self-assessment', ApplicationSelfAssessment::class)->name('applications.self-assessment');
-    Route::get('/applications/{application}/protocols', ApplicationResearchProtocols::class)->name('applications.protocols');
-    Route::get('/applications/{application}/documents', ApplicationDocuments::class)->name('applications.documents');
+    Route::get('/pengajuan', PengajuanIndex::class)->name('pengajuan.index');
+    Route::get('/pengajuan/create', PengajuanCreate::class)->name('pengajuan.create');
+    Route::get('/pengajuan/{suratPengajuan}', PengajuanShow::class)->name('pengajuan.show');
+    Route::get('/pengajuan/{suratPengajuan}/formulir-aplikasi', PengajuanFormulirAplikasi::class)->name('pengajuan.formulir-aplikasi');
+    Route::get('/pengajuan/{suratPengajuan}/profil', PengajuanProfil::class)->name('pengajuan.profil');
+    Route::get('/pengajuan/{suratPengajuan}/evaluasi-diri', PengajuanEvaluasiDiri::class)->name('pengajuan.evaluasi-diri');
+    Route::get('/pengajuan/{suratPengajuan}/list-protokol', PengajuanListProtokol::class)->name('pengajuan.list-protokol');
+    Route::get('/pengajuan/{suratPengajuan}/dokumen', PengajuanDokumen::class)->name('pengajuan.dokumen');
 
-    // Phase 3: Reviewer & Assignment Routes
-    Route::get('/reviews', ReviewIndex::class)->name('reviews.index');
-    Route::get('/reviews/{application}', ReviewWorkbench::class)->name('reviews.show');
-    Route::get('/applications/{application}/assign-reviewers', AssignReviewers::class)->name('reviews.assign');
+    // Modul Penilaian Etik (Reviewer & Admin)
+    Route::get('/penilaian', PenilaianIndex::class)->name('penilaian.index');
+    Route::get('/penilaian/{suratPengajuan}', PenilaianWorkbench::class)->name('penilaian.show');
+    Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', PenilaianTugaskan::class)->name('penilaian.tugaskan');
 });
 
 require __DIR__.'/auth.php';

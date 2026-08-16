@@ -2,164 +2,108 @@
 
 namespace Database\Seeders;
 
-use App\Models\Application;
-use App\Models\ApplicationInformation;
-use App\Models\ApplicationMember;
-use App\Models\ApplicationProfile;
-use App\Models\Institution;
+use App\Models\Institusi;
 use App\Models\Kepk;
+use App\Models\SuratPengajuan;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
-use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // Reset cached roles and permissions
-        app()[PermissionRegistrar::class]->forgetCachedPermissions();
-
-        // 1. Create Roles
+        // 1. Roles
         $roles = ['admin', 'applicant', 'reviewer'];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
 
-        // 2. Create Users
-        $admin = User::updateOrCreate(
+        // 2. Users
+        $admin = User::firstOrCreate(
             ['email' => 'admin@sekarmu.test'],
             [
-                'name' => 'Admin Sekar-Mu',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
+                'name' => 'Admin KEPK',
+                'password' => Hash::make('password'),
             ]
         );
         $admin->syncRoles(['admin']);
 
-        $applicant = User::updateOrCreate(
+        $applicant = User::firstOrCreate(
             ['email' => 'applicant@sekarmu.test'],
             [
-                'name' => 'Pemohon Penelitian',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
+                'name' => 'Dr. Budi Santoso',
+                'password' => Hash::make('password'),
             ]
         );
         $applicant->syncRoles(['applicant']);
 
-        $reviewer = User::updateOrCreate(
+        $reviewer = User::firstOrCreate(
             ['email' => 'reviewer@sekarmu.test'],
             [
-                'name' => 'Penelaah Etik (Reviewer)',
-                'password' => bcrypt('password'),
-                'email_verified_at' => now(),
+                'name' => 'Prof. Siti Rahayu (Penelaah)',
+                'password' => Hash::make('password'),
             ]
         );
         $reviewer->syncRoles(['reviewer']);
 
-        // 3. Create Sample Institutions & KEPKs
-        $institution1 = Institution::firstOrCreate(
-            ['name' => 'Universitas Muhammadiyah Surakarta'],
+        // 3. Institusi & KEPK
+        $institusi = Institusi::firstOrCreate(
+            ['name' => 'Universitas Muhammadiyah Yogyakarta'],
             [
-                'address' => 'Jl. A. Yani, Pabelan, Kartasura, Sukoharjo',
-                'city' => 'Surakarta',
-                'phone' => '0271-717417',
-                'email' => 'humas@ums.ac.id',
+                'address' => 'Jl. Brawijaya, Geblagan, Tamantirto, Kec. Kasihan, Kabupaten Bantul',
+                'city' => 'Yogyakarta',
+                'phone' => '0274-387656',
+                'email' => 'info@umy.ac.id',
             ]
         );
 
-        $institution2 = Institution::firstOrCreate(
-            ['name' => 'RS PKU Muhammadiyah Surakarta'],
+        $kepk = Kepk::firstOrCreate(
+            ['code' => 'KEPK-UMY-001'],
             [
-                'address' => 'Jl. Ronggowarsito No. 130, Timuran, Banjarsari',
-                'city' => 'Surakarta',
-                'phone' => '0271-714578',
-                'email' => 'info@rspkusolo.com',
-            ]
-        );
-
-        $kepk1 = Kepk::firstOrCreate(
-            ['code' => 'KEPK-UMS-01'],
-            [
-                'institution_id' => $institution1->id,
-                'name' => 'Komite Etik Penelitian Kesehatan FK UMS',
+                'institusi_id' => $institusi->id,
+                'name' => 'Komisi Etik Penelitian Kesehatan UMY',
                 'status' => 'active',
             ]
         );
 
-        $kepk2 = Kepk::firstOrCreate(
-            ['code' => 'KEPK-RS-PKU-01'],
-            [
-                'institution_id' => $institution2->id,
-                'name' => 'Komite Etik Penelitian Kesehatan RS PKU Solo',
-                'status' => 'active',
-            ]
-        );
+        // 4. Seeder Instrumen Evaluasi Diri (Bagian A-E)
+        $this->call(InstrumenEvaluasiSeeder::class);
 
-        // 4. Create Initial Sample Application for Applicant
-        $sampleApp = Application::firstOrCreate(
+        // 5. Sample Surat Pengajuan
+        $surat = SuratPengajuan::firstOrCreate(
             [
                 'user_id' => $applicant->id,
-                'kepk_id' => $kepk1->id,
+                'kepk_id' => $kepk->id,
             ],
             [
                 'status' => 'draft',
-                'submitted_at' => null,
             ]
         );
 
-        ApplicationInformation::updateOrCreate(
-            ['application_id' => $sampleApp->id],
+        $surat->formulirAplikasi()->firstOrCreate(
+            ['surat_pengajuan_id' => $surat->id],
             [
-                'name' => 'Fakultas Farmasi Universitas Muhammadiyah Surakarta',
-                'abbreviation' => 'FF-UMS',
-                'address' => 'Kampus II UMS, Jl. A. Yani, Pabelan, Kartasura',
-                'city' => 'Surakarta',
-                'phone' => '0271-717417',
-                'email' => 'farmasi@ums.ac.id',
+                'nama_institusi' => 'Fakultas Kedokteran dan Ilmu Kesehatan UMY',
+                'singkatan' => 'FKIK-UMY',
+                'alamat' => 'Kampus Terpadu UMY, Jl. Brawijaya',
+                'kota' => 'Yogyakarta',
+                'telepon' => '0274-387656',
+                'email' => 'fkik@umy.ac.id',
             ]
         );
 
-        ApplicationProfile::updateOrCreate(
-            ['application_id' => $sampleApp->id],
+        $surat->profilKepk()->firstOrCreate(
+            ['surat_pengajuan_id' => $surat->id],
             [
-                'description' => 'Komite Etik yang melayani telaah etik penelitian di bidang klinis, biomedis, dan farmakoterapi.',
-                'vision' => 'Menjadi pusat telaah etik penelitian terkemuka yang menjamin perlindungan subjek manusia sesuai kaidah Good Clinical Practice.',
-                'mission' => "1. Melakukan telaah protokol penelitian secara objektif dan independen.\n2. Memberikan edukasi etika riset bagi civitas akademika.",
+                'deskripsi' => 'Komisi Etik Penelitian Kesehatan yang independen, kompeten, dan berintegritas.',
+                'visi' => 'Menjadi KEPK rujukan berstandar internasional yang berlandaskan nilai-nilai keislaman.',
+                'misi' => '1. Menelaah protokol penelitian kesehatan secara objektif dan independen.\n2. Melindungi harkat, martabat, dan hak-hak subjek penelitian.',
             ]
         );
-
-        ApplicationMember::firstOrCreate(
-            [
-                'application_id' => $sampleApp->id,
-                'name' => 'Prof. Dr. apt. Muhammad Ridwan, M.Sc.',
-            ],
-            [
-                'position' => 'Ketua KEPK',
-                'email' => 'ridwan@ums.ac.id',
-                'phone' => '081234567890',
-            ]
-        );
-
-        ApplicationMember::firstOrCreate(
-            [
-                'application_id' => $sampleApp->id,
-                'name' => 'Dr. dr. Siti Nurhaliza, Sp.PK',
-            ],
-            [
-                'position' => 'Sekretaris KEPK',
-                'email' => 'siti.nurhaliza@ums.ac.id',
-                'phone' => '081298765432',
-            ]
-        );
-
-        // 5. Seed 5 Assessment Sections & Standard Items
-        $this->call(AssessmentInstrumentSeeder::class);
     }
 }
