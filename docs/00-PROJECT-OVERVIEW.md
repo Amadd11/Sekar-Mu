@@ -18,5 +18,5 @@ User, Institution, KEPK, Application, Application Information, Application Profi
 Do not use document codes such as B01, B01-01, B01-02 as source-code names. Use domain names such as Application, SelfAssessment, ResearchProtocol.
 
 ## Conventions
-- Roles and statuses use Model string constants (e.g. User::ROLE_ADMIN, Application::STATUS_DRAFT). Do not use PHP Enums.
+- Roles and statuses use direct plain string values (e.g. 'admin', 'draft', 'submitted'). Do not use PHP Enums or class constants.
 - Authorization via Spatie Permission (roles) + Laravel Policies (resource-level).

@@ -7,6 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,16 +19,6 @@ class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable, HasRoles;
-
-    public const ROLE_ADMIN = 'admin';
-    public const ROLE_APPLICANT = 'applicant';
-    public const ROLE_REVIEWER = 'reviewer';
-
-    public const ROLES = [
-        self::ROLE_ADMIN,
-        self::ROLE_APPLICANT,
-        self::ROLE_REVIEWER,
-    ];
 
     /**
      * Get the attributes that should be cast.
@@ -50,18 +41,36 @@ class User extends Authenticatable
         return $this->hasMany(Application::class);
     }
 
+    /**
+     * @return BelongsToMany<Application>
+     */
+    public function assignedApplications(): BelongsToMany
+    {
+        return $this->belongsToMany(Application::class, 'application_reviewers', 'user_id', 'application_id')
+            ->withPivot(['assigned_by', 'assigned_at'])
+            ->withTimestamps();
+    }
+
+    /**
+     * @return HasMany<Review>
+     */
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class, 'reviewer_id');
+    }
+
     public function isAdmin(): bool
     {
-        return $this->hasRole(self::ROLE_ADMIN);
+        return $this->hasRole('admin');
     }
 
     public function isApplicant(): bool
     {
-        return $this->hasRole(self::ROLE_APPLICANT);
+        return $this->hasRole('applicant');
     }
 
     public function isReviewer(): bool
     {
-        return $this->hasRole(self::ROLE_REVIEWER);
+        return $this->hasRole('reviewer');
     }
 }

@@ -46,21 +46,21 @@ class UserFactory extends Factory
     public function admin(): static
     {
         return $this->afterCreating(function (User $user) {
-            $user->assignRole(User::ROLE_ADMIN);
+            $user->assignRole('admin');
         });
     }
 
     public function reviewer(): static
     {
         return $this->afterCreating(function (User $user) {
-            $user->assignRole(User::ROLE_REVIEWER);
+            $user->assignRole('reviewer');
         });
     }
 
     public function applicant(): static
     {
         return $this->afterCreating(function (User $user) {
-            $user->assignRole(User::ROLE_APPLICANT);
+            $user->assignRole('applicant');
         });
     }
 }

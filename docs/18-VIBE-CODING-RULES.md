@@ -28,28 +28,24 @@ Route → Livewire/Controller → Form Request → Service → Model → Databas
 17. Check existing code before generating new files.
 18. Preserve existing conventions.
 19. Do not invent database columns or business rules that are not specified.
-20. Do not use PHP Enums; use Model string constants for roles and statuses.
+20. Do not use PHP Enums or class constants for status and roles; use direct plain string values (e.g. 'draft', 'submitted', 'admin', 'applicant') with Spatie Permission.
 21. Keep implementations readable, secure, testable, and maintainable.
 
-### Constants Pattern Example
+### String Values Pattern Example
 ```php
-// ✅ Correct — string constants on Model
+// ✅ Correct — direct plain strings
 class Application extends Model
 {
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_SUBMITTED = 'submitted';
-
-    public const STATUSES = [
-        self::STATUS_DRAFT,
-        self::STATUS_SUBMITTED,
-    ];
+    public function isDraft(): bool
+    {
+        return $this->status === 'draft';
+    }
 }
 
-// ❌ Wrong — PHP Enum
-enum ApplicationStatus: string
-{
-    case DRAFT = 'draft';
-}
+// ❌ Wrong — PHP Enum or class constants
+enum ApplicationStatus: string { case DRAFT = 'draft'; }
+// or
+public const STATUS_DRAFT = 'draft';
 ```
 
 ## Feature Output Order

@@ -13,7 +13,7 @@
             <div class="flex items-center gap-2">
                 @can('update', $application)
                     <a href="{{ route('applications.information', $application) }}" class="btn-outline btn-sm" wire:navigate>
-                        Edit Data
+                        Edit Identitas
                     </a>
                 @endcan
                 <a href="{{ route('applications.index') }}" class="btn-ghost btn-sm" wire:navigate>
@@ -42,18 +42,18 @@
             </div>
         @endif
 
-        <!-- Status Banner & Submit CTA -->
-        @if ($application->isEditable())
+        <!-- Status Banner & Submit / Resubmit CTA -->
+        @if ($application->isDraft())
             <div class="bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <div class="font-bold text-teal-900 text-sm flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-teal-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
-                        Pengajuan masih dalam tahap {{ $application->isDraft() ? 'Draft' : 'Perbaikan Revisi' }}
+                        Pengajuan masih dalam tahap Draft
                     </div>
                     <p class="text-xs text-teal-700 mt-1">
-                        Periksa kembali seluruh informasi dan anggota sebelum menekan tombol submit pengajuan.
+                        Lengkapi borang evaluasi diri, protokol penelitian, dan dokumen lampiran sebelum submit.
                     </p>
                 </div>
                 <div class="flex items-center gap-2">
@@ -82,6 +82,27 @@
                     @endcan
                 </div>
             </div>
+        @elseif ($application->isRevisionRequired())
+            <div class="bg-amber-50 border border-amber-300 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <div class="font-bold text-amber-900 text-sm flex items-center gap-1.5">
+                        <span>⚠️ Status: Membutuhkan Perbaikan / Revisi Berkas</span>
+                    </div>
+                    <p class="text-xs text-amber-700 mt-1">
+                        Penelaah etik telah memberikan catatan telaah. Silakan perbaiki data/dokumen terkait dan klik tombol ajukan ulang.
+                    </p>
+                </div>
+                @can('submit', $application)
+                    <button
+                        type="button"
+                        wire:click="resubmitApplication"
+                        wire:confirm="Apakah seluruh perbaikan revisi sudah selesai dan Anda yakin ingin mengajukan ulang berkas ini?"
+                        class="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white font-bold text-xs rounded-xl shadow-2xs transition shrink-0"
+                    >
+                        🔄 Ajukan Ulang Perbaikan (Resubmit)
+                    </button>
+                @endcan
+            </div>
         @else
             <div class="bg-blue-50 border border-blue-200 rounded-xl p-5 flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -91,18 +112,118 @@
                         </svg>
                     </div>
                     <div>
-                        <div class="font-bold text-blue-900 text-sm">Pengajuan Telah Dikirim</div>
+                        <div class="font-bold text-blue-900 text-sm">Status Berkas: {{ App\Models\Application::statusLabel($application->status) }}</div>
                         <p class="text-xs text-blue-700 mt-0.5">
-                            Status saat ini: <strong>{{ App\Models\Application::statusLabel($application->status) }}</strong> pada {{ $application->submitted_at?->format('d M Y, H:i') }}.
+                            Diajukan pada {{ $application->submitted_at?->format('d M Y, H:i') ?? '-' }}.
                         </p>
                     </div>
                 </div>
             </div>
         @endif
 
+        <!-- Admin Management Action Bar -->
+        @if (auth()->user()->isAdmin())
+            <div class="bg-slate-900 text-white rounded-xl p-5 shadow-2xs space-y-3">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div>
+                        <div class="text-xs font-bold uppercase tracking-wider text-teal-400">Panel Kontrol Admin KEPK</div>
+                        <div class="text-xs text-slate-300 mt-0.5">Kelola penugasan penelaah independen dan penetapan status akhir permohonan etik.</div>
+                    </div>
+                    <a
+                        href="{{ route('reviews.assign', $application) }}"
+                        class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-600 hover:bg-teal-700 text-white font-bold text-xs rounded-lg transition"
+                        wire:navigate
+                    >
+                        <span>👥 Tugaskan Penelaah</span>
+                    </a>
+                </div>
+
+                @if (!in_array($application->status, ['draft'], true))
+                    <div class="pt-3 border-t border-slate-800 flex flex-wrap items-center gap-2">
+                        <span class="text-xs text-slate-400 font-semibold mr-1">Putuskan Status Akhir:</span>
+                        <button
+                            type="button"
+                            wire:click="finalizeDecision('approved')"
+                            wire:confirm="Yakin ingin MENYETUJUI (Approve) permohonan etik ini?"
+                            class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition"
+                        >
+                            ✓ Setujui (Approved)
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="finalizeDecision('revision_required')"
+                            wire:confirm="Yakin ingin MEMINTA REVISI kepada pemohon?"
+                            class="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded text-xs font-bold transition"
+                        >
+                            ⚠️ Minta Revisi
+                        </button>
+                        <button
+                            type="button"
+                            wire:click="finalizeDecision('rejected')"
+                            wire:confirm="Yakin ingin MENOLAK (Reject) permohonan etik ini?"
+                            class="px-3 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition"
+                        >
+                            ✕ Tolak (Rejected)
+                        </button>
+                    </div>
+                @endif
+            </div>
+        @endif
+
+        <!-- Quick 3 Navigation Modules Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <a href="{{ route('applications.self-assessment', $application) }}" class="bg-white border border-slate-200/90 hover:border-teal-400 rounded-xl p-4 shadow-2xs transition group" wire:navigate>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Evaluasi Diri (B01-03)</span>
+                    <span class="text-base group-hover:translate-x-1 transition">📋</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Borang standar Bagian A s/d E</p>
+            </a>
+
+            <a href="{{ route('applications.protocols', $application) }}" class="bg-white border border-slate-200/90 hover:border-teal-400 rounded-xl p-4 shadow-2xs transition group" wire:navigate>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">List Protokol (B01-04)</span>
+                    <span class="text-base group-hover:translate-x-1 transition">📑</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Kelola protokol riset yang diajukan</p>
+            </a>
+
+            <a href="{{ route('applications.documents', $application) }}" class="bg-white border border-slate-200/90 hover:border-teal-400 rounded-xl p-4 shadow-2xs transition group" wire:navigate>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-700">Dokumen Lampiran</span>
+                    <span class="text-base group-hover:translate-x-1 transition">📁</span>
+                </div>
+                <p class="text-[11px] text-slate-400 mt-1">Upload & unduh berkas lampiran</p>
+            </a>
+        </div>
+
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
             <!-- Left Column: Details -->
             <div class="md:col-span-2 space-y-6">
+                <!-- Reviews Summary Card (If Any) -->
+                @if ($application->reviews->isNotEmpty())
+                    <div class="card">
+                        <div class="card-header bg-slate-50 flex items-center justify-between">
+                            <h2 class="text-sm font-bold text-slate-800 uppercase tracking-wider">Hasil Telaah Penelaah Etik ({{ $application->reviews->count() }})</h2>
+                        </div>
+                        <div class="p-5 space-y-3 text-xs">
+                            @foreach ($application->reviews as $rev)
+                                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-bold text-slate-900">👤 {{ $rev->reviewer->name }}</span>
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold border {{ \App\Models\Review::recommendationBadgeClasses($rev->recommendation) }}">
+                                            {{ \App\Models\Review::recommendationLabel($rev->recommendation) }}
+                                        </span>
+                                    </div>
+                                    @if ($rev->notes)
+                                        <p class="text-slate-600 leading-relaxed">{{ $rev->notes }}</p>
+                                    @endif
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 <!-- Info Card -->
                 <div class="card">
                     <div class="card-header bg-slate-50 flex items-center justify-between">
@@ -200,8 +321,26 @@
                 </div>
             </div>
 
-            <!-- Right Column: Sidebar Meta -->
+            <!-- Right Column: Sidebar Meta & Assigned Reviewers -->
             <div class="space-y-6">
+                <!-- Assigned Reviewers Card -->
+                <div class="card p-5 space-y-3">
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Penelaah Etik Ditugaskan</div>
+                    @forelse ($application->assignedReviewers as $rev)
+                        <div class="flex items-center gap-2 text-xs">
+                            <div class="w-6 h-6 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-[10px]">
+                                {{ strtoupper(substr($rev->name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <div class="font-semibold text-slate-900">{{ $rev->name }}</div>
+                                <div class="text-[10px] text-slate-400">{{ $rev->email }}</div>
+                            </div>
+                        </div>
+                    @empty
+                        <p class="text-xs text-slate-400 italic">Belum ada penelaah ditugaskan.</p>
+                    @endforelse
+                </div>
+
                 <!-- KEPK Destination Card -->
                 <div class="card p-5 space-y-3">
                     <div class="text-xs font-bold text-slate-400 uppercase tracking-wider">Tujuan Pengajuan</div>

@@ -15,7 +15,8 @@ use Spatie\Permission\PermissionRegistrar;
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-    foreach (User::ROLES as $role) {
+    $roles = ['admin', 'applicant', 'reviewer'];
+    foreach ($roles as $role) {
         Role::firstOrCreate(['name' => $role]);
     }
 
@@ -57,7 +58,7 @@ test('applicant can create a draft application via livewire', function () {
     $this->assertDatabaseHas('applications', [
         'user_id' => $applicant->id,
         'kepk_id' => $this->kepk->id,
-        'status' => Application::STATUS_DRAFT,
+        'status' => 'draft',
     ]);
 
     $this->assertDatabaseHas('application_informations', [
@@ -73,7 +74,7 @@ test('applicant can update application information', function () {
     $application = Application::create([
         'user_id' => $applicant->id,
         'kepk_id' => $this->kepk->id,
-        'status' => Application::STATUS_DRAFT,
+        'status' => 'draft',
     ]);
 
     Livewire::actingAs($applicant)
@@ -98,7 +99,7 @@ test('applicant can update profile and add members', function () {
     $application = Application::create([
         'user_id' => $applicant->id,
         'kepk_id' => $this->kepk->id,
-        'status' => Application::STATUS_DRAFT,
+        'status' => 'draft',
     ]);
 
     Livewire::actingAs($applicant)
@@ -134,7 +135,7 @@ test('applicant can submit draft application', function () {
     $application = Application::create([
         'user_id' => $applicant->id,
         'kepk_id' => $this->kepk->id,
-        'status' => Application::STATUS_DRAFT,
+        'status' => 'draft',
     ]);
 
     $application->information()->create([
@@ -148,7 +149,7 @@ test('applicant can submit draft application', function () {
 
     $this->assertDatabaseHas('applications', [
         'id' => $application->id,
-        'status' => Application::STATUS_SUBMITTED,
+        'status' => 'submitted',
     ]);
 });
 
@@ -159,7 +160,7 @@ test('applicant cannot access other applicant application', function () {
     $application1 = Application::create([
         'user_id' => $applicant1->id,
         'kepk_id' => $this->kepk->id,
-        'status' => Application::STATUS_DRAFT,
+        'status' => 'draft',
     ]);
 
     $this->actingAs($applicant2)

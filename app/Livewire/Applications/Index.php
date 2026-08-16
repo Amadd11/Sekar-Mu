@@ -63,7 +63,7 @@ class Index extends Component
 
         return view('livewire.applications.index', [
             'applications' => $applications,
-            'statuses' => Application::STATUSES,
+            'statuses' => Application::statuses(),
         ])->layout('layouts.app');
     }
 }

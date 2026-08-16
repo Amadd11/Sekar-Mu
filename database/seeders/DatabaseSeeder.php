@@ -27,7 +27,8 @@ class DatabaseSeeder extends Seeder
         app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
         // 1. Create Roles
-        foreach (User::ROLES as $role) {
+        $roles = ['admin', 'applicant', 'reviewer'];
+        foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
 
@@ -40,7 +41,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $admin->syncRoles([User::ROLE_ADMIN]);
+        $admin->syncRoles(['admin']);
 
         $applicant = User::updateOrCreate(
             ['email' => 'applicant@sekarmu.test'],
@@ -50,7 +51,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $applicant->syncRoles([User::ROLE_APPLICANT]);
+        $applicant->syncRoles(['applicant']);
 
         $reviewer = User::updateOrCreate(
             ['email' => 'reviewer@sekarmu.test'],
@@ -60,7 +61,7 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        $reviewer->syncRoles([User::ROLE_REVIEWER]);
+        $reviewer->syncRoles(['reviewer']);
 
         // 3. Create Sample Institutions & KEPKs
         $institution1 = Institution::firstOrCreate(
@@ -108,7 +109,7 @@ class DatabaseSeeder extends Seeder
                 'kepk_id' => $kepk1->id,
             ],
             [
-                'status' => Application::STATUS_DRAFT,
+                'status' => 'draft',
                 'submitted_at' => null,
             ]
         );
@@ -157,5 +158,8 @@ class DatabaseSeeder extends Seeder
                 'phone' => '081298765432',
             ]
         );
+
+        // 5. Seed 5 Assessment Sections & Standard Items
+        $this->call(AssessmentInstrumentSeeder::class);
     }
 }

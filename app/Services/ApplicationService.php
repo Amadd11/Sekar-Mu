@@ -23,7 +23,7 @@ class ApplicationService
             $application = Application::create([
                 'user_id' => $user->id,
                 'kepk_id' => $data['kepk_id'],
-                'status' => Application::STATUS_DRAFT,
+                'status' => 'draft',
             ]);
 
             ApplicationInformation::create([
@@ -125,8 +125,8 @@ class ApplicationService
 
         return DB::transaction(function () use ($application) {
             $newStatus = $application->isRevisionRequired()
-                ? Application::STATUS_RESUBMITTED
-                : Application::STATUS_SUBMITTED;
+                ? 'resubmitted'
+                : 'submitted';
 
             return $application->update([
                 'status' => $newStatus,
