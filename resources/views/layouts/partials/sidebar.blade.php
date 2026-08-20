@@ -1,192 +1,147 @@
 @php
     $user = auth()->user();
     $latestApp = \App\Models\SuratPengajuan::where('user_id', $user->id)->latest()->first();
-    if (!$latestApp && ($user->isAdmin() || $user->isReviewer())) {
+    if (!$latestApp) {
         $latestApp = \App\Models\SuratPengajuan::latest()->first();
     }
 @endphp
 
-<!-- Left Sidebar -->
+<!-- Left Sidebar (Classic Sekar-Mu Navy Theme) -->
 <aside
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-    class="fixed inset-y-0 left-0 z-50 w-72 bg-[#174668] text-white flex flex-col transition-transform duration-300 ease-in-out lg:static lg:inset-auto lg:translate-x-0 shrink-0 shadow-lg border-r border-[#133a57]"
+    class="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#174668] text-white flex flex-col transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen shrink-0 shadow-lg border-r border-[#133a57]"
 >
     <!-- Brand Header -->
     <div class="p-5 border-b border-[#1f557c]/60 bg-[#133e5f]">
         <div class="flex items-center gap-3">
             <div class="text-3xl select-none">🌸</div>
             <div>
-                <div class="text-xl font-black tracking-tight text-white leading-tight">Sekar-Mu</div>
+                <div class="text-xl font-black tracking-tight text-white leading-tight font-display">Sekar-Mu</div>
                 <div class="text-[10px] font-bold tracking-widest text-pink-300 uppercase mt-0.5">BUNGA SEKAR 🌸</div>
             </div>
         </div>
-        <p class="text-[10px] text-teal-100/70 mt-3 leading-relaxed">
+        <p class="text-[10px] text-teal-100/80 mt-2.5 leading-relaxed">
             Sistem Evaluasi dan Akreditasi Komite Etik Penelitian Kesehatan
         </p>
     </div>
 
     <!-- Navigation Links -->
-    <div class="flex-1 overflow-y-auto py-4 px-3 space-y-6 text-xs custom-scrollbar">
+    <div class="flex-1 overflow-y-auto py-5 px-3 space-y-6 text-xs custom-scrollbar">
         <!-- Section: UTAMA -->
         <div>
-            <div class="px-3 text-[10px] font-bold tracking-wider text-teal-200/60 uppercase mb-2">
-                Utama
-            </div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Utama</p>
             <nav class="space-y-1">
                 <a
                     href="{{ route('dashboard') }}"
-                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('dashboard') ? 'bg-[#225c84] text-white font-bold shadow-2xs border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('dashboard') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                     wire:navigate
                 >
-                    <span class="text-sm">📊</span>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('dashboard') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">dashboard</span>
                     <span>Dashboard</span>
                 </a>
 
                 @hasanyrole('reviewer|admin')
                     <a
                         href="{{ route('penilaian.index') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('penilaian.*') ? 'bg-[#225c84] text-white font-bold shadow-2xs border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('penilaian.*') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
-                        <span class="text-sm">🔍</span>
-                        <span>Portal Penilaian Etik</span>
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('penilaian.*') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">clinical_notes</span>
+                        <span>Portal Penilaian</span>
                     </a>
                 @endhasanyrole
             </nav>
         </div>
 
-        <!-- Section: FORMULIR PENGAJUAN -->
+        <!-- Section: BORANG PENGAJUAN (B01) -->
+        @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
         <div>
-            <div class="px-3 text-[10px] font-bold tracking-wider text-teal-200/60 uppercase mb-2">
-                Formulir Pengajuan
-            </div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Borang Pengajuan (B01)</p>
             <nav class="space-y-1">
                 <a
                     href="{{ route('pengajuan.index') }}"
-                    class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.index') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.index') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                     wire:navigate
                 >
-                    <span class="text-sm">📄</span>
-                    <span>Surat Pengajuan (B01-01)</span>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.index') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">description</span>
+                    <span>B01-01: Surat Pengajuan</span>
                 </a>
 
                 @if ($latestApp)
                     <a
-                        href="{{ route('pengajuan.formulir-aplikasi', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.formulir-aplikasi') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="text-sm">📝</span>
-                        <span>Formulir Aplikasi (B01-02)</span>
-                    </a>
-
-                    <a
                         href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
-                        <span class="text-sm">📋</span>
-                        <span>Evaluasi Diri (B01-03)</span>
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+                        <span>B01-03: Evaluasi Diri</span>
                     </a>
 
                     <a
                         href="{{ route('pengajuan.list-protokol', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.list-protokol') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.list-protokol') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
-                        <span class="text-sm">📑</span>
-                        <span>List Protokol (B01-04)</span>
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.list-protokol') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">list_alt</span>
+                        <span>B01-04: List Protokol Riset</span>
                     </a>
 
                     <a
                         href="{{ route('pengajuan.dokumen', $latestApp) }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition {{ request()->routeIs('pengajuan.dokumen') ? 'bg-[#225c84] text-white font-bold border-l-3 border-teal-400' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.dokumen') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
                         wire:navigate
                     >
-                        <span class="text-sm">📁</span>
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.dokumen') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">folder</span>
                         <span>Dokumen Lampiran</span>
                     </a>
                 @else
                     <a
-                        href="{{ route('pengajuan.create') }}"
-                        class="flex items-center gap-2.5 px-3 py-2 rounded-lg font-medium transition text-teal-100/80 hover:bg-[#1f5379] hover:text-white"
+                        href="{{ route('pengajuan.index', ['create' => 1]) }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition text-teal-100/80 hover:bg-[#1f5379] hover:text-white"
                         wire:navigate
                     >
-                        <span class="text-sm">📝</span>
+                        <span class="material-symbols-outlined text-[20px] text-teal-300">add_circle</span>
                         <span>Buat Pengajuan Baru</span>
                     </a>
                 @endif
             </nav>
         </div>
+        @endhasanyrole
 
-        <!-- Section: BORANG EVALUASI DIRI -->
+        <!-- Section: HASIL & PELAPORAN -->
         <div>
-            <div class="px-3 text-[10px] font-bold tracking-wider text-teal-200/60 uppercase mb-2">
-                Borang Evaluasi Diri
-            </div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Hasil & Pelaporan</p>
             <nav class="space-y-1">
                 @if ($latestApp)
-                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">🏛️</span>
-                        <span>A — Struktur & Komposisi</span>
-                    </a>
-                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">📜</span>
-                        <span>B — Kepatuhan Kebijakan</span>
-                    </a>
-                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">🔍</span>
-                        <span>C — Kelengkapan Telaah</span>
-                    </a>
-                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">📢</span>
-                        <span>D — Komunikasi Keputusan</span>
-                    </a>
-                    <a href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">📁</span>
-                        <span>E — Dokumentasi & Arsip</span>
-                    </a>
-                @else
-                    <a href="{{ route('pengajuan.create') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                        <span class="text-sm">📋</span>
-                        <span>Mulai Evaluasi Diri</span>
+                    <a
+                        href="{{ route('pengajuan.show', $latestApp) }}"
+                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.show') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                        wire:navigate
+                    >
+                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.show') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">verified</span>
+                        <span>Hasil Akreditasi</span>
                     </a>
                 @endif
             </nav>
         </div>
-
-        <!-- Section: LAPORAN -->
-        <div>
-            <div class="px-3 text-[10px] font-bold tracking-wider text-teal-200/60 uppercase mb-2">
-                Laporan
-            </div>
-            <nav class="space-y-1">
-                <a href="{{ route('pengajuan.index') }}" class="flex items-center gap-2.5 px-3 py-2 rounded-lg text-teal-100/80 hover:bg-[#1f5379] hover:text-white transition" wire:navigate>
-                    <span class="text-sm">📊</span>
-                    <span>Rekapitulasi & Laporan</span>
-                </a>
-            </nav>
-        </div>
     </div>
 
-    <!-- User Footer Card -->
-    <div class="p-3 border-t border-[#1f557c]/60 bg-[#133e5f]">
-        <div class="flex items-center justify-between">
+    <!-- User Profile Footer -->
+    <div class="p-3.5 border-t border-[#1f557c]/60 bg-[#133e5f]">
+        <div class="flex items-center justify-between px-3 py-2 bg-[#174668]/80 rounded-xl hover:bg-[#225c84] transition-colors">
             <div class="flex items-center gap-2.5 overflow-hidden">
-                <div class="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-xs shrink-0">
+                <div class="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-2xs">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                 </div>
                 <div class="overflow-hidden">
-                    <div class="text-xs font-semibold text-white truncate">{{ auth()->user()->name }}</div>
-                    <div class="text-[10px] text-teal-200/70 truncate capitalize">{{ auth()->user()->roles->first()?->name ?? 'User' }}</div>
+                    <p class="text-xs font-semibold text-white truncate leading-none">{{ auth()->user()->name }}</p>
+                    <p class="text-[10px] text-teal-200/70 truncate capitalize mt-1 leading-none">{{ auth()->user()->roles->first()?->name ?? 'User' }}</p>
                 </div>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" title="Keluar" class="p-1.5 rounded-lg text-teal-200/80 hover:text-red-300 hover:bg-red-950/40 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                    </svg>
+                <button type="submit" title="Keluar" class="p-1 rounded-lg text-teal-200 hover:text-white hover:bg-[#1f5379] transition">
+                    <span class="material-symbols-outlined text-[18px]">logout</span>
                 </button>
             </form>
         </div>

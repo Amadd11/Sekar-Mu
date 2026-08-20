@@ -5,16 +5,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'Sekar-Mu') }} — Sistem Etik Komite Akreditasi & Riset</title>
+        <title>{{ config('app.name', 'Sekar-Mu') }} — Sistem Evaluasi & Akreditasi KEPK</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+        <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased text-slate-900 bg-slate-50 min-h-full flex flex-col justify-center">
+    <body class="font-sans antialiased text-slate-800 bg-gradient-to-br from-[#dbeafe] via-[#ccfbf1] to-[#ede9fe] min-h-full flex flex-col justify-center">
         {{ $slot }}
     </body>
 </html>

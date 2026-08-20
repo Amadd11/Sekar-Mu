@@ -1,23 +1,16 @@
 <div class="space-y-6 max-w-5xl mx-auto">
     <!-- Header Banner -->
-    <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="font-mono text-xs font-bold text-slate-500">#APP-{{ str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) }}</span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border {{ \App\Models\SuratPengajuan::statusBadgeClasses($suratPengajuan->status) }}">
-                    {{ \App\Models\SuratPengajuan::statusLabel($suratPengajuan->status) }}
-                </span>
-            </div>
-            <h1 class="text-lg font-bold text-slate-900">Dokumen & Lampiran Berkas Pengajuan</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Unggah berkas SK KEPK, pedoman standar operasional (SOP), dan dokumen bukti pendukung.</p>
-        </div>
-
-        <div>
+    <x-pengajuan.header
+        :surat="$suratPengajuan"
+        :title="'Dokumen & Lampiran Berkas Pengajuan'"
+        :subtitle="'Unggah berkas SK KEPK, pedoman standar operasional (SOP), dan dokumen bukti pendukung.'"
+    >
+        <x-slot:actions>
             <a href="{{ route('pengajuan.show', $suratPengajuan) }}" class="btn-outline btn-sm text-xs" wire:navigate>
-                &larr; Kembali ke Detail Pengajuan
+                &larr; Detail Pengajuan
             </a>
-        </div>
-    </div>
+        </x-slot:actions>
+    </x-pengajuan.header>
 
     @if (session('status'))
         <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-3.5 rounded-xl flex items-center justify-between">

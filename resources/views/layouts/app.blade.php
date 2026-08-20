@@ -7,14 +7,16 @@
 
         <title>{{ config('app.name', 'Sekar-Mu') }} — Dashboard Akreditasi KEPK</title>
 
-        <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=inter:300,400,500,600,700,800&display=swap" rel="stylesheet" />
+        <!-- Fonts & Icons -->
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased h-full text-slate-800" x-data="{ sidebarOpen: false }">
+    <body class="font-sans antialiased h-full text-slate-800 bg-[#f7fafc]" x-data="{ sidebarOpen: false }">
         <div class="min-h-full flex">
             <!-- Mobile Sidebar Backdrop -->
             <div

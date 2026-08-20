@@ -3,6 +3,7 @@
 namespace App\Livewire\Pengajuan;
 
 use App\Models\Kepk;
+use App\Models\SuratPengajuan;
 use App\Services\PengajuanService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;

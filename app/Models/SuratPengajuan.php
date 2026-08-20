@@ -30,20 +30,30 @@ class SuratPengajuan extends Model
         ];
     }
 
+    public const STATUS_DRAFT = 'draft';
+    public const STATUS_SUBMITTED = 'submitted';
+    public const STATUS_UNDER_REVIEW = 'under_review';
+    public const STATUS_REVISION_REQUIRED = 'revision_required';
+    public const STATUS_RESUBMITTED = 'resubmitted';
+    public const STATUS_APPROVED = 'approved';
+    public const STATUS_REJECTED = 'rejected';
+
+    public const STATUSES = [
+        self::STATUS_DRAFT,
+        self::STATUS_SUBMITTED,
+        self::STATUS_UNDER_REVIEW,
+        self::STATUS_REVISION_REQUIRED,
+        self::STATUS_RESUBMITTED,
+        self::STATUS_APPROVED,
+        self::STATUS_REJECTED,
+    ];
+
     /**
      * @return list<string>
      */
     public static function statuses(): array
     {
-        return [
-            'draft',
-            'submitted',
-            'under_review',
-            'revision_required',
-            'resubmitted',
-            'approved',
-            'rejected',
-        ];
+        return self::STATUSES;
     }
 
     /**
@@ -136,6 +146,22 @@ class SuratPengajuan extends Model
         return $this->hasMany(PenilaianEtik::class, 'surat_pengajuan_id');
     }
 
+    /**
+     * @return HasMany<PenilaianButirAsesor>
+     */
+    public function penilaianButirAsesor(): HasMany
+    {
+        return $this->hasMany(PenilaianButirAsesor::class, 'surat_pengajuan_id');
+    }
+
+    /**
+     * @return HasMany<CorrectiveAction>
+     */
+    public function correctiveActions(): HasMany
+    {
+        return $this->hasMany(CorrectiveAction::class, 'surat_pengajuan_id');
+    }
+
     public function isDraft(): bool
     {
         return $this->status === 'draft';
@@ -180,13 +206,27 @@ class SuratPengajuan extends Model
     {
         return match ($status) {
             'draft' => 'Draft',
-            'submitted' => 'Diajukan (Submitted)',
-            'under_review' => 'Sedang Dinilai (Under Review)',
-            'revision_required' => 'Perlu Perbaikan (Revision Required)',
-            'resubmitted' => 'Diajukan Ulang (Resubmitted)',
-            'approved' => 'Disetujui (Approved)',
-            'rejected' => 'Ditolak (Rejected)',
+            'submitted' => 'Diajukan',
+            'under_review' => 'Sedang Dinilai',
+            'revision_required' => 'Perlu Perbaikan',
+            'resubmitted' => 'Diajukan Ulang',
+            'approved' => 'Disetujui',
+            'rejected' => 'Ditolak',
             default => ucfirst(str_replace('_', ' ', $status)),
+        };
+    }
+
+    public static function statusIcon(string $status): string
+    {
+        return match ($status) {
+            'draft' => 'edit_document',
+            'submitted' => 'send',
+            'under_review' => 'pending',
+            'revision_required' => 'warning',
+            'resubmitted' => 'restart_alt',
+            'approved' => 'verified',
+            'rejected' => 'cancel',
+            default => 'info',
         };
     }
 
@@ -194,12 +234,12 @@ class SuratPengajuan extends Model
     {
         return match ($status) {
             'draft' => 'bg-slate-100 text-slate-700 border-slate-200',
-            'submitted' => 'bg-blue-100 text-blue-700 border-blue-200',
-            'under_review' => 'bg-yellow-100 text-yellow-700 border-yellow-200',
-            'revision_required' => 'bg-orange-100 text-orange-700 border-orange-200',
-            'resubmitted' => 'bg-indigo-100 text-indigo-700 border-indigo-200',
-            'approved' => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-            'rejected' => 'bg-rose-100 text-rose-700 border-rose-200',
+            'submitted' => 'bg-blue-100 text-blue-800 border-blue-200',
+            'under_review' => 'bg-amber-100 text-amber-800 border-amber-200',
+            'revision_required' => 'bg-orange-100 text-orange-800 border-orange-200',
+            'resubmitted' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
+            'approved' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
+            'rejected' => 'bg-red-100 text-red-800 border-red-200',
             default => 'bg-slate-100 text-slate-700 border-slate-200',
         };
     }

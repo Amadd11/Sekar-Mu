@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // 1. Roles
-        $roles = ['admin', 'applicant', 'reviewer'];
+        $roles = ['admin', 'ketua_kepk', 'anggota_kepk', 'reviewer', 'applicant'];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
@@ -27,25 +27,43 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@sekarmu.test'],
             [
-                'name' => 'Admin KEPK',
+                'name' => 'Admin KEPK (Super Admin)',
                 'password' => Hash::make('password'),
             ]
         );
         $admin->syncRoles(['admin']);
 
-        $applicant = User::firstOrCreate(
-            ['email' => 'applicant@sekarmu.test'],
+        $ketua = User::firstOrCreate(
+            ['email' => 'ketua@sekarmu.test'],
             [
-                'name' => 'Dr. Budi Santoso',
+                'name' => 'Dr. dr. H. Budi Santoso, Sp.FK (Ketua KEPK)',
                 'password' => Hash::make('password'),
             ]
         );
-        $applicant->syncRoles(['applicant']);
+        $ketua->syncRoles(['ketua_kepk', 'applicant']);
+
+        $anggota = User::firstOrCreate(
+            ['email' => 'anggota@sekarmu.test'],
+            [
+                'name' => 'apt. Farida Nur Aini, M.Sc. (Anggota KEPK)',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $anggota->syncRoles(['anggota_kepk']);
+
+        $applicant = User::firstOrCreate(
+            ['email' => 'applicant@sekarmu.test'],
+            [
+                'name' => 'Dr. dr. H. Budi Santoso, Sp.FK',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $applicant->syncRoles(['ketua_kepk', 'applicant']);
 
         $reviewer = User::firstOrCreate(
             ['email' => 'reviewer@sekarmu.test'],
             [
-                'name' => 'Prof. Siti Rahayu (Penelaah)',
+                'name' => 'Prof. Siti Rahayu, Ph.D (Asesor Akreditasi)',
                 'password' => Hash::make('password'),
             ]
         );

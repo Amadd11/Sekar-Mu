@@ -59,14 +59,38 @@ class User extends Authenticatable
         return $this->hasMany(PenilaianEtik::class, 'penilai_id');
     }
 
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_KETUA_KEPK = 'ketua_kepk';
+    public const ROLE_ANGGOTA_KEPK = 'anggota_kepk';
+    public const ROLE_REVIEWER = 'reviewer';
+    public const ROLE_APPLICANT = 'applicant';
+
+    public const ROLES = [
+        self::ROLE_ADMIN,
+        self::ROLE_KETUA_KEPK,
+        self::ROLE_ANGGOTA_KEPK,
+        self::ROLE_REVIEWER,
+        self::ROLE_APPLICANT,
+    ];
+
     public function isAdmin(): bool
     {
         return $this->hasRole('admin');
     }
 
+    public function isKetuaKepk(): bool
+    {
+        return $this->hasRole('ketua_kepk');
+    }
+
+    public function isAnggotaKepk(): bool
+    {
+        return $this->hasRole('anggota_kepk');
+    }
+
     public function isApplicant(): bool
     {
-        return $this->hasRole('applicant');
+        return $this->hasAnyRole(['applicant', 'ketua_kepk', 'anggota_kepk']);
     }
 
     public function isReviewer(): bool

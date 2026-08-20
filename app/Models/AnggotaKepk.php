@@ -16,9 +16,22 @@ class AnggotaKepk extends Model
         'surat_pengajuan_id',
         'nama',
         'jabatan',
+        'peran_etik',
+        'keahlian',
+        'afiliasi',
+        'gender',
+        'pendidikan',
+        'status_aktif',
         'email',
         'telepon',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'status_aktif' => 'boolean',
+        ];
+    }
 
     /**
      * @return BelongsTo<SuratPengajuan, AnggotaKepk>

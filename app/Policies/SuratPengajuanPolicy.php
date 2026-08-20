@@ -14,7 +14,7 @@ class SuratPengajuanPolicy
 
     public function view(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin() || $user->isReviewer()) {
+        if ($user->isAdmin() || $user->isReviewer() || $user->isApplicant()) {
             return true;
         }
 
@@ -32,6 +32,10 @@ class SuratPengajuanPolicy
             return true;
         }
 
+        if ($user->isApplicant() && $surat->isEditable()) {
+            return true;
+        }
+
         return $user->id === $surat->user_id && $surat->isEditable();
     }
 
@@ -41,7 +45,11 @@ class SuratPengajuanPolicy
             return true;
         }
 
-        return $user->id === $surat->user_id && $surat->isDraft();
+        if (($user->isKetuaKepk() || $user->id === $surat->user_id) && $surat->isDraft()) {
+            return true;
+        }
+
+        return false;
     }
 
     public function submit(User $user, SuratPengajuan $surat): bool
@@ -50,6 +58,10 @@ class SuratPengajuanPolicy
             return true;
         }
 
-        return $user->id === $surat->user_id && $surat->isEditable();
+        if (($user->isKetuaKepk() || $user->id === $surat->user_id) && $surat->isEditable()) {
+            return true;
+        }
+
+        return false;
     }
 }

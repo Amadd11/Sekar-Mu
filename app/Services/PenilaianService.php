@@ -106,6 +106,110 @@ class PenilaianService
     }
 
     /**
+     * Save an independent item assessment by a reviewer.
+     *
+     * @param  array<string, mixed>  $data
+     */
+    public function saveItemAssessment(SuratPengajuan $surat, User $penilai, int $butirId, array $data): \App\Models\PenilaianButirAsesor
+    {
+        return DB::transaction(function () use ($surat, $penilai, $butirId, $data) {
+            return \App\Models\PenilaianButirAsesor::updateOrCreate(
+                [
+                    'surat_pengajuan_id' => $surat->id,
+                    'penilai_id' => $penilai->id,
+                    'butir_evaluasi_id' => $butirId,
+                ],
+                [
+                    'skor' => $data['skor'] ?? null,
+                    'evidence_strength' => $data['evidence_strength'] ?? null,
+                    'catatan' => $data['catatan'] ?? null,
+                    'temuan' => $data['temuan'] ?? null,
+                    'rekomendasi' => $data['rekomendasi'] ?? null,
+                ]
+            );
+        });
+    }
+
+    /**
+     * Generate Comparison Matrix: Self-Assessment vs Assessor Score vs Gap per item.
+     *
+     * @return array<string, mixed>
+     */
+    public function getComparisonMatrix(SuratPengajuan $surat, ?int $penilaiId = null): array
+    {
+        $allSections = \App\Models\BagianEvaluasi::with(['butir.kelompok'])->orderBy('urutan')->get();
+        $selfAnswers = $surat->jawabanEvaluasi()->get()->keyBy('butir_evaluasi_id');
+
+        $assessorQuery = \App\Models\PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id);
+        if ($penilaiId) {
+            $assessorQuery->where('penilai_id', $penilaiId);
+        }
+        $assessorAnswers = $assessorQuery->get()->keyBy('butir_evaluasi_id');
+
+        $matrix = [];
+        $totalItems = 0;
+        $totalMatches = 0;
+        $totalGaps = 0;
+
+        foreach ($allSections as $section) {
+            $sectionRows = [];
+
+            foreach ($section->butir as $item) {
+                $totalItems++;
+                $selfAns = $selfAnswers->get($item->id);
+                $assessorAns = $assessorAnswers->get($item->id);
+
+                $selfScore = $selfAns?->skor;
+                $assessorScore = $assessorAns?->skor;
+
+                $hasGap = false;
+                $gapDescription = '0 (Sesuai)';
+
+                if ($selfScore && $assessorScore) {
+                    if ($selfScore !== $assessorScore) {
+                        $hasGap = true;
+                        $totalGaps++;
+                        $gapDescription = "Gap ({$selfScore} vs {$assessorScore})";
+                    } else {
+                        $totalMatches++;
+                    }
+                } elseif ($selfScore || $assessorScore) {
+                    $hasGap = true;
+                    $totalGaps++;
+                    $gapDescription = 'Gap (Belum Lengkap)';
+                }
+
+                $sectionRows[] = [
+                    'item_id' => $item->id,
+                    'kode_butir' => "{$section->kode}.{$item->urutan}",
+                    'pertanyaan' => $item->pertanyaan,
+                    'is_critical' => $item->is_critical,
+                    'self_score' => $selfScore ?? '-',
+                    'self_catatan' => $selfAns?->catatan,
+                    'self_bukti' => $selfAns?->bukti,
+                    'assessor_score' => $assessorScore ?? '-',
+                    'assessor_catatan' => $assessorAns?->catatan,
+                    'assessor_temuan' => $assessorAns?->temuan,
+                    'has_gap' => $hasGap,
+                    'gap_label' => $gapDescription,
+                ];
+            }
+
+            $matrix[$section->kode] = [
+                'section_name' => $section->nama,
+                'items' => $sectionRows,
+            ];
+        }
+
+        return [
+            'total_items' => $totalItems,
+            'total_matches' => $totalMatches,
+            'total_gaps' => $totalGaps,
+            'sections' => $matrix,
+        ];
+    }
+
+    /**
      * Finalize the committee's decision on the application.
      */
     public function finalizeDecision(SuratPengajuan $surat, string $keputusan): SuratPengajuan

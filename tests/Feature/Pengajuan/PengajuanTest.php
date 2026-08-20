@@ -15,9 +15,6 @@ use App\Models\Institusi;
 use App\Models\Kepk;
 use App\Models\SuratPengajuan;
 use App\Models\User;
-use App\Services\EvaluasiDiriService;
-use App\Services\PengajuanService;
-use App\Services\PenilaianService;
 use Database\Seeders\InstrumenEvaluasiSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -32,17 +29,19 @@ beforeEach(function () {
         Role::firstOrCreate(['name' => $role]);
     }
 
-    $this->institusi = Institusi::create([
-        'name' => 'Universitas Muhammadiyah Yogyakarta',
-        'city' => 'Yogyakarta',
-    ]);
+    $this->institusi = Institusi::firstOrCreate(
+        ['name' => 'Universitas Muhammadiyah Yogyakarta'],
+        ['city' => 'Yogyakarta']
+    );
 
-    $this->kepk = Kepk::create([
-        'institusi_id' => $this->institusi->id,
-        'name' => 'KEPK UMY',
-        'code' => 'KEPK-UMY-001',
-        'status' => 'active',
-    ]);
+    $this->kepk = Kepk::firstOrCreate(
+        ['code' => 'KEPK-UMY-001'],
+        [
+            'institusi_id' => $this->institusi->id,
+            'name' => 'KEPK UMY',
+            'status' => 'active',
+        ]
+    );
 
     $this->seed(InstrumenEvaluasiSeeder::class);
 });
@@ -68,7 +67,9 @@ test('pemohon dapat membuat surat pengajuan baru', function () {
     ]);
 });
 
-test('pemohon dapat mengisi evaluasi diri dan rekap skor terhitung', function () {
+test('pemohon dapat mengisi kelengkapan bukti, catatan, dan mengunggah berkas per butir', function () {
+    Storage::fake('public');
+
     $pemohon = User::factory()->applicant()->create();
     $surat = SuratPengajuan::create([
         'user_id' => $pemohon->id,
@@ -77,16 +78,33 @@ test('pemohon dapat mengisi evaluasi diri dan rekap skor terhitung', function ()
     ]);
 
     $butirPertama = BagianEvaluasi::first()->butir()->first();
+    $fakeFile = UploadedFile::fake()->create('sk_rektor_kepk.pdf', 500, 'application/pdf');
 
     Livewire::actingAs($pemohon)
         ->test(EvaluasiDiri::class, ['suratPengajuan' => $surat])
-        ->call('setSkor', $butirPertama->id, 'A')
+        ->set("bukti.{$butirPertama->id}", 'SK Rektor No. 12/2025')
+        ->set("catatan.{$butirPertama->id}", 'Struktur keanggotaan KEPK telah disahkan')
+        ->set("uploadedFiles.{$butirPertama->id}", $fakeFile)
+        ->call('uploadBerkas', $butirPertama->id)
         ->assertHasNoErrors();
 
     $this->assertDatabaseHas('jawaban_evaluasi', [
         'surat_pengajuan_id' => $surat->id,
         'butir_evaluasi_id' => $butirPertama->id,
-        'skor' => 'A',
+        'file_name' => 'sk_rektor_kepk.pdf',
+        'catatan' => 'Struktur keanggotaan KEPK telah disahkan',
+    ]);
+
+    // Test hapus berkas
+    Livewire::actingAs($pemohon)
+        ->test(EvaluasiDiri::class, ['suratPengajuan' => $surat])
+        ->call('hapusBerkas', $butirPertama->id)
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('jawaban_evaluasi', [
+        'surat_pengajuan_id' => $surat->id,
+        'butir_evaluasi_id' => $butirPertama->id,
+        'file_path' => null,
     ]);
 });
 
@@ -182,4 +200,160 @@ test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan perset
 
     $surat->refresh();
     expect($surat->status)->toBe('approved');
+});
+
+test('pemohon dicegah mengakses halaman penilaian dan penugasan', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+
+    $this->actingAs($pemohon)->get(route('penilaian.index'))->assertForbidden();
+    $this->actingAs($pemohon)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
+});
+
+test('reviewer dicegah membuat pengajuan dan menugaskan penilai', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $reviewer = User::factory()->reviewer()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+
+    $this->actingAs($reviewer)->get(route('pengajuan.create'))->assertForbidden();
+    $this->actingAs($reviewer)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
+});
+
+test('reviewer tidak ditugaskan dicegah menilai berkas', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $unassignedReviewer = User::factory()->reviewer()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+
+    $this->actingAs($unassignedReviewer)->get(route('penilaian.show', $surat))->assertForbidden();
+});
+
+test('role yang berhak dapat mengakses route masing-masing', function () {
+    $admin = User::factory()->admin()->create();
+    $pemohon = User::factory()->applicant()->create();
+    $reviewer = User::factory()->reviewer()->create();
+
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+    $surat->penilai()->attach($reviewer->id, ['ditugaskan_oleh' => $admin->id, 'tanggal_penugasan' => now()]);
+
+    $this->actingAs($reviewer)->get(route('penilaian.show', $surat))->assertSuccessful();
+    $this->actingAs($admin)->get(route('penilaian.tugaskan', $surat))->assertSuccessful();
+    $this->actingAs($admin)->get(route('pengajuan.create'))->assertSuccessful();
+    $this->actingAs($pemohon)->get(route('pengajuan.create'))->assertSuccessful();
+});
+
+test('compliance service menghitung skor 164 butir, klasifikasi akreditasi, dan critical findings', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'draft',
+    ]);
+
+    $allButir = \App\Models\ButirEvaluasi::all();
+    expect($allButir->count())->toBe(164);
+
+    $complianceService = app(\App\Services\ComplianceService::class);
+
+    // Initial empty metrics
+    $initialMetrics = $complianceService->calculateComplianceMetrics($surat);
+    expect($initialMetrics['overall_compliance'])->toBe(0);
+    expect($initialMetrics['prediction']['type'])->toBe('Belum Memenuhi Syarat');
+
+    // Beri nilai A pada 140 butir (140/164 ~ 85%)
+    foreach ($allButir->take(140) as $butir) {
+        $surat->jawabanEvaluasi()->create([
+            'butir_evaluasi_id' => $butir->id,
+            'skor' => 'A',
+        ]);
+    }
+
+    $metrics = $complianceService->calculateComplianceMetrics($surat);
+    expect($metrics['overall_compliance'])->toBeGreaterThanOrEqual(80);
+    expect($metrics['prediction']['type'])->toBe('Tipe A');
+
+    // Beri nilai C pada butir kritis
+    $criticalItem = \App\Models\ButirEvaluasi::where('is_critical', true)->first();
+    $surat->jawabanEvaluasi()->updateOrCreate(
+        ['butir_evaluasi_id' => $criticalItem->id],
+        ['skor' => 'C', 'catatan' => 'SOP belum disahkan']
+    );
+
+    $findings = $complianceService->getCriticalFindings($surat);
+    expect($findings)->not->toBeEmpty();
+    expect($findings[0]['butir_id'])->toBe($criticalItem->id);
+
+    // Karena ada C, maka tidak lagi Tipe A
+    $metricsAfterC = $complianceService->calculateComplianceMetrics($surat);
+    expect($metricsAfterC['prediction']['type'])->toBe('Tipe B');
+});
+
+test('asesor dapat menilai independen dan menghasilkan matriks komparasi gap', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $penilai = User::factory()->reviewer()->create();
+    $admin = User::factory()->admin()->create();
+
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+    $surat->penilai()->attach($penilai->id, ['ditugaskan_oleh' => $admin->id, 'tanggal_penugasan' => now()]);
+
+    $butir1 = \App\Models\ButirEvaluasi::first();
+    $butir2 = \App\Models\ButirEvaluasi::skip(1)->first();
+
+    // Pemohon mengisi Self-Assessment (butir1 = A, butir2 = A)
+    $surat->jawabanEvaluasi()->create(['butir_evaluasi_id' => $butir1->id, 'skor' => 'A']);
+    $surat->jawabanEvaluasi()->create(['butir_evaluasi_id' => $butir2->id, 'skor' => 'A']);
+
+    // Asesor menilai independen (butir1 = A (match), butir2 = B (gap))
+    $penilaianService = app(\App\Services\PenilaianService::class);
+    $penilaianService->saveItemAssessment($surat, $penilai, $butir1->id, ['skor' => 'A']);
+    $penilaianService->saveItemAssessment($surat, $penilai, $butir2->id, ['skor' => 'B', 'temuan' => 'Bukti implementasi belum lengkap']);
+
+    $matrix = $penilaianService->getComparisonMatrix($surat, $penilai->id);
+    expect($matrix['total_matches'])->toBeGreaterThanOrEqual(1);
+    expect($matrix['total_gaps'])->toBeGreaterThanOrEqual(1);
+});
+
+test('corrective action service dapat membuat dan memperbarui status siklus tindakan perbaikan', function () {
+    $pemohon = User::factory()->applicant()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'submitted',
+    ]);
+
+    $service = app(\App\Services\CorrectiveActionService::class);
+    $action = $service->createAction($surat, [
+        'finding' => 'SK Susunan Keanggotaan KEPK belum diperbarui',
+        'risk' => 'Legalitas telaah protokol berpotensi tidak sah',
+        'action' => 'Penerbitan SK Rektor terbaru untuk kepengurusan KEPK',
+        'pic_name' => 'Dr. Budi',
+        'priority' => 'HIGH',
+        'deadline' => now()->addDays(14)->toDateString(),
+    ]);
+
+    expect($action->status)->toBe('OPEN');
+    expect($action->priority)->toBe('HIGH');
+
+    $updated = $service->updateStatus($action, 'IN_PROGRESS', 'Sedang proses tanda tangan Rektor.');
+    expect($updated->status)->toBe('IN_PROGRESS');
+    expect($updated->verification_notes)->toBe('Sedang proses tanda tangan Rektor.');
 });

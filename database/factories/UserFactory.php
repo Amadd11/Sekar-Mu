@@ -63,4 +63,18 @@ class UserFactory extends Factory
             $user->assignRole('applicant');
         });
     }
+
+    public function ketuaKepk(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('ketua_kepk');
+        });
+    }
+
+    public function anggotaKepk(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('anggota_kepk');
+        });
+    }
 }

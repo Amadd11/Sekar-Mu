@@ -74,9 +74,10 @@
                                     {{ $item->kepk->name ?? '-' }} • {{ $item->formulirAplikasi->kota ?? '-' }}
                                 </div>
                             </td>
-                            <td class="px-5 py-4">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border {{ \App\Models\SuratPengajuan::statusBadgeClasses($item->status) }}">
-                                    {{ \App\Models\SuratPengajuan::statusLabel($item->status) }}
+                            <td class="px-5 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border whitespace-nowrap {{ \App\Models\SuratPengajuan::statusBadgeClasses($item->status) }}">
+                                    <span class="material-symbols-outlined text-[13px]">{{ \App\Models\SuratPengajuan::statusIcon($item->status) }}</span>
+                                    <span>{{ \App\Models\SuratPengajuan::statusLabel($item->status) }}</span>
                                 </span>
                             </td>
                             <td class="px-5 py-4">

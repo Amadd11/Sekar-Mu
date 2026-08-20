@@ -3,6 +3,7 @@
 namespace App\Livewire\Pengajuan;
 
 use App\Models\SuratPengajuan;
+use App\Services\ComplianceService;
 use App\Services\PengajuanService;
 use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
@@ -24,7 +25,11 @@ class Show extends Component
             'listProtokol',
             'dokumen.pengunggah',
             'penilai',
-            'penilaianEtik.penilai',
+            'penilaianEtik.penilai.roles',
+            'penilaianEtik.catatanPenilaian.user',
+            'penilaianButirAsesor.butir',
+            'correctiveActions.butir',
+            'jawabanEvaluasi.butir',
             'user',
         ]);
     }
@@ -68,8 +73,21 @@ class Show extends Component
         return $this->redirect(route('pengajuan.index'), navigate: true);
     }
 
-    public function render(): View
+    public function render(ComplianceService $complianceService): View
     {
-        return view('livewire.pengajuan.show')->layout('layouts.app');
+        $this->suratPengajuan->load([
+            'penilaianButirAsesor.butir',
+            'penilaianEtik.penilai',
+            'jawabanEvaluasi.butir',
+            'correctiveActions.butir',
+        ]);
+
+        $metrics = $complianceService->calculateComplianceMetrics($this->suratPengajuan);
+        $gapAnalysis = $complianceService->calculateGapAnalysis($this->suratPengajuan);
+
+        return view('livewire.pengajuan.show', [
+            'metrics' => $metrics,
+            'gapAnalysis' => $gapAnalysis,
+        ])->layout('layouts.app');
     }
 }

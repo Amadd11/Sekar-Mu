@@ -21,8 +21,10 @@ class ListProtokolService
                 'nomor_protokol' => $data['nomor_protokol'],
                 'judul' => $data['judul'],
                 'peneliti_utama' => $data['peneliti_utama'],
+                'institusi_asal' => $data['institusi_asal'] ?? null,
+                'review_type' => $data['review_type'] ?? 'expedited',
                 'tanggal_pengajuan' => $data['tanggal_pengajuan'] ?? now()->toDateString(),
-                'status' => $data['status'] ?? 'draft',
+                'status' => $data['status'] ?? 'approved',
             ]);
         });
     }
@@ -39,6 +41,8 @@ class ListProtokolService
                 'nomor_protokol' => $data['nomor_protokol'],
                 'judul' => $data['judul'],
                 'peneliti_utama' => $data['peneliti_utama'],
+                'institusi_asal' => $data['institusi_asal'] ?? $protokol->institusi_asal,
+                'review_type' => $data['review_type'] ?? $protokol->review_type,
                 'tanggal_pengajuan' => $data['tanggal_pengajuan'] ?? $protokol->tanggal_pengajuan,
                 'status' => $data['status'] ?? $protokol->status,
             ]);
