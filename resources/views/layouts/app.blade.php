@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full bg-slate-100">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="bg-slate-100 min-h-screen">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,13 +16,13 @@
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased h-full text-slate-800 bg-[#f7fafc]" x-data="{ sidebarOpen: false }">
-        <div class="min-h-full flex">
+    <body class="font-sans antialiased text-slate-800 bg-[#f7fafc] min-h-screen" x-data="{ sidebarOpen: false }">
+        <div class="min-h-screen flex">
             <!-- Mobile Sidebar Backdrop -->
             <div
                 x-show="sidebarOpen"
                 @click="sidebarOpen = false"
-                class="fixed inset-0 z-40 bg-slate-900/60 backdrop-blur-xs lg:hidden"
+                class="fixed inset-0 z-40 bg-slate-900/25 lg:hidden"
                 style="display: none;"
                 x-transition:enter="transition-opacity ease-linear duration-300"
                 x-transition:enter-start="opacity-0"
@@ -36,7 +36,7 @@
             @include('layouts.partials.sidebar')
 
             <!-- Main Content Area -->
-            <div class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+            <div class="flex-1 flex flex-col min-w-0">
                 <!-- Topbar Partial -->
                 @include('layouts.partials.topbar')
 

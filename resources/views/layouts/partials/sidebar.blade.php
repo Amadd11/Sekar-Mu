@@ -124,6 +124,32 @@
                 @endif
             </nav>
         </div>
+
+        <!-- Section: MASTER DATA & STANDAR (Admin Only) -->
+        @hasrole('admin')
+        <div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Master Data & Pengaturan</p>
+            <nav class="space-y-1">
+                <a
+                    href="{{ route('admin.users.index') }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('admin.users.*') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.users.*') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">manage_accounts</span>
+                    <span>Manajemen Akun</span>
+                </a>
+
+                <a
+                    href="{{ route('admin.kriteria.index') }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('admin.kriteria.*') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.kriteria.*') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">tune</span>
+                    <span>Kriteria & Acuan (164)</span>
+                </a>
+            </nav>
+        </div>
+        @endhasrole
     </div>
 
     <!-- User Profile Footer -->

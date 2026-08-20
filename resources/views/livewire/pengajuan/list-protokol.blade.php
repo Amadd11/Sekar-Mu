@@ -208,7 +208,7 @@
 
     <!-- 4. Interactive Modal Dialog for Adding / Editing Protocol -->
     @if ($showModal)
-        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs transition-opacity animate-fade-in">
+        <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/25 transition-opacity animate-fade-in">
             <div class="bg-white rounded-2xl shadow-xl border border-slate-200 w-full max-w-xl overflow-hidden animate-scale-in">
                 <!-- Modal Header -->
                 <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80">

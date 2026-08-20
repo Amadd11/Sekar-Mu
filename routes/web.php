@@ -11,6 +11,7 @@ use App\Livewire\Pengajuan\Show as PengajuanShow;
 use App\Livewire\Penilaian\Index as PenilaianIndex;
 use App\Livewire\Penilaian\LembarPenilaian as PenilaianWorkbench;
 use App\Livewire\Penilaian\TugaskanPenilai as PenilaianTugaskan;
+use App\Livewire\Admin\KriteriaEvaluasi as AdminKriteriaEvaluasi;
 use Illuminate\Support\Facades\Route;
 
 // Halaman utama (Root) langsung mengarah ke Login untuk tamu, atau Dashboard untuk yang sudah masuk
@@ -62,6 +63,8 @@ Route::middleware(['auth'])->group(function () {
 // 5. Modul Khusus Administrator (Admin Only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', PenilaianTugaskan::class)->name('penilaian.tugaskan');
+    Route::get('/admin/kriteria', AdminKriteriaEvaluasi::class)->name('admin.kriteria.index');
+    Route::get('/admin/users', \App\Livewire\Admin\ManajemenAkun::class)->name('admin.users.index');
 });
 
 require __DIR__.'/auth.php';
