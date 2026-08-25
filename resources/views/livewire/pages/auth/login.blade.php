@@ -183,26 +183,17 @@ new #[Layout('layouts.guest')] class extends Component
                     <div class="pt-2">
                         <button
                             type="submit"
-                            wire:target="login"
                             wire:loading.attr="disabled"
-                            wire:loading.class="opacity-80 cursor-wait pointer-events-none"
-                            class="group relative w-full h-11 sm:h-12 flex items-center justify-center gap-2.5 px-5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#174668] via-[#1d5782] to-[#174668] bg-[length:200%_auto] hover:bg-right active:scale-[0.99] transition-all duration-300 shadow-md shadow-[#174668]/25 hover:shadow-lg hover:shadow-[#174668]/35 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#174668] focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer overflow-hidden"
+                            class="w-full h-12 flex items-center justify-center px-6 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#174668] via-[#1d5782] to-[#174668] bg-[length:200%_auto] hover:bg-right active:scale-[0.99] transition-all duration-300 shadow-md shadow-[#174668]/25 hover:shadow-lg hover:shadow-[#174668]/35 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#174668] focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer tracking-wide"
                         >
                             <!-- Default State -->
-                            <span wire:loading.remove wire:target="login" class="inline-flex items-center gap-2">
-                                <span>Masuk ke Portal</span>
-                                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                </svg>
+                            <span wire:loading.remove wire:target="login">
+                                Masuk ke Portal
                             </span>
 
-                            <!-- Polished Loading State -->
-                            <span wire:loading.flex wire:target="login" class="items-center justify-center gap-2.5 text-white">
-                                <svg class="animate-spin h-4 w-4 sm:h-[18px] sm:w-[18px] text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
-                                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span class="tracking-wide font-semibold text-xs sm:text-sm">Memverifikasi Akun...</span>
+                            <!-- Loading State -->
+                            <span wire:loading wire:target="login" style="display: none;">
+                                Memverifikasi Akun...
                             </span>
                         </button>
                     </div>

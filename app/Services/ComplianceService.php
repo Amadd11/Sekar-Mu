@@ -231,7 +231,7 @@ class ComplianceService
                     'butir_id' => $butir->id,
                     'kode_bagian' => $bagian?->kode ?? '-',
                     'nama_bagian' => $bagian?->nama ?? '-',
-                    'urutan' => $butir->urutan,
+                    'kode' => $butir->kode,
                     'pertanyaan' => $butir->pertanyaan,
                     'standar' => $butir->standar,
                     'catatan' => $ass?->catatan ?? $ans?->catatan,
@@ -265,7 +265,7 @@ class ComplianceService
             ->get()
             ->keyBy('butir_evaluasi_id');
 
-        $allButir = ButirEvaluasi::with('kelompok.bagian')->orderBy('urutan')->get();
+        $allButir = ButirEvaluasi::with('kelompok.bagian')->orderBy('id')->get();
 
         $opportunities = [];
 
@@ -289,7 +289,7 @@ class ComplianceService
                 $opportunities[] = [
                     'butir_id' => $butir->id,
                     'kode_bagian' => $butir->kelompok?->bagian?->kode ?? 'A',
-                    'urutan' => $butir->urutan,
+                    'kode' => $butir->kode,
                     'pertanyaan' => $butir->pertanyaan,
                     'is_critical' => $butir->is_critical,
                     'current_score' => $skor ?? 'Belum Diisi',
@@ -299,7 +299,7 @@ class ComplianceService
             }
         }
 
-        // Sort opportunities: HIGH priority first, then potential gain descending, then urutan
+        // Sort opportunities: HIGH priority first, then potential gain descending, then id
         usort($opportunities, function ($a, $b) {
             $prioOrder = ['HIGH' => 3, 'MEDIUM' => 2, 'LOW' => 1];
             $prioA = $prioOrder[$a['priority']] ?? 0;
@@ -309,7 +309,7 @@ class ComplianceService
                 return $prioB <=> $prioA;
             }
 
-            return $a['urutan'] <=> $b['urutan'];
+            return $a['butir_id'] <=> $b['butir_id'];
         });
 
         $top10 = array_slice($opportunities, 0, 10);

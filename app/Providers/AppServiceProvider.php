@@ -26,9 +26,17 @@ class AppServiceProvider extends ServiceProvider
             $latestApp = null;
 
             if ($user) {
-                $latestApp = SuratPengajuan::where('user_id', $user->id)->latest()->first();
-                if (! $latestApp && ($user->isAdmin() || $user->isReviewer() || $user->isKetuaKepk() || $user->isAnggotaKepk())) {
+                if ($user->isAdmin()) {
                     $latestApp = SuratPengajuan::latest()->first();
+                } elseif ($user->isKetuaKepk() || $user->isAnggotaKepk()) {
+                    $latestApp = SuratPengajuan::where('user_id', $user->id)->latest()->first()
+                        ?? SuratPengajuan::latest()->first();
+                } elseif ($user->isReviewer()) {
+                    $latestApp = SuratPengajuan::whereHas('penilai', function ($q) use ($user) {
+                        $q->where('user_id', $user->id);
+                    })->latest()->first();
+                } elseif ($user->isApplicant()) {
+                    $latestApp = SuratPengajuan::where('user_id', $user->id)->latest()->first();
                 }
             }
 

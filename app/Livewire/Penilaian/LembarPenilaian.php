@@ -12,13 +12,17 @@ use App\Services\ComplianceService;
 use App\Services\CorrectiveActionService;
 use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class LembarPenilaian extends Component
 {
     public SuratPengajuan $suratPengajuan;
 
-    public string $activeTab = 'asesmen_butir'; // asesmen_butir, ringkasan, corrective_actions
+    #[Url(as: 'tab')]
+    public string $activeTab = 'penilaian'; // 'penilaian', 'dokumen', 'rekomendasi'
+
+    #[Url(as: 'section')]
     public string $activeSection = 'A';
 
     public string $rekomendasi = 'approved';
@@ -65,6 +69,17 @@ class LembarPenilaian extends Component
             abort(403, 'Akses terbatas untuk penilai yang ditugaskan atau administrator.');
         }
 
+        // Normalize tab name if alias is used
+        if (in_array($this->activeTab, ['borang', 'penilaian'])) {
+            $this->activeTab = 'penilaian';
+        } elseif (in_array($this->activeTab, ['dokumen', 'berkas', 'protokol'])) {
+            $this->activeTab = 'dokumen';
+        } elseif (in_array($this->activeTab, ['rekomendasi', 'catatan'])) {
+            $this->activeTab = 'rekomendasi';
+        } else {
+            $this->activeTab = 'penilaian';
+        }
+
         $this->suratPengajuan = $suratPengajuan->load([
             'formulirAplikasi',
             'profilKepk',
@@ -98,11 +113,6 @@ class LembarPenilaian extends Component
             $this->itemTemuan[$ass->butir_evaluasi_id] = $ass->temuan ?? '';
             $this->evidenceStrength[$ass->butir_evaluasi_id] = $ass->evidence_strength ?? '';
         }
-    }
-
-    public function switchTab(string $tab): void
-    {
-        $this->activeTab = $tab;
     }
 
     public function switchSection(string $section): void
@@ -242,6 +252,11 @@ class LembarPenilaian extends Component
         $service->toggleResolveComment($catatan);
 
         $this->suratPengajuan->refresh();
+    }
+
+    public function switchTab(string $tab): void
+    {
+        $this->activeTab = $tab;
     }
 
     public function render(ComplianceService $complianceService, PenilaianService $penilaianService): View

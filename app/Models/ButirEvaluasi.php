@@ -15,8 +15,8 @@ class ButirEvaluasi extends Model
 
     protected $fillable = [
         'kelompok_evaluasi_id',
+        'kode',
         'pertanyaan',
-        'urutan',
         'is_critical',
         'evidence_required',
         'parent_item_id',

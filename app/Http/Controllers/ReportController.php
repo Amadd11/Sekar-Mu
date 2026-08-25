@@ -38,4 +38,17 @@ class ReportController extends Controller
 
         return $pdf->stream($fileName);
     }
+
+    /**
+     * Download or stream Matriks Gap & Analisis Kesenjangan Asesor (PDF).
+     */
+    public function matriksGap(SuratPengajuan $suratPengajuan): Response
+    {
+        Gate::authorize('view', $suratPengajuan);
+
+        $pdf = $this->reportService->generateAccreditationReport($suratPengajuan);
+        $fileName = 'Matriks_Gap_Asesor_KEPK_APP_' . str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) . '.pdf';
+
+        return $pdf->stream($fileName);
+    }
 }

@@ -19,62 +19,110 @@ class InstrumenEvaluasiSeeder extends Seeder
                 'kode' => 'A',
                 'nama' => 'Regulasi, Kelembagaan, dan Tata Kelola',
                 'urutan' => 1,
-                'target_butir' => 29,
                 'kelompok' => [
-                    'Organisasi dan Landasan Hukum KEPK',
-                    'Komposisi dan Kualifikasi Keanggotaan',
-                    'Independensi dan Konflik Kepentingan',
+                    [
+                        'nama' => 'Organisasi dan Landasan Hukum KEPK',
+                        'jumlah_butir' => 10,
+                        'kritis' => [1, 2, 5],
+                    ],
+                    [
+                        'nama' => 'Komposisi dan Kualifikasi Keanggotaan',
+                        'jumlah_butir' => 10,
+                        'kritis' => [1, 3, 7],
+                    ],
+                    [
+                        'nama' => 'Independensi dan Konflik Kepentingan',
+                        'jumlah_butir' => 9,
+                        'kritis' => [1, 4],
+                    ],
                 ],
-                'critical_items' => [1, 2, 5, 8, 12, 18], // SK pembentukan, independensi, COI, pakta kerahasiaan
             ],
             [
                 'kode' => 'B',
                 'nama' => 'Keanggotaan dan Kompetensi',
                 'urutan' => 2,
-                'target_butir' => 35,
                 'kelompok' => [
-                    'Kualifikasi dan Pelatihan Anggota (GCP/Etik)',
-                    'Komposisi Multidisiplin dan Keterwakilan Gender/Lay Person',
-                    'Prosedur Penunjukan dan Evaluasi Kinerja Anggota',
+                    [
+                        'nama' => 'Kualifikasi dan Pelatihan Anggota (GCP/Etik)',
+                        'jumlah_butir' => 12,
+                        'kritis' => [1, 3, 6],
+                    ],
+                    [
+                        'nama' => 'Komposisi Multidisiplin dan Keterwakilan Gender/Lay Person',
+                        'jumlah_butir' => 12,
+                        'kritis' => [1, 5],
+                    ],
+                    [
+                        'nama' => 'Prosedur Penunjukan dan Evaluasi Kinerja Anggota',
+                        'jumlah_butir' => 11,
+                        'kritis' => [2, 7],
+                    ],
                 ],
-                'critical_items' => [1, 4, 10, 15, 22], // Sertifikat GCP, komposisi minimum, lay person
             ],
             [
                 'kode' => 'C',
                 'nama' => 'Operasional dan Prosedur',
                 'urutan' => 3,
-                'target_butir' => 74,
                 'kelompok' => [
-                    'Penerimaan dan Verifikasi Berkas Protokol',
-                    'Prosedur Sidang Full Board & Exempted/Expedited',
-                    'Kriteria Telaah 7 Standar Etik CIOMS/WHO',
-                    'Pengambilan Keputusan & Dokumentasi Telaah',
+                    [
+                        'nama' => 'Penerimaan dan Verifikasi Berkas Protokol',
+                        'jumlah_butir' => 19,
+                        'kritis' => [1, 5, 10],
+                    ],
+                    [
+                        'nama' => 'Prosedur Sidang Full Board & Exempted/Expedited',
+                        'jumlah_butir' => 19,
+                        'kritis' => [1, 4, 12],
+                    ],
+                    [
+                        'nama' => 'Kriteria Telaah 7 Standar Etik CIOMS/WHO',
+                        'jumlah_butir' => 18,
+                        'kritis' => [1, 3, 8, 15],
+                    ],
+                    [
+                        'nama' => 'Pengambilan Keputusan & Dokumentasi Telaah',
+                        'jumlah_butir' => 18,
+                        'kritis' => [2, 6, 11],
+                    ],
                 ],
-                'critical_items' => [1, 3, 7, 14, 20, 28, 35, 42, 50, 65], // SOP telaah, proses telaah etik, informed consent, SAE
             ],
             [
                 'kode' => 'D',
                 'nama' => 'Fasilitas dan Sumber Daya',
                 'urutan' => 4,
-                'target_butir' => 12,
                 'kelompok' => [
-                    'Ruang Kerja dan Fasilitas Sekretariat',
-                    'Sistem Informasi, Penyimpanan Aman, dan Backup Data',
+                    [
+                        'nama' => 'Ruang Kerja dan Fasilitas Sekretariat',
+                        'jumlah_butir' => 6,
+                        'kritis' => [1, 3],
+                    ],
+                    [
+                        'nama' => 'Sistem Informasi, Penyimpanan Aman, dan Backup Data',
+                        'jumlah_butir' => 6,
+                        'kritis' => [2, 5],
+                    ],
                 ],
-                'critical_items' => [2, 6, 9], // Ruang arsip aman, backup database, kerahasiaan data
             ],
             [
                 'kode' => 'E',
                 'nama' => 'Penelitian Khusus',
                 'urutan' => 5,
-                'target_butir' => 14,
                 'kelompok' => [
-                    'Penelitian Populasi Rentan dan Uji Klinis',
-                    'Transfer Material Hayati dan Penelitian Genetik',
+                    [
+                        'nama' => 'Penelitian Populasi Rentan dan Uji Klinis',
+                        'jumlah_butir' => 7,
+                        'kritis' => [1, 4],
+                    ],
+                    [
+                        'nama' => 'Transfer Material Hayati dan Penelitian Genetik',
+                        'jumlah_butir' => 7,
+                        'kritis' => [2, 5],
+                    ],
                 ],
-                'critical_items' => [1, 5, 8], // Perlindungan populasi rentan, persetujuan MTA
             ],
         ];
+
+        $activeButirIds = [];
 
         foreach ($dataBagian as $bData) {
             $bagian = BagianEvaluasi::updateOrCreate(
@@ -85,43 +133,44 @@ class InstrumenEvaluasiSeeder extends Seeder
                 ]
             );
 
-            $kelompokList = [];
-            foreach ($bData['kelompok'] as $kIdx => $kNama) {
-                $kelompokList[] = KelompokEvaluasi::updateOrCreate(
+            foreach ($bData['kelompok'] as $kIdx => $kData) {
+                $kelompokUrutan = $kIdx + 1;
+                $kelompok = KelompokEvaluasi::updateOrCreate(
                     [
                         'bagian_evaluasi_id' => $bagian->id,
-                        'nama' => $kNama,
+                        'nama' => $kData['nama'],
                     ],
                     [
-                        'urutan' => $kIdx + 1,
+                        'urutan' => $kelompokUrutan,
                     ]
                 );
-            }
 
-            $targetCount = $bData['target_butir'];
-            $jmlKelompok = count($kelompokList);
-            $criticalIndexes = $bData['critical_items'] ?? [];
+                $kritisList = $kData['kritis'] ?? [];
+                for ($i = 1; $i <= $kData['jumlah_butir']; $i++) {
+                    $kodeItem = $bData['kode'] . $kelompokUrutan . '.' . $i;
+                    $isCritical = in_array($i, $kritisList, true);
 
-            for ($i = 1; $i <= $targetCount; $i++) {
-                $kelompok = $kelompokList[($i - 1) % $jmlKelompok];
-                $isCritical = in_array($i, $criticalIndexes, true);
+                    $bRecord = ButirEvaluasi::updateOrCreate(
+                        [
+                            'kelompok_evaluasi_id' => $kelompok->id,
+                            'kode' => $kodeItem,
+                        ],
+                        [
+                            'pertanyaan' => "Pemenuhan standar baku etik penelitian terkait " . strtolower($kData['nama']) . " (Kriteria parameter {$kodeItem}).",
+                            'is_critical' => $isCritical,
+                            'standar' => "Standar {$bData['kode']}",
+                            'parameter' => "Parameter {$kodeItem}",
+                            'evidence_required' => $isCritical
+                                ? "Wajib melampirkan SK/SOP resmi, bukti implementasi, dan dokumentasi pendukung terverifikasi."
+                                : "Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.",
+                        ]
+                    );
 
-                ButirEvaluasi::updateOrCreate(
-                    [
-                        'kelompok_evaluasi_id' => $kelompok->id,
-                        'urutan' => $i,
-                    ],
-                    [
-                        'pertanyaan' => "Butir {$bData['kode']}.{$i} — Pemenuhan standar baku etik penelitian terkait " . strtolower($kelompok->nama) . " (Kriteria parameter {$i}).",
-                        'is_critical' => $isCritical,
-                        'standar' => "Standar {$bData['kode']}",
-                        'parameter' => "Parameter {$bData['kode']}.{$i}",
-                        'evidence_required' => $isCritical
-                            ? "Wajib melampirkan SK/SOP resmi, bukti implementasi, dan dokumentasi pendukung terverifikasi."
-                            : "Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.",
-                    ]
-                );
+                    $activeButirIds[] = $bRecord->id;
+                }
             }
         }
+
+        ButirEvaluasi::whereNotIn('id', $activeButirIds)->delete();
     }
 }

@@ -28,7 +28,7 @@ class KriteriaEvaluasi extends Component
     // Form fields for Butir
     public ?int $bagian_evaluasi_id = null;
     public ?int $kelompok_evaluasi_id = null;
-    public int $urutan = 1;
+    public string $kode = '';
     public string $pertanyaan = '';
     public bool $is_critical = false;
     public string $standar = '';
@@ -48,8 +48,8 @@ class KriteriaEvaluasi extends Component
     {
         return [
             'kelompok_evaluasi_id' => ['required', 'exists:kelompok_evaluasi,id'],
+            'kode' => ['nullable', 'string', 'max:50'],
             'pertanyaan' => ['required', 'string', 'min:5'],
-            'urutan' => ['required', 'integer', 'min:1'],
             'is_critical' => ['boolean'],
             'standar' => ['nullable', 'string', 'max:255'],
             'parameter' => ['nullable', 'string'],
@@ -100,9 +100,7 @@ class KriteriaEvaluasi extends Component
         $firstKelompok = $firstBagian ? KelompokEvaluasi::where('bagian_evaluasi_id', $firstBagian->id)->first() : null;
         $this->kelompok_evaluasi_id = $firstKelompok?->id;
 
-        $lastUrutan = ButirEvaluasi::max('urutan') ?? 0;
-        $this->urutan = $lastUrutan + 1;
-
+        $this->kode = '';
         $this->pertanyaan = '';
         $this->is_critical = false;
         $this->standar = 'Standar WHO-CIOMS & KNEPK';
@@ -121,7 +119,7 @@ class KriteriaEvaluasi extends Component
         $this->editingId = $butir->id;
         $this->bagian_evaluasi_id = $butir->kelompok?->bagian_evaluasi_id;
         $this->kelompok_evaluasi_id = $butir->kelompok_evaluasi_id;
-        $this->urutan = $butir->urutan;
+        $this->kode = $butir->kode ?? '';
         $this->pertanyaan = $butir->pertanyaan;
         $this->is_critical = (bool) $butir->is_critical;
         $this->standar = $butir->standar ?? '';
@@ -140,13 +138,21 @@ class KriteriaEvaluasi extends Component
     {
         $validated = $this->validate();
 
+        if (empty($validated['kode'])) {
+            $kelompok = KelompokEvaluasi::with('bagian')->find($this->kelompok_evaluasi_id);
+            $countInKelompok = ButirEvaluasi::where('kelompok_evaluasi_id', $this->kelompok_evaluasi_id)->count();
+            $validated['kode'] = ($kelompok?->bagian?->kode ?? 'A') . ($kelompok?->urutan ?? 1) . '.' . ($countInKelompok + 1);
+        }
+
         if ($this->isEditing && $this->editingId) {
-            $butir = ButirEvaluasi::findOrFail($this->editingId);
+            $butir = ButirEvaluasi::with('kelompok.bagian')->findOrFail($this->editingId);
             $butir->update($validated);
-            session()->flash('status', "Kriteria & Acuan Butir #{$butir->urutan} berhasil diperbarui!");
+            $kodeItem = $butir->kode;
+            session()->flash('status', "Kriteria & Acuan Butir {$kodeItem} berhasil diperbarui!");
         } else {
             $butir = ButirEvaluasi::create($validated);
-            session()->flash('status', "Kriteria & Acuan Butir #{$butir->urutan} baru berhasil ditambahkan!");
+            $kodeItem = $butir->kode;
+            session()->flash('status', "Kriteria & Acuan Butir {$kodeItem} baru berhasil ditambahkan!");
         }
 
         $this->showModal = false;
@@ -154,11 +160,11 @@ class KriteriaEvaluasi extends Component
 
     public function hapusKriteria(int $id): void
     {
-        $butir = ButirEvaluasi::findOrFail($id);
-        $urutan = $butir->urutan;
+        $butir = ButirEvaluasi::with('kelompok.bagian')->findOrFail($id);
+        $kodeItem = $butir->kode;
         $butir->delete();
 
-        session()->flash('status', "Kriteria Butir #{$urutan} berhasil dihapus dari sistem.");
+        session()->flash('status', "Kriteria Butir {$kodeItem} berhasil dihapus dari sistem.");
     }
 
     // Modal Kelompok Acuan
@@ -198,42 +204,49 @@ class KriteriaEvaluasi extends Component
         // Bagian & Kelompok for dropdowns
         $daftarBagian = BagianEvaluasi::orderBy('urutan')->get();
         $daftarKelompok = KelompokEvaluasi::query()
-            ->when($this->selectedBagian, fn ($q) => $q->where('bagian_evaluasi_id', $this->selectedBagian))
+            ->when($this->selectedBagian, fn($q) => $q->where('bagian_evaluasi_id', $this->selectedBagian))
             ->orderBy('urutan')
             ->get();
 
         $modalKelompokOptions = KelompokEvaluasi::query()
-            ->when($this->bagian_evaluasi_id, fn ($q) => $q->where('bagian_evaluasi_id', $this->bagian_evaluasi_id))
+            ->when($this->bagian_evaluasi_id, fn($q) => $q->where('bagian_evaluasi_id', $this->bagian_evaluasi_id))
             ->orderBy('urutan')
             ->get();
 
         // Main Query
         $query = ButirEvaluasi::query()
+            ->join('kelompok_evaluasi', 'butir_evaluasi.kelompok_evaluasi_id', '=', 'kelompok_evaluasi.id')
+            ->join('bagian_evaluasi', 'kelompok_evaluasi.bagian_evaluasi_id', '=', 'bagian_evaluasi.id')
+            ->select('butir_evaluasi.*')
             ->with(['kelompok.bagian']);
 
         if ($this->selectedBagian) {
-            $query->whereHas('kelompok', fn ($q) => $q->where('bagian_evaluasi_id', $this->selectedBagian));
+            $query->where('bagian_evaluasi.id', $this->selectedBagian);
         }
 
         if ($this->selectedKelompok) {
-            $query->where('kelompok_evaluasi_id', $this->selectedKelompok);
+            $query->where('butir_evaluasi.kelompok_evaluasi_id', $this->selectedKelompok);
         }
 
         if ($this->criticalFilter === 'critical') {
-            $query->where('is_critical', true);
+            $query->where('butir_evaluasi.is_critical', true);
         } elseif ($this->criticalFilter === 'standard') {
-            $query->where('is_critical', false);
+            $query->where('butir_evaluasi.is_critical', false);
         }
 
         if ($this->search) {
             $query->where(function ($q) {
-                $q->where('pertanyaan', 'like', "%{$this->search}%")
-                    ->orWhere('standar', 'like', "%{$this->search}%")
-                    ->orWhere('parameter', 'like', "%{$this->search}%")
-                    ->orWhere('evidence_required', 'like', "%{$this->search}%")
-                    ->orWhere('urutan', 'like', "%{$this->search}%");
+                $q->where('butir_evaluasi.pertanyaan', 'like', "%{$this->search}%")
+                    ->orWhere('butir_evaluasi.kode', 'like', "%{$this->search}%")
+                    ->orWhere('butir_evaluasi.standar', 'like', "%{$this->search}%")
+                    ->orWhere('butir_evaluasi.parameter', 'like', "%{$this->search}%")
+                    ->orWhere('butir_evaluasi.evidence_required', 'like', "%{$this->search}%");
             });
         }
+
+        $query->orderBy('bagian_evaluasi.urutan', 'asc')
+            ->orderBy('kelompok_evaluasi.urutan', 'asc')
+            ->orderBy('butir_evaluasi.id', 'asc');
 
         // Summary KPI
         $totalButir = ButirEvaluasi::count();
@@ -242,7 +255,7 @@ class KriteriaEvaluasi extends Component
         $totalBagianCount = BagianEvaluasi::count();
 
         return view('livewire.admin.kriteria-evaluasi', [
-            'butirList' => $query->orderBy('urutan')->paginate($this->perPage),
+            'butirList' => $query->paginate($this->perPage),
             'daftarBagian' => $daftarBagian,
             'daftarKelompok' => $daftarKelompok,
             'modalKelompokOptions' => $modalKelompokOptions,

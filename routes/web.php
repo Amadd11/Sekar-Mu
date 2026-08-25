@@ -27,8 +27,8 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-// 1. Modul Pembuatan Pengajuan Baru (Ketua KEPK, Applicant & Admin)
-Route::middleware(['auth', 'role:applicant|ketua_kepk|admin'])->group(function () {
+// 1. Modul Pembuatan Pengajuan Baru (Ketua/Anggota KEPK, Applicant & Admin)
+Route::middleware(['auth', 'role:applicant|ketua_kepk|anggota_kepk|admin'])->group(function () {
     Route::get('/pengajuan/create', PengajuanCreate::class)->name('pengajuan.create');
 });
 
@@ -57,6 +57,7 @@ Route::middleware(['auth', 'role:reviewer|admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/pdf/hasil-akreditasi', [\App\Http\Controllers\ReportController::class, 'hasilAkreditasi'])->name('pengajuan.pdf.hasil-akreditasi');
     Route::get('/pengajuan/{suratPengajuan}/pdf/evaluasi-diri', [\App\Http\Controllers\ReportController::class, 'evaluasiDiri'])->name('pengajuan.pdf.evaluasi-diri');
+    Route::get('/pengajuan/{suratPengajuan}/pdf/matriks-gap', [\App\Http\Controllers\ReportController::class, 'matriksGap'])->name('pengajuan.pdf.matriks-gap');
 });
 
 // 5. Modul Khusus Administrator (Admin Only)

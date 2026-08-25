@@ -315,7 +315,7 @@
                                 <span class="font-bold font-mono text-primary-700">{{ $sData['compliance_percentage'] }}% ({{ $sData['answered_items'] }}/{{ $sData['total_items'] }} item)</span>
                             </div>
                             <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                                <div class="bg-primary-700 h-2 rounded-full transition-all duration-300" style="width: {{ $sData['compliance_percentage'] }}%"></div>
+                                <div class="bg-primary-700 h-2 rounded-full transition-all duration-300" style="{{ 'width: ' . $sData['compliance_percentage'] . '%' }}"></div>
                             </div>
                         </div>
                     @endforeach
@@ -339,7 +339,7 @@
                         <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
                             <div class="space-y-0.5">
                                 <div class="flex items-center gap-2">
-                                    <span class="font-bold font-mono text-primary-700">#{{ $opp['kode_bagian'] }}.{{ $opp['urutan'] }}</span>
+                                    <span class="font-bold font-mono text-primary-700">{{ $opp['kode'] }}</span>
                                     @if($opp['is_critical'])
                                         <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-800">⚠️ KRITIS</span>
                                     @endif

@@ -1,33 +1,46 @@
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
-    <!-- Header Banner -->
-    <div class="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 relative overflow-hidden">
-        <!-- Subtle radial glow -->
-        <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- 1. Full Header Card (Matching Evaluasi Diri Design) -->
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden relative">
+        <!-- Top Gradient Accent Bar -->
+        <div class="h-1 bg-gradient-to-r from-[#174668] via-teal-500 to-[#174668]"></div>
 
-        <div class="relative z-10">
-            <div class="flex items-center gap-2 mb-1.5">
-                <span class="text-xl select-none">🌸</span>
-                <span class="bg-primary-50 text-primary-700 text-xs font-bold px-2.5 py-0.5 rounded-md border border-primary-200/70">
-                    Borang B01
-                </span>
+        <div class="p-6 sm:p-7 relative z-10 space-y-4">
+            <!-- Top Meta Strip -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <span class="bg-primary-50 text-primary-700 font-display text-xs px-3 py-1 rounded-lg font-bold border border-primary-200/70 shadow-2xs flex items-center gap-1.5">
+                        <span class="text-sm">🌸</span>
+                        <span>Borang B01: Akreditasi KEPK</span>
+                    </span>
+                    <span class="bg-slate-100 text-slate-700 font-mono text-xs px-3 py-1 rounded-lg font-bold border border-slate-200 shadow-2xs">
+                        {{ $pengajuanList->total() }} Permohonan Terdaftar
+                    </span>
+                </div>
             </div>
-            <h1 class="font-display text-xl sm:text-2xl font-bold text-slate-900 tracking-tight leading-tight">
-                Surat Pengajuan & Berkas Akreditasi KEPK
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1 max-w-2xl">
-                Daftar seluruh berkas permohonan akreditasi dan asesmen komite etik penelitian kesehatan.
-            </p>
-        </div>
 
-        <div class="relative z-10">
-            <button
-                type="button"
-                wire:click="bukaModalCreate"
-                class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition cursor-pointer"
-            >
-                <span class="material-symbols-outlined text-[18px]">add_circle</span>
-                <span>Buat Pengajuan Baru</span>
-            </button>
+            <!-- Main Title & Action Buttons Row -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 pt-1">
+                <div class="space-y-1 max-w-3xl">
+                    <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
+                        Surat Pengajuan & Berkas Akreditasi
+                    </h1>
+                    <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                        Kelola seluruh berkas permohonan akreditasi, instrumen borang mandiri, dan pantau status asesmen KEPK secara terpadu.
+                    </p>
+                </div>
+
+                <!-- Action Button -->
+                <div class="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
+                    <button
+                        type="button"
+                        wire:click="bukaModalCreate"
+                        class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition cursor-pointer"
+                    >
+                        <span class="material-symbols-outlined text-[18px]">add_circle</span>
+                        <span>Buat Pengajuan Baru</span>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 

@@ -139,7 +139,29 @@
         </div>
     @endif
 
-    <!-- 4. Three Main Borang Module Cards (Quick Navigation) -->
+    @if (auth()->user()->isReviewer())
+        <!-- Reviewer Workspace Banner -->
+        <div class="bg-blue-50 border border-blue-200/90 text-blue-900 rounded-2xl p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex items-start gap-3.5">
+                <div class="w-11 h-11 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0 shadow-2xs">
+                    <span class="material-symbols-outlined text-[24px]">clinical_notes</span>
+                </div>
+                <div>
+                    <h3 class="font-display font-bold text-sm text-blue-950 leading-tight">Penelaahan Asesor Penilai</h3>
+                    <p class="text-xs text-blue-700 mt-1 leading-relaxed">
+                        Anda ditugaskan sebagai penelaah etik untuk berkas permohonan ini. Buka lembar kerja untuk menelaah 164 butir, memberi catatan telaah, dan menyusun rekomendasi.
+                    </p>
+                </div>
+            </div>
+            <a href="{{ route('penilaian.show', $suratPengajuan) }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-blue-700 hover:bg-blue-600 active:bg-blue-800 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-700/20 transition shrink-0 cursor-pointer" wire:navigate>
+                <span>Buka Lembar Penilaian</span>
+                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </a>
+        </div>
+    @endif
+
+    <!-- 4. Three Main Borang Module Cards (For Applicant, Ketua/Anggota KEPK, Admin) -->
+    @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
         <!-- Module 1: Evaluasi Diri -->
         <a href="{{ route('pengajuan.evaluasi-diri', $suratPengajuan) }}" class="bg-white border border-slate-200/90 hover:border-primary-400 rounded-2xl p-5 shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between" wire:navigate>
@@ -207,6 +229,7 @@
             </div>
         </a>
     </div>
+    @endhasanyrole
 
     <!-- 5. Two-Columns Detailed Layout -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

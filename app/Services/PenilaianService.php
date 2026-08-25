@@ -181,7 +181,7 @@ class PenilaianService
 
                 $sectionRows[] = [
                     'item_id' => $item->id,
-                    'kode_butir' => "{$section->kode}.{$item->urutan}",
+                    'kode_butir' => $item->kode ?? "{$section->kode}.{$item->id}",
                     'pertanyaan' => $item->pertanyaan,
                     'is_critical' => $item->is_critical,
                     'self_score' => $selfScore ?? '-',

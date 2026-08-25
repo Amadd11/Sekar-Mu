@@ -4,7 +4,7 @@
         <button
             type="button"
             @click="sidebarOpen = true"
-            class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 lg:hidden focus:outline-none"
+            class="p-2 rounded-xl text-slate-600 hover:bg-slate-100 lg:hidden focus:outline-none cursor-pointer"
         >
             <span class="material-symbols-outlined text-[24px]">menu</span>
         </button>
@@ -27,7 +27,7 @@
                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                 <span class="hidden sm:inline">Portal Penilaian</span>
             </a>
-        @elseif ($user?->isApplicant() && $latestApp)
+        @elseif ($user && ($user->isApplicant() || $user->isKetuaKepk() || $user->isAnggotaKepk()) && $latestApp)
             <a
                 href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
                 class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
@@ -38,14 +38,16 @@
             </a>
         @endif
 
-        <a
-            href="{{ route('pengajuan.index') }}"
-            class="bg-white border border-slate-200 text-slate-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-slate-50 transition-all flex items-center gap-1.5 shadow-2xs"
-            wire:navigate
-        >
-            <span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
-            <span class="hidden md:inline">Daftar Pengajuan</span>
-        </a>
+        @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
+            <a
+                href="{{ route('pengajuan.index') }}"
+                class="bg-white border border-slate-200 text-slate-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-slate-50 transition-all flex items-center gap-1.5 shadow-2xs"
+                wire:navigate
+            >
+                <span class="material-symbols-outlined text-[18px]">format_list_bulleted</span>
+                <span class="hidden md:inline">Daftar Pengajuan</span>
+            </a>
+        @endhasanyrole
 
         <div class="h-6 w-px bg-slate-200 mx-1 hidden sm:block"></div>
 
@@ -55,7 +57,7 @@
             <button
                 type="submit"
                 title="Keluar / Logout"
-                class="text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all text-xs sm:text-sm font-medium border border-transparent hover:border-red-200"
+                class="text-red-600 hover:bg-red-50 px-3 py-2 rounded-xl flex items-center gap-1.5 transition-all text-xs sm:text-sm font-medium border border-transparent hover:border-red-200 cursor-pointer"
             >
                 <span class="material-symbols-outlined text-[18px]">logout</span>
                 <span class="hidden sm:inline">Keluar</span>

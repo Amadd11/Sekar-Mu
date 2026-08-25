@@ -108,7 +108,18 @@ class EvaluasiDiri extends Component
         $this->simpanCatatan((int) $key, $service);
     }
 
+    public function updatedUploadedFiles($value, $key): void
+    {
+        $butirId = (int) $key;
+        $this->prosesUploadBerkas($butirId, app(EvaluasiDiriService::class));
+    }
+
     public function uploadBerkas(int $butirId, EvaluasiDiriService $service): void
+    {
+        $this->prosesUploadBerkas($butirId, $service);
+    }
+
+    public function prosesUploadBerkas(int $butirId, EvaluasiDiriService $service): void
     {
         if (! $this->suratPengajuan->isEditable()) {
             return;
@@ -130,13 +141,14 @@ class EvaluasiDiri extends Component
         ]);
 
         $ans = $this->suratPengajuan->jawabanEvaluasi()->where('butir_evaluasi_id', $butirId)->first();
-        $attachments = $ans ? $ans->getAttachments() : [];
+        $butir = \App\Models\ButirEvaluasi::find($butirId);
+        $kodeItem = $butir?->kode ?? ('butir_' . $butirId);
 
         $newNames = [];
         foreach ($filesToUpload as $file) {
             if ($file instanceof \Illuminate\Http\UploadedFile) {
                 $filename = $file->getClientOriginalName();
-                $path = $file->store("pengajuan/{$this->suratPengajuan->id}/evaluasi", 'public');
+                $path = $file->store("evaluasi/{$kodeItem}", 'public');
 
                 $attachments[] = [
                     'name' => $filename,
@@ -147,19 +159,14 @@ class EvaluasiDiri extends Component
             }
         }
 
-        $autoBukti = ! empty($this->bukti[$butirId])
-            ? $this->bukti[$butirId]
-            : implode(', ', array_column($attachments, 'name'));
-
         $service->saveAnswer($this->suratPengajuan, $butirId, [
             'file_attachments' => $attachments,
-            'bukti' => $autoBukti,
+            'bukti' => ! empty($this->bukti[$butirId]) ? $this->bukti[$butirId] : null,
             'catatan' => $this->catatan[$butirId] ?? null,
             'skor' => $this->skor[$butirId] ?? null,
             'evidence_strength' => $this->evidenceStrength[$butirId] ?? null,
         ]);
 
-        $this->bukti[$butirId] = $autoBukti;
         unset($this->uploadedFiles[$butirId]);
         $this->suratPengajuan->refresh();
 

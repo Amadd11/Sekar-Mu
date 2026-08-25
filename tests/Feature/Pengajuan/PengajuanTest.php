@@ -360,7 +360,7 @@ test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol',
         ->set('nomor_protokol', 'PROT-ANGGOTA-001')
         ->set('judul', 'Penelitian Klinis Vaksin Baru')
         ->set('peneliti_utama', 'Dr. Siti, Sp.A')
-        ->call('simpanProtokol')
+        ->call('simpan')
         ->assertHasNoErrors();
 
     $this->assertDatabaseHas('list_protokol', [

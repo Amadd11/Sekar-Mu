@@ -28,22 +28,22 @@
     @endif
 
     <!-- 3. Full-Width Table Layout -->
-    <div class="bg-white border border-slate-200/90 rounded-xl shadow-2xs overflow-hidden">
+    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
         <!-- Table Control Toolbar -->
-        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/50">
+        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-50/60">
             <div class="flex items-center gap-2 w-full sm:w-auto">
                 <div class="relative w-full sm:w-72">
                     <input
                         type="text"
                         wire:model.live.debounce.300ms="search"
                         placeholder="Cari nomor protokol, judul, peneliti..."
-                        class="w-full text-xs rounded-lg border-slate-300 pl-8 pr-3 py-2 bg-white text-slate-800 placeholder-slate-400 focus:border-[#174668] focus:ring-1 focus:ring-[#174668] shadow-2xs" />
-                    <span class="absolute left-2.5 top-2.5 text-slate-400 text-xs">🔍</span>
+                        class="w-full text-xs rounded-xl border border-slate-300 pl-9 pr-3 py-2 bg-white text-slate-800 placeholder-slate-400 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs" />
+                    <span class="material-symbols-outlined absolute left-2.5 top-2 text-slate-400 text-[18px]">search</span>
                 </div>
             </div>
 
             <div class="flex items-center gap-3 text-xs text-slate-500 w-full sm:w-auto justify-between sm:justify-end">
-                <span class="font-medium">Total Protokol: <strong class="text-slate-900">{{ $protokolList->count() }}</strong></span>
+                <span class="font-medium">Total Protokol: <strong class="text-slate-900 font-mono">{{ $protokolList->count() }}</strong></span>
             </div>
         </div>
 

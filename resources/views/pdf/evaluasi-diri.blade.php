@@ -162,7 +162,7 @@
                         @endphp
                         <tr>
                             <td style="text-align: center; font-weight: bold; color: #174668;">
-                                {{ $bagian->kode }}.{{ $b->urutan }}
+                                {{ $b->kode }}
                             </td>
                             <td>
                                 @if($b->is_critical)

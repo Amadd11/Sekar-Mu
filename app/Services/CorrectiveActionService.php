@@ -94,7 +94,7 @@ class CorrectiveActionService
                     CorrectiveAction::create([
                         'surat_pengajuan_id' => $surat->id,
                         'butir_evaluasi_id' => $finding['butir_id'],
-                        'finding' => "Temuan Kritis pada Bagian {$finding['kode_bagian']} (Butir #{$finding['urutan']}): {$finding['pertanyaan']}",
+                        'finding' => "Temuan Kritis pada Butir {$finding['kode']} (Bagian {$finding['kode_bagian']}): {$finding['pertanyaan']}",
                         'risk' => 'Ketidakpatuhan kritis yang dapat menggugurkan pemenuhan standar akreditasi Tipe A/B KEPK.',
                         'action' => 'Penyusunan/revisi dokumen regulasi atau SOP terkait, pemenuhan bukti pendukung, dan evaluasi kepatuhan.',
                         'priority' => CorrectiveAction::PRIORITY_HIGH,

@@ -32,6 +32,6 @@ class KelompokEvaluasi extends Model
      */
     public function butir(): HasMany
     {
-        return $this->hasMany(ButirEvaluasi::class, 'kelompok_evaluasi_id')->orderBy('urutan');
+        return $this->hasMany(ButirEvaluasi::class, 'kelompok_evaluasi_id')->orderBy('id');
     }
 }
