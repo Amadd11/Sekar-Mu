@@ -18,7 +18,7 @@ class EvaluasiDiriService
     {
         return DB::transaction(function () use ($surat, $butirId, $data) {
             $payload = [];
-            foreach (['skor', 'catatan', 'bukti', 'file_path', 'file_name', 'file_size', 'evidence_strength', 'pic_user_id'] as $key) {
+            foreach (['skor', 'catatan', 'bukti', 'file_attachments', 'evidence_strength', 'pic_user_id'] as $key) {
                 if (array_key_exists($key, $data)) {
                     $payload[$key] = $data[$key];
                 }
@@ -37,14 +37,15 @@ class EvaluasiDiriService
     /**
      * Calculate completion progress for each section (A to E).
      *
+     * @param  \Illuminate\Support\Collection<int, \App\Models\BagianEvaluasi>|null  $bagianList  Preloaded sections to avoid redundant queries.
      * @return array<string, array<string, mixed>>
      */
-    public function calculateProgress(SuratPengajuan $surat): array
+    public function calculateProgress(SuratPengajuan $surat, $bagianList = null): array
     {
-        $semuaBagian = BagianEvaluasi::with('butir')->orderBy('urutan')->get();
+        $semuaBagian = $bagianList ?? BagianEvaluasi::with('butir')->orderBy('urutan')->get();
         $idTerjawab = $surat->jawabanEvaluasi()
             ->where(function ($q) {
-                $q->whereNotNull('file_path')->where('file_path', '!=', '')
+                $q->whereNotNull('file_attachments')
                   ->orWhereNotNull('bukti')->where('bukti', '!=', '')
                   ->orWhereNotNull('catatan')->where('catatan', '!=', '')
                   ->orWhereNotNull('skor');
@@ -55,8 +56,12 @@ class EvaluasiDiriService
         $progress = [];
 
         foreach ($semuaBagian as $bagian) {
-            $totalButir = $bagian->butir->count();
-            $idButirBagian = $bagian->butir->pluck('id')->toArray();
+            $allButir = $bagian->relationLoaded('butir')
+                ? $bagian->butir
+                : $bagian->butir()->get();
+
+            $totalButir = $allButir->count();
+            $idButirBagian = $allButir->pluck('id')->toArray();
             $terjawabDiBagian = count(array_intersect($idButirBagian, $idTerjawab));
             $persentase = $totalButir > 0 ? (int) round(($terjawabDiBagian / $totalButir) * 100) : 0;
 

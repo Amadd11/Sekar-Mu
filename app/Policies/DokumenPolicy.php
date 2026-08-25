@@ -14,8 +14,12 @@ class DokumenPolicy
 
     public function view(User $user, Dokumen $dokumen): bool
     {
-        if ($user->isAdmin() || $user->isReviewer()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
             return true;
+        }
+
+        if ($user->isReviewer()) {
+            return $dokumen->suratPengajuan->penilai()->where('user_id', $user->id)->exists();
         }
 
         return $user->id === $dokumen->suratPengajuan->user_id;
@@ -23,15 +27,19 @@ class DokumenPolicy
 
     public function create(User $user): bool
     {
-        return $user->isApplicant() || $user->isAdmin();
+        return $user->isApplicant() || $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk();
     }
 
     public function delete(User $user, Dokumen $dokumen): bool
     {
-        if ($user->isAdmin()) {
+        if (! $dokumen->suratPengajuan->isEditable()) {
+            return false;
+        }
+
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $dokumen->suratPengajuan->user_id) {
             return true;
         }
 
-        return $user->id === $dokumen->suratPengajuan->user_id && $dokumen->suratPengajuan->isEditable();
+        return false;
     }
 }

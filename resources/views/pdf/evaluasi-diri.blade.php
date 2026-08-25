@@ -179,12 +179,18 @@
                                 @if($ans?->bukti)
                                     <div><strong>Bukti:</strong> {{ $ans->bukti }}</div>
                                 @endif
-                                @if($ans?->file_name)
-                                    <div style="color: #059669; font-weight: bold; margin-top: 2px;">
-                                        📄 {{ $ans->file_name }} ({{ $ans->formatUkuran() }})
+                                @php
+                                    $pdfAttachments = $ans ? $ans->getAttachments() : [];
+                                @endphp
+                                @if(count($pdfAttachments) > 0)
+                                    <div style="margin-top: 2px;">
+                                        @foreach($pdfAttachments as $att)
+                                            <div style="color: #059669; font-weight: bold; font-size: 7.5px;">
+                                                📄 {{ $att['name'] }} ({{ format_bytes((int) ($att['size'] ?? 0)) }})
+                                            </div>
+                                        @endforeach
                                     </div>
-                                @endif
-                                @if(!$ans?->bukti && !$ans?->file_name)
+                                @elseif(!$ans?->bukti)
                                     <span style="color: #94a3b8; font-style: italic;">Belum dilampirkan</span>
                                 @endif
                             </td>

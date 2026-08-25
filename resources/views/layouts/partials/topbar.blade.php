@@ -1,11 +1,3 @@
-@php
-    $user = auth()->user();
-    $latestApp = \App\Models\SuratPengajuan::where('user_id', $user->id)->latest()->first();
-    if (!$latestApp && ($user->isAdmin() || $user->isReviewer())) {
-        $latestApp = \App\Models\SuratPengajuan::latest()->first();
-    }
-@endphp
-
 <!-- Topbar (app.css theme) -->
 <header class="h-20 bg-white border-b border-slate-200/80 px-4 sm:px-6 lg:px-8 flex items-center justify-between sticky top-0 z-30 shadow-xs">
     <div class="flex items-center gap-3.5">
@@ -26,7 +18,7 @@
 
     <!-- Top Action Buttons -->
     <div class="flex items-center gap-2.5">
-        @if ($user->isReviewer() || $user->isAdmin())
+        @if ($user?->isReviewer() || $user?->isAdmin())
             <a
                 href="{{ route('penilaian.index') }}"
                 class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
@@ -35,7 +27,7 @@
                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                 <span class="hidden sm:inline">Portal Penilaian</span>
             </a>
-        @elseif ($user->isApplicant() && $latestApp)
+        @elseif ($user?->isApplicant() && $latestApp)
             <a
                 href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
                 class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"

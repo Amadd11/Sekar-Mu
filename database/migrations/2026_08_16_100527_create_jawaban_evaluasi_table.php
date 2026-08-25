@@ -16,8 +16,11 @@ return new class extends Migration
             $table->foreignId('surat_pengajuan_id')->constrained('surat_pengajuan')->cascadeOnDelete();
             $table->foreignId('butir_evaluasi_id')->constrained('butir_evaluasi')->cascadeOnDelete();
             $table->string('skor', 10)->nullable();
+            $table->string('evidence_strength', 10)->nullable(); // E0, E1, E2, E3, E4
+            $table->foreignId('pic_user_id')->nullable()->constrained('users')->nullOnDelete();
             $table->text('catatan')->nullable();
             $table->text('bukti')->nullable();
+            $table->json('file_attachments')->nullable();
             $table->timestamps();
 
             $table->unique(['surat_pengajuan_id', 'butir_evaluasi_id']);

@@ -16,6 +16,11 @@ return new class extends Migration
             $table->foreignId('kelompok_evaluasi_id')->constrained('kelompok_evaluasi')->cascadeOnDelete();
             $table->text('pertanyaan');
             $table->integer('urutan')->default(0);
+            $table->boolean('is_critical')->default(false);
+            $table->text('evidence_required')->nullable();
+            $table->unsignedBigInteger('parent_item_id')->nullable();
+            $table->string('standar')->nullable();
+            $table->string('parameter')->nullable();
             $table->timestamps();
         });
     }

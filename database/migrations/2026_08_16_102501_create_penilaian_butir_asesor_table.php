@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('penilai_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('butir_evaluasi_id')->constrained('butir_evaluasi')->cascadeOnDelete();
             $table->string('skor', 10)->nullable(); // A, B, C, D
+            $table->string('evidence_strength', 10)->nullable(); // E0, E1, E2, E3, E4
             $table->text('catatan')->nullable();
             $table->text('temuan')->nullable();
             $table->text('rekomendasi')->nullable();

@@ -52,14 +52,12 @@ class Show extends Component
 
     public function putuskanStatus(string $status, PenilaianService $service): void
     {
-        if (! auth()->user()->isAdmin()) {
-            abort(403, 'Hanya Admin yang berwenang menetapkan status akhir.');
-        }
+        $this->authorize('decide', $this->suratPengajuan);
 
         $service->finalizeDecision($this->suratPengajuan, $status);
         $this->suratPengajuan->refresh();
 
-        session()->flash('status', 'Status keputusan akhir pengajuan berhasil ditetapkan: ' . SuratPengajuan::statusLabel($status));
+        session()->flash('status', 'Status keputusan akhir pengajuan berhasil ditetapkan: ' . $this->suratPengajuan->status_label);
     }
 
     public function hapusDraft(PengajuanService $service)
@@ -75,19 +73,16 @@ class Show extends Component
 
     public function render(ComplianceService $complianceService): View
     {
-        $this->suratPengajuan->load([
-            'penilaianButirAsesor.butir',
-            'penilaianEtik.penilai',
-            'jawabanEvaluasi.butir',
-            'correctiveActions.butir',
-        ]);
-
         $metrics = $complianceService->calculateComplianceMetrics($this->suratPengajuan);
         $gapAnalysis = $complianceService->calculateGapAnalysis($this->suratPengajuan);
+
+        $user = auth()->user();
 
         return view('livewire.pengajuan.show', [
             'metrics' => $metrics,
             'gapAnalysis' => $gapAnalysis,
+            'isAdmin' => $user?->isAdmin() ?? false,
+            'canDecide' => $user?->can('decide', $this->suratPengajuan) ?? false,
         ])->layout('layouts.app');
     }
 }

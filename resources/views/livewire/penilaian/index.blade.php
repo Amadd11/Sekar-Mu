@@ -64,7 +64,7 @@
                         @endphp
                         <tr class="hover:bg-slate-50/50 transition">
                             <td class="px-5 py-4 font-mono font-bold text-slate-700">
-                                #APP-{{ str_pad($item->id, 5, '0', STR_PAD_LEFT) }}
+                                {{ $item->formatted_id }}
                             </td>
                             <td class="px-5 py-4">
                                 <div class="font-semibold text-slate-900 leading-snug">
@@ -75,15 +75,12 @@
                                 </div>
                             </td>
                             <td class="px-5 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-bold border whitespace-nowrap {{ \App\Models\SuratPengajuan::statusBadgeClasses($item->status) }}">
-                                    <span class="material-symbols-outlined text-[13px]">{{ \App\Models\SuratPengajuan::statusIcon($item->status) }}</span>
-                                    <span>{{ \App\Models\SuratPengajuan::statusLabel($item->status) }}</span>
-                                </span>
+                                <x-pengajuan.status-badge :status="$item->status" />
                             </td>
                             <td class="px-5 py-4">
                                 @if ($userReview)
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border {{ \App\Models\PenilaianEtik::badgeRekomendasi($userReview->rekomendasi) }}">
-                                        {{ \App\Models\PenilaianEtik::labelRekomendasi($userReview->rekomendasi) }}
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold border {{ $userReview->badge_rekomendasi }}">
+                                        {{ $userReview->label_rekomendasi }}
                                     </span>
                                 @else
                                     <span class="text-slate-400 text-[11px] italic">Belum Dinilai</span>

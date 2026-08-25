@@ -101,7 +101,11 @@ class Index extends Component
         $query = SuratPengajuan::query()
             ->with(['kepk.institusi', 'formulirAplikasi', 'penilai', 'penilaianEtik']);
 
-        if (! $user->isAdmin() && ! $user->isReviewer() && ! $user->isApplicant()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
+            // Admin, Ketua KEPK, dan Anggota KEPK dapat melihat dan berkolaborasi pada berkas pengajuan
+        } elseif ($user->isReviewer()) {
+            $query->whereHas('penilai', fn ($q) => $q->where('user_id', $user->id));
+        } else {
             $query->where('user_id', $user->id);
         }
 

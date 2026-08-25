@@ -1,69 +1,74 @@
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
-    <!-- 1. Header Card (app.css primary theme) -->
-    <div class="bg-white rounded-2xl p-6 sm:p-8 shadow-xs border border-slate-200/80 relative overflow-hidden">
-        <!-- Decorative subtle radial glow -->
-        <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/5 rounded-full blur-3xl pointer-events-none"></div>
+    <!-- 1. Full Header Card -->
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden relative">
+        <!-- Top Gradient Accent Bar -->
+        <div class="h-1 bg-gradient-to-r from-[#174668] via-teal-500 to-[#174668]"></div>
 
-        <div class="relative z-10 flex flex-col lg:flex-row justify-between items-start gap-6">
-            <div class="flex-1">
-                <div class="flex flex-wrap items-center gap-2.5 mb-3">
-                    <span class="bg-slate-100 text-slate-700 font-mono text-xs px-3 py-1 rounded-md font-bold border border-slate-200">
-                        #APP-{{ str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) }}
+        <div class="p-6 sm:p-7 relative z-10 space-y-5">
+            <!-- Top Meta Strip: App Code, Status Badge, & Auto-save Live Indicator -->
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div class="flex flex-wrap items-center gap-2.5">
+                    <span class="bg-slate-100 text-slate-700 font-mono text-xs px-3 py-1 rounded-lg font-bold border border-slate-200 shadow-2xs">
+                        {{ $suratPengajuan->formatted_id }}
                     </span>
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold border whitespace-nowrap shrink-0 {{ \App\Models\SuratPengajuan::statusBadgeClasses($suratPengajuan->status) }}">
-                        <span class="material-symbols-outlined text-[14px]">{{ \App\Models\SuratPengajuan::statusIcon($suratPengajuan->status) }}</span>
-                        <span>{{ \App\Models\SuratPengajuan::statusLabel($suratPengajuan->status) }}</span>
-                    </span>
+                    <x-pengajuan.status-badge :status="$suratPengajuan->status" />
                 </div>
-                <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                    B01-03: Evaluasi Diri (164 Butir)
-                </h1>
-                <p class="text-slate-500 text-xs sm:text-sm max-w-2xl mt-1.5 leading-relaxed">
-                    Asesmen mandiri berbasis standar WHO-CIOMS dan Komite Nasional Etik Penelitian Kesehatan.
-                </p>
+
+                <!-- Auto-save Live Indicator -->
+                <div>
+                    <div wire:loading.remove wire:target="uploadBerkas,hapusBerkas,updatedBukti,updatedCatatan" class="inline-flex items-center gap-1.5 text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-full border border-emerald-200/70 text-xs font-semibold shadow-2xs">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span class="material-symbols-outlined text-[15px] text-emerald-600">cloud_done</span>
+                        <span>Perubahan Tersimpan</span>
+                    </div>
+
+                    <div wire:loading wire:target="uploadBerkas,hapusBerkas,updatedBukti,updatedCatatan" class="inline-flex items-center gap-1.5 text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full border border-primary-200/70 text-xs font-semibold shadow-2xs">
+                        <svg class="animate-spin h-3.5 w-3.5 text-primary-600" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span>Menyimpan Perubahan...</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
-                <!-- Auto-save Live Indicator -->
-                <div wire:loading.remove wire:target="setSkor,simpanCatatan" class="flex items-center gap-2 text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-200/80 w-full sm:w-auto justify-center shadow-2xs">
-                    <span class="material-symbols-outlined text-[18px]">cloud_done</span>
-                    <span class="text-xs font-bold">Tersimpan</span>
+            <!-- Main Title & Action Buttons Row -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-5 pt-1">
+                <div class="space-y-1 max-w-3xl">
+                    <h1 class="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
+                        B01-03: Evaluasi Diri
+                    </h1>
+                    <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
+                        Asesmen mandiri kepatuhan komite etik berbasis standar KNEPK dan WHO-CIOMS.
+                    </p>
                 </div>
 
-                <div wire:loading wire:target="setSkor,simpanCatatan" class="flex items-center gap-2 text-primary-700 bg-primary-50 px-4 py-2.5 rounded-xl border border-primary-200/80 w-full sm:w-auto justify-center shadow-2xs">
-                    <svg class="animate-spin h-4 w-4 text-primary-600" fill="none" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    <span class="text-xs font-semibold">Menyimpan...</span>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-2 w-full sm:w-auto">
+                <!-- Unified Action Buttons -->
+                <div class="flex items-center gap-2 w-full lg:w-auto shrink-0">
                     <a
                         href="{{ route('pengajuan.pdf.evaluasi-diri', $suratPengajuan) }}"
                         target="_blank"
-                        class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs flex-1 sm:flex-none flex items-center justify-center gap-1.5"
-                    >
-                        <span class="material-symbols-outlined text-[18px]">picture_as_pdf</span>
-                        <span>Unduh</span>
+                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 active:scale-[0.98] transition shadow-xs flex-1 sm:flex-none"
+                        title="Unduh Berkas Evaluasi Diri (PDF)">
+                        <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
+                        <span>Unduh PDF</span>
                     </a>
 
                     <button
                         type="button"
                         onclick="window.print()"
-                        class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition shadow-xs flex items-center justify-center"
-                        title="Cetak Halaman"
-                    >
+                        class="inline-flex items-center justify-center w-10 h-10 rounded-xl text-slate-600 hover:text-slate-900 bg-white hover:bg-slate-50 border border-slate-200/90 active:scale-[0.96] transition shadow-2xs shrink-0"
+                        title="Cetak Halaman">
                         <span class="material-symbols-outlined text-[18px]">print</span>
                     </button>
 
                     <a
                         href="{{ route('pengajuan.show', $suratPengajuan) }}"
-                        class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2.5 rounded-xl text-xs font-semibold transition shadow-xs flex items-center justify-center"
+                        class="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 bg-slate-100 hover:bg-slate-200/80 active:scale-[0.98] transition shadow-2xs flex-1 sm:flex-none"
                         wire:navigate
-                    >
-                        &larr; Detail
+                        title="Kembali ke Detail Pengajuan">
+                        <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                        <span>Detail Pengajuan</span>
                     </a>
                 </div>
             </div>
@@ -79,66 +84,40 @@
                 $isComplete = $bProg['total'] > 0 && $bProg['terjawab'] === $bProg['total'];
             @endphp
 
-            @if ($isActive)
-                <!-- Active Section Card -->
-                <div
-                    wire:click="switchSection('{{ $b->kode }}')"
-                    class="bg-primary-700 text-white rounded-2xl p-5 shadow-lg shadow-primary-700/20 ring-2 ring-primary-700 ring-offset-2 ring-offset-slate-100 relative overflow-hidden group cursor-pointer flex flex-col justify-between"
-                >
+            <div
+                wire:click="switchSection('{{ $b->kode }}')"
+                class="rounded-2xl p-5 shadow-2xs transition-all cursor-pointer group flex flex-col justify-between relative overflow-hidden {{ $isActive ? 'bg-primary-700 text-white shadow-lg shadow-primary-700/20 ring-2 ring-primary-700 ring-offset-2 ring-offset-slate-100' : 'bg-white border border-slate-200/90 hover:shadow-md hover:border-primary-400' }}"
+            >
+                @if ($isActive)
                     <div class="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent pointer-events-none"></div>
-                    <div class="relative z-10">
-                        <div class="flex justify-between items-start mb-2.5">
-                            <span class="text-xs font-bold uppercase tracking-wider text-primary-200">Bagian {{ $b->kode }}</span>
-                            <div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center backdrop-blur-xs font-mono text-xs font-black">
-                                {{ $bProg['persentase'] }}%
-                            </div>
+                @endif
+
+                <div class="relative z-10">
+                    <div class="flex justify-between items-start mb-2.5">
+                        <span class="text-xs font-bold uppercase tracking-wider {{ $isActive ? 'text-primary-200' : 'text-slate-500 group-hover:text-slate-900 transition' }}">
+                            Bagian {{ $b->kode }}
+                        </span>
+                        <div class="w-8 h-8 rounded-full font-mono text-xs font-bold flex items-center justify-center {{ $isActive ? 'bg-white/20 text-white backdrop-blur-xs font-black' : 'border-2 border-slate-200 bg-slate-50 text-slate-600' }}">
+                            {{ $bProg['persentase'] }}%
                         </div>
-                        <h3 class="font-bold text-xs leading-snug mb-4 text-white">
-                            {{ $b->nama }}
-                        </h3>
                     </div>
-                    <div class="relative z-10">
-                        <div class="flex justify-between text-[11px] font-medium text-primary-100 mb-1.5">
-                            <span>{{ $bProg['terjawab'] }} dari {{ $bProg['total'] }} butir</span>
-                            @if ($isComplete)
-                                <span class="font-bold text-emerald-300">✓ Lengkap</span>
-                            @endif
-                        </div>
-                        <div class="h-1.5 bg-black/20 rounded-full overflow-hidden">
-                            <div class="h-full bg-white rounded-full transition-all duration-500" style="width: {{ $bProg['persentase'] }}%"></div>
-                        </div>
+                    <h3 class="font-bold text-xs leading-snug mb-4 {{ $isActive ? 'text-white' : 'text-slate-800 group-hover:text-primary-700 transition' }}">
+                        {{ $b->nama }}
+                    </h3>
+                </div>
+
+                <div class="relative z-10">
+                    <div class="flex justify-between text-[11px] font-medium mb-1.5 {{ $isActive ? 'text-primary-100' : 'text-slate-500' }}">
+                        <span>{{ $bProg['terjawab'] }} dari {{ $bProg['total'] }} butir</span>
+                        @if ($isComplete)
+                            <span class="font-bold {{ $isActive ? 'text-emerald-300' : 'text-emerald-600' }}">✓ Selesai</span>
+                        @endif
+                    </div>
+                    <div class="h-1.5 rounded-full overflow-hidden {{ $isActive ? 'bg-black/20' : 'bg-slate-100' }}">
+                        <div class="h-full rounded-full transition-all duration-500 {{ $isActive ? 'bg-white' : 'bg-primary-700' }}" style="width: {{ $bProg['persentase'] }}%"></div>
                     </div>
                 </div>
-            @else
-                <!-- Inactive Section Card -->
-                <div
-                    wire:click="switchSection('{{ $b->kode }}')"
-                    class="bg-white border border-slate-200/90 rounded-2xl p-5 shadow-2xs hover:shadow-md hover:border-primary-400 transition-all cursor-pointer group flex flex-col justify-between"
-                >
-                    <div>
-                        <div class="flex justify-between items-start mb-2.5">
-                            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider group-hover:text-slate-900 transition">Bagian {{ $b->kode }}</span>
-                            <div class="w-8 h-8 rounded-full border-2 border-slate-200 bg-slate-50 flex items-center justify-center text-slate-600 font-mono text-xs font-bold">
-                                {{ $bProg['persentase'] }}%
-                            </div>
-                        </div>
-                        <h3 class="font-bold text-xs leading-snug mb-4 text-slate-800 group-hover:text-primary-700 transition">
-                            {{ $b->nama }}
-                        </h3>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-[11px] font-medium text-slate-500 mb-1.5">
-                            <span>{{ $bProg['terjawab'] }} dari {{ $bProg['total'] }} butir</span>
-                            @if ($isComplete)
-                                <span class="font-bold text-emerald-600">✓ Selesai</span>
-                            @endif
-                        </div>
-                        <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                            <div class="h-full bg-primary-700 rounded-full transition-all duration-500" style="width: {{ $bProg['persentase'] }}%"></div>
-                        </div>
-                    </div>
-                </div>
-            @endif
+            </div>
         @endforeach
     </div>
 
@@ -195,17 +174,10 @@
             @foreach ($activeBagian->kelompok as $kIdx => $kelompok)
                 @php
                     $butirList = $kelompok->butir;
-                    $totalButirKelompok = $butirList->count();
-                    $terisiKelompok = 0;
-
-                    foreach ($butirList as $b) {
-                        $hasB = !empty($bukti[$b->id] ?? null);
-                        $hasC = !empty($catatan[$b->id] ?? null);
-                        if ($hasB || $hasC) {
-                            $terisiKelompok++;
-                        }
-                    }
-                    $persenKelompok = $totalButirKelompok > 0 ? round(($terisiKelompok / $totalButirKelompok) * 100) : 0;
+                    $kProg = $kelompokProgress[$kelompok->id] ?? ['total' => 0, 'filled' => 0, 'percentage' => 0];
+                    $totalButirKelompok = $kProg['total'];
+                    $terisiKelompok = $kProg['filled'];
+                    $persenKelompok = $kProg['percentage'];
                 @endphp
 
                 <div class="bg-white rounded-2xl shadow-xs border border-slate-200/80 overflow-hidden flex flex-col">
@@ -246,13 +218,14 @@
                             <tbody class="text-xs divide-y divide-slate-100 bg-white">
                                 @foreach ($butirList as $bIndex => $butir)
                                     @php
-                                        $isEditable = $suratPengajuan->isEditable();
                                         $kodeItem = $activeBagian->kode . ($kIdx + 1) . '.' . ($bIndex + 1);
-                                        $selfAns = $suratPengajuan->jawabanEvaluasi->firstWhere('butir_evaluasi_id', $butir->id);
-                                        $hasFile = !empty($selfAns?->file_path);
+                                        $selfAns = $jawabanMap[$butir->id] ?? null;
+                                        $attachments = $selfAns ? $selfAns->getAttachments() : [];
+                                        $hasFile = count($attachments) > 0;
                                         $hasBukti = !empty($bukti[$butir->id] ?? null);
                                         $hasCatatan = !empty($catatan[$butir->id] ?? null);
                                         $isFilled = $hasFile || $hasBukti || $hasCatatan;
+                                        $asesorReview = $penilaianAsesor[$butir->id] ?? null;
                                     @endphp
                                     <tr class="hover:bg-slate-50/50 transition-colors align-top group {{ $isFilled ? 'bg-emerald-50/15' : '' }}">
                                         <!-- Column 1: Kode -->
@@ -289,7 +262,7 @@
                                             @endif
 
                                             <!-- Assessor Review Card -->
-                                            @if (isset($penilaianAsesor[$butir->id]) && ($penilaianAsesor[$butir->id]->skor || $penilaianAsesor[$butir->id]->temuan || $penilaianAsesor[$butir->id]->catatan))
+                                            @if ($asesorReview && ($asesorReview->skor || $asesorReview->temuan || $asesorReview->catatan))
                                                 <div class="mt-2 p-2.5 bg-amber-50/90 border border-amber-200/90 rounded-xl space-y-1 text-xs">
                                                     <div class="flex items-center justify-between flex-wrap gap-1.5">
                                                         <span class="font-bold text-amber-950 flex items-center gap-1 text-[11px]">
@@ -297,33 +270,33 @@
                                                             <span>Ulasan Asesor:</span>
                                                         </span>
                                                         <div class="flex items-center gap-1.5">
-                                                            @if ($penilaianAsesor[$butir->id]->skor)
-                                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $penilaianAsesor[$butir->id]->skor === 'A' ? 'bg-emerald-100 text-emerald-800' : ($penilaianAsesor[$butir->id]->skor === 'B' ? 'bg-amber-200 text-amber-900' : 'bg-red-100 text-red-800') }}">
-                                                                    Nilai: {{ $penilaianAsesor[$butir->id]->skor }}
+                                                            @if ($asesorReview->skor)
+                                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold {{ $asesorReview->skor === 'A' ? 'bg-emerald-100 text-emerald-800' : ($asesorReview->skor === 'B' ? 'bg-amber-200 text-amber-900' : 'bg-red-100 text-red-800') }}">
+                                                                    Nilai: {{ $asesorReview->skor }}
                                                                 </span>
                                                             @endif
-                                                            @if ($penilaianAsesor[$butir->id]->evidence_strength)
+                                                            @if ($asesorReview->evidence_strength)
                                                                 <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800">
-                                                                    Bukti: {{ $penilaianAsesor[$butir->id]->evidence_strength }}
+                                                                    Bukti: {{ $asesorReview->evidence_strength }}
                                                                 </span>
                                                             @endif
                                                         </div>
                                                     </div>
-                                                    @if ($penilaianAsesor[$butir->id]->temuan)
+                                                    @if ($asesorReview->temuan)
                                                         <div class="text-red-800 bg-red-50/90 p-1.5 rounded-lg border border-red-200/70 text-[11px]">
-                                                            <span class="font-bold">⚠️ Temuan:</span> {{ $penilaianAsesor[$butir->id]->temuan }}
+                                                            <span class="font-bold">⚠️ Temuan:</span> {{ $asesorReview->temuan }}
                                                         </div>
                                                     @endif
-                                                    @if ($penilaianAsesor[$butir->id]->catatan)
+                                                    @if ($asesorReview->catatan)
                                                         <div class="text-slate-700 text-[11px] pt-0.5">
-                                                            <span class="font-semibold text-slate-800">Saran:</span> {{ $penilaianAsesor[$butir->id]->catatan }}
+                                                            <span class="font-semibold text-slate-800">Saran:</span> {{ $asesorReview->catatan }}
                                                         </div>
                                                     @endif
                                                 </div>
                                             @endif
                                         </td>
 
-                                        <!-- Column 3: Bukti Dukung -->
+                                        <!-- Column 3: Bukti Dukung (Multi-File Supported) -->
                                         <td class="py-5 px-6 space-y-3">
                                             <div>
                                                 <input
@@ -336,64 +309,76 @@
                                             </div>
 
                                             @if ($hasFile)
-                                                <div class="bg-emerald-50/80 border border-emerald-200 rounded-xl p-2.5 flex items-center justify-between gap-2 text-xs">
-                                                    <div class="overflow-hidden">
-                                                        <div class="font-semibold text-emerald-950 truncate flex items-center gap-1 text-[11px]">
-                                                            <span class="material-symbols-outlined text-[15px] text-emerald-700">description</span>
-                                                            <span class="truncate">{{ $selfAns->file_name }}</span>
+                                                <div class="space-y-1.5">
+                                                    @foreach ($attachments as $fIdx => $att)
+                                                        <div class="bg-emerald-50/90 border border-emerald-200 rounded-xl p-2 flex items-center justify-between gap-2 text-xs shadow-2xs">
+                                                            <div class="overflow-hidden min-w-0">
+                                                                <div class="font-semibold text-emerald-950 truncate flex items-center gap-1 text-[11px]" title="{{ $att['name'] }}">
+                                                                    <span class="material-symbols-outlined text-[15px] text-emerald-700 shrink-0">description</span>
+                                                                    <span class="truncate">{{ $att['name'] }}</span>
+                                                                </div>
+                                                                <div class="text-[10px] text-emerald-700 font-mono mt-0.5">
+                                                                    {{ format_bytes((int) ($att['size'] ?? 0)) }}
+                                                                </div>
+                                                            </div>
+                                                            <div class="flex items-center gap-1 shrink-0">
+                                                                <a
+                                                                    href="{{ Storage::url($att['path']) }}"
+                                                                    target="_blank"
+                                                                    class="px-2 py-1 bg-white hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 text-[10px] transition shadow-2xs"
+                                                                    title="Buka / Unduh Berkas"
+                                                                >
+                                                                    ⬇ Buka
+                                                                </a>
+                                                                @if ($isEditable)
+                                                                    <button
+                                                                        type="button"
+                                                                        wire:click="hapusBerkas({{ $butir->id }}, {{ $fIdx }})"
+                                                                        wire:confirm="Hapus berkas '{{ $att['name'] }}'?"
+                                                                        class="p-1 text-red-600 hover:bg-red-100 rounded-lg transition"
+                                                                        title="Hapus Berkas Ini"
+                                                                    >
+                                                                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                                                                    </button>
+                                                                @endif
+                                                            </div>
                                                         </div>
-                                                        <div class="text-[10px] text-emerald-700 font-mono mt-0.5">
-                                                            {{ $selfAns->formatUkuran() }}
-                                                        </div>
-                                                    </div>
-                                                    <div class="flex items-center gap-1 shrink-0">
-                                                        <a
-                                                            href="{{ Storage::url($selfAns->file_path) }}"
-                                                            target="_blank"
-                                                            class="px-2 py-1 bg-white hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 text-[10px] transition shadow-2xs"
-                                                            title="Buka Berkas"
-                                                        >
-                                                            ⬇ Buka
-                                                        </a>
-                                                        @if ($isEditable)
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            @if ($isEditable)
+                                                <div class="space-y-1 pt-1">
+                                                    <div class="flex items-center gap-1.5">
+                                                        <input
+                                                            type="file"
+                                                            wire:model="uploadedFiles.{{ $butir->id }}"
+                                                            id="file_{{ $butir->id }}"
+                                                            multiple
+                                                            class="text-[10px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer w-full"
+                                                        />
+                                                        @if (isset($uploadedFiles[$butir->id]))
                                                             <button
                                                                 type="button"
-                                                                wire:click="hapusBerkas({{ $butir->id }})"
-                                                                class="p-1 text-red-600 hover:bg-red-100 rounded-lg transition"
-                                                                title="Hapus Berkas"
+                                                                wire:click="uploadBerkas({{ $butir->id }})"
+                                                                wire:loading.attr="disabled"
+                                                                class="px-3 py-1 bg-primary-700 hover:bg-primary-600 text-white text-[10px] font-bold rounded-lg shadow-2xs shrink-0 transition"
                                                             >
-                                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                                                <span wire:loading.remove wire:target="uploadBerkas({{ $butir->id }})">⬆ Upload</span>
+                                                                <span wire:loading wire:target="uploadBerkas({{ $butir->id }})">...</span>
                                                             </button>
                                                         @endif
                                                     </div>
-                                                </div>
-                                            @else
-                                                @if ($isEditable)
-                                                    <div class="space-y-1">
-                                                        <div class="flex items-center gap-1.5">
-                                                            <input
-                                                                type="file"
-                                                                wire:model="uploadedFiles.{{ $butir->id }}"
-                                                                id="file_{{ $butir->id }}"
-                                                                class="text-[10px] text-slate-600 file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-slate-100 file:text-slate-700 hover:file:bg-slate-200 cursor-pointer w-full"
-                                                            />
-                                                            @if (isset($uploadedFiles[$butir->id]))
-                                                                <button
-                                                                    type="button"
-                                                                    wire:click="uploadBerkas({{ $butir->id }})"
-                                                                    wire:loading.attr="disabled"
-                                                                    class="px-3 py-1 bg-primary-700 hover:bg-primary-600 text-white text-[10px] font-bold rounded-lg shadow-2xs shrink-0 transition"
-                                                                >
-                                                                    <span wire:loading.remove wire:target="uploadBerkas({{ $butir->id }})">Upload</span>
-                                                                    <span wire:loading wire:target="uploadBerkas({{ $butir->id }})">...</span>
-                                                                </button>
-                                                            @endif
-                                                        </div>
-                                                        @error("uploadedFiles.{$butir->id}")
-                                                            <span class="text-red-600 text-[10px] block">{{ $message }}</span>
-                                                        @enderror
+                                                    <div class="text-[9.5px] text-slate-400">
+                                                        Bisa pilih & unggah lebih dari 1 berkas (Maks 25 MB).
                                                     </div>
-                                                @endif
+                                                    @error("uploadedFiles.{$butir->id}")
+                                                        <span class="text-red-600 text-[10px] block">{{ $message }}</span>
+                                                    @enderror
+                                                    @error("uploadedFiles.{$butir->id}.*")
+                                                        <span class="text-red-600 text-[10px] block">{{ $message }}</span>
+                                                    @enderror
+                                                </div>
                                             @endif
 
                                             @if (session("status_{$butir->id}"))

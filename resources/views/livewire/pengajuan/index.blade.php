@@ -88,7 +88,7 @@
                         <tr class="hover:bg-slate-50/60 transition group">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-md border border-slate-200 text-xs">
-                                    #APP-{{ str_pad($item->id, 5, '0', STR_PAD_LEFT) }}
+                                    {{ $item->formatted_id }}
                                 </span>
                             </td>
                             <td class="px-6 py-4">
@@ -102,10 +102,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-bold border whitespace-nowrap {{ \App\Models\SuratPengajuan::statusBadgeClasses($item->status) }}">
-                                    <span class="material-symbols-outlined text-[14px]">{{ \App\Models\SuratPengajuan::statusIcon($item->status) }}</span>
-                                    <span>{{ \App\Models\SuratPengajuan::statusLabel($item->status) }}</span>
-                                </span>
+                                <x-pengajuan.status-badge :status="$item->status" />
                             </td>
                             <td class="px-6 py-4 text-slate-500 font-mono text-xs whitespace-nowrap">
                                 {{ $item->created_at->format('d M Y') }}

@@ -202,6 +202,26 @@ class SuratPengajuan extends Model
         return in_array($this->status, ['draft', 'revision_required'], true);
     }
 
+    public function getStatusLabelAttribute(): string
+    {
+        return self::statusLabel($this->status);
+    }
+
+    public function getStatusIconAttribute(): string
+    {
+        return self::statusIcon($this->status);
+    }
+
+    public function getStatusBadgeClassesAttribute(): string
+    {
+        return self::statusBadgeClasses($this->status);
+    }
+
+    public function getFormattedIdAttribute(): string
+    {
+        return '#APP-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
+    }
+
     public static function statusLabel(string $status): string
     {
         return match ($status) {

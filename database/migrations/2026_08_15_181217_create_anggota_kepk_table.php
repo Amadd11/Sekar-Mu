@@ -16,6 +16,12 @@ return new class extends Migration
             $table->foreignId('surat_pengajuan_id')->constrained('surat_pengajuan')->cascadeOnDelete();
             $table->string('nama');
             $table->string('jabatan')->nullable();
+            $table->string('peran_etik')->nullable(); // Ketua, Sekretaris, Anggota, Lay Person
+            $table->string('keahlian')->nullable();
+            $table->string('afiliasi')->default('Internal');
+            $table->string('gender', 20)->nullable();
+            $table->string('pendidikan')->nullable();
+            $table->boolean('status_aktif')->default(true);
             $table->string('email')->nullable();
             $table->string('telepon', 50)->nullable();
             $table->timestamps();

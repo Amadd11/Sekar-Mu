@@ -18,7 +18,7 @@ class LembarPenilaian extends Component
 {
     public SuratPengajuan $suratPengajuan;
 
-    public string $activeTab = 'asesmen_butir'; // asesmen_butir, ringkasan, matriks_gap, corrective_actions
+    public string $activeTab = 'asesmen_butir'; // asesmen_butir, ringkasan, corrective_actions
     public string $activeSection = 'A';
 
     public string $rekomendasi = 'approved';

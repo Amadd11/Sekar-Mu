@@ -30,8 +30,8 @@ new #[Layout('layouts.guest')] class extends Component
                 <div class="flex items-center gap-3">
                     <div class="text-4xl select-none">🌸</div>
                     <div>
-                        <div class="text-2xl font-black tracking-tight text-white leading-none">Sekar-Mu</div>
-                        <div class="text-[10px] font-bold tracking-widest text-pink-300 uppercase mt-1">BUNGA SEKAR 🌸</div>
+                        <div class="text-2xl font-black tracking-tight text-white leading-none font-display">SekarMU</div>
+                        <div class="text-[10px] font-bold tracking-widest text-teal-200 uppercase mt-1">SISTEM KEPK</div>
                     </div>
                 </div>
 
@@ -51,7 +51,7 @@ new #[Layout('layouts.guest')] class extends Component
                             ✓
                         </div>
                         <span class="text-teal-100/90 leading-tight">
-                            Evaluasi Diri Standar WHO-CIOMS (155 Butir Instrumen)
+                            Evaluasi Diri Standar KNEPK & WHO-CIOMS (164 Butir Instrumen)
                         </span>
                     </div>
 
@@ -108,7 +108,7 @@ new #[Layout('layouts.guest')] class extends Component
                                 autofocus
                                 autocomplete="username"
                                 placeholder="nama@institusi.ac.id"
-                                class="w-full rounded-xl border-slate-300 text-slate-900 placeholder-slate-400 text-xs px-3.5 py-2.5 ps-10 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 transition shadow-2xs"
+                                class="w-full rounded-xl border-slate-300 text-slate-900 placeholder-slate-400 text-xs px-3.5 py-2.5 ps-10 focus:border-[#174668] focus:ring-2 focus:ring-[#174668]/15 transition shadow-2xs"
                             />
                             <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
@@ -126,7 +126,7 @@ new #[Layout('layouts.guest')] class extends Component
                                 Kata Sandi <span class="text-red-500">*</span>
                             </label>
                             @if (Route::has('password.request'))
-                                <a href="{{ route('password.request') }}" class="text-xs font-semibold text-teal-700 hover:underline" wire:navigate>
+                                <a href="{{ route('password.request') }}" class="text-xs font-semibold text-[#174668] hover:underline" wire:navigate>
                                     Lupa sandi?
                                 </a>
                             @endif
@@ -140,7 +140,7 @@ new #[Layout('layouts.guest')] class extends Component
                                 required
                                 autocomplete="current-password"
                                 placeholder="••••••••"
-                                class="w-full rounded-xl border-slate-300 text-slate-900 placeholder-slate-400 text-xs px-3.5 py-2.5 ps-10 pe-10 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/10 transition shadow-2xs"
+                                class="w-full rounded-xl border-slate-300 text-slate-900 placeholder-slate-400 text-xs px-3.5 py-2.5 ps-10 pe-10 focus:border-[#174668] focus:ring-2 focus:ring-[#174668]/15 transition shadow-2xs"
                             />
                             <svg class="w-4 h-4 text-slate-400 absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
@@ -167,31 +167,42 @@ new #[Layout('layouts.guest')] class extends Component
 
                     <!-- Remember Me Checkbox -->
                     <div class="flex items-center justify-between pt-1">
-                        <label for="remember" class="inline-flex items-center cursor-pointer">
+                        <label for="remember" class="inline-flex items-center cursor-pointer select-none">
                             <input
                                 wire:model="form.remember"
                                 id="remember"
                                 type="checkbox"
-                                class="rounded border-slate-300 text-teal-700 shadow-2xs focus:ring-teal-600 w-4 h-4"
+                                class="rounded border-slate-300 text-[#174668] shadow-2xs focus:ring-[#174668] w-4 h-4 cursor-pointer"
                                 name="remember"
                             />
                             <span class="ms-2 text-xs text-slate-600 font-medium">Ingat sesi masuk saya</span>
                         </label>
                     </div>
 
-                    <!-- Submit Button -->
+                    <!-- Redesigned Submit Button with Polished Loading State -->
                     <div class="pt-2">
                         <button
                             type="submit"
-                            class="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-bold text-xs text-white bg-teal-700 hover:bg-teal-800 active:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:ring-offset-2 shadow-2xs transition duration-150"
+                            wire:target="login"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-80 cursor-wait pointer-events-none"
+                            class="group relative w-full h-11 sm:h-12 flex items-center justify-center gap-2.5 px-5 rounded-xl font-bold text-xs sm:text-sm text-white bg-gradient-to-r from-[#174668] via-[#1d5782] to-[#174668] bg-[length:200%_auto] hover:bg-right active:scale-[0.99] transition-all duration-300 shadow-md shadow-[#174668]/25 hover:shadow-lg hover:shadow-[#174668]/35 hover:-translate-y-0.5 active:translate-y-0 focus:outline-none focus:ring-2 focus:ring-[#174668] focus:ring-offset-2 disabled:opacity-75 disabled:cursor-not-allowed cursor-pointer overflow-hidden"
                         >
-                            <span wire:loading.remove wire:target="login">Masuk ke Portal &rarr;</span>
-                            <span wire:loading wire:target="login" class="flex items-center gap-2">
-                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            <!-- Default State -->
+                            <span wire:loading.remove wire:target="login" class="inline-flex items-center gap-2">
+                                <span>Masuk ke Portal</span>
+                                <svg class="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
                                 </svg>
-                                Memproses...
+                            </span>
+
+                            <!-- Polished Loading State -->
+                            <span wire:loading.flex wire:target="login" class="items-center justify-center gap-2.5 text-white">
+                                <svg class="animate-spin h-4 w-4 sm:h-[18px] sm:w-[18px] text-white shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3.5"></circle>
+                                    <path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                <span class="tracking-wide font-semibold text-xs sm:text-sm">Memverifikasi Akun...</span>
                             </span>
                         </button>
                     </div>

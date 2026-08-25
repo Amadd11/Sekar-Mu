@@ -3,10 +3,8 @@
     <div class="bg-white border border-slate-200/90 rounded-xl p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <span class="font-mono text-xs font-bold text-slate-500">#APP-{{ str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) }}</span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border {{ \App\Models\SuratPengajuan::statusBadgeClasses($suratPengajuan->status) }}">
-                    {{ \App\Models\SuratPengajuan::statusLabel($suratPengajuan->status) }}
-                </span>
+                <span class="font-mono text-xs font-bold text-slate-500">{{ $suratPengajuan->formatted_id }}</span>
+                <x-pengajuan.status-badge :status="$suratPengajuan->status" />
             </div>
             <h1 class="text-lg font-bold text-slate-900">
                 Penugasan Penilai Etik (Assign Reviewers)

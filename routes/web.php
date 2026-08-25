@@ -19,7 +19,7 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-Route::view('dashboard', 'dashboard')
+Route::get('/dashboard', \App\Livewire\Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -57,7 +57,6 @@ Route::middleware(['auth', 'role:reviewer|admin'])->group(function () {
 Route::middleware(['auth'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/pdf/hasil-akreditasi', [\App\Http\Controllers\ReportController::class, 'hasilAkreditasi'])->name('pengajuan.pdf.hasil-akreditasi');
     Route::get('/pengajuan/{suratPengajuan}/pdf/evaluasi-diri', [\App\Http\Controllers\ReportController::class, 'evaluasiDiri'])->name('pengajuan.pdf.evaluasi-diri');
-    Route::get('/pengajuan/{suratPengajuan}/pdf/matriks-gap', [\App\Http\Controllers\ReportController::class, 'matriksGap'])->name('pengajuan.pdf.matriks-gap');
 });
 
 // 5. Modul Khusus Administrator (Admin Only)

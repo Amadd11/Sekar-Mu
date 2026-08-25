@@ -4,11 +4,9 @@
         <div>
             <div class="flex items-center gap-2 mb-1">
                 <span class="font-mono text-xs font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                    #APP-{{ str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) }}
+                    {{ $suratPengajuan->formatted_id }}
                 </span>
-                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium border {{ \App\Models\SuratPengajuan::statusBadgeClasses($suratPengajuan->status) }}">
-                    {{ \App\Models\SuratPengajuan::statusLabel($suratPengajuan->status) }}
-                </span>
+                <x-pengajuan.status-badge :status="$suratPengajuan->status" />
                 <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold border {{ $metrics['prediction']['badge_class'] }}">
                     {{ $metrics['prediction']['type'] }} ({{ $metrics['overall_compliance'] }}%)
                 </span>
@@ -113,23 +111,11 @@
 
         <button
             type="button"
-            wire:click="switchTab('matriks_gap')"
-            class="py-2.5 px-4 border-b-2 transition flex items-center gap-1.5 whitespace-nowrap {{ $activeTab === 'matriks_gap' ? 'border-[#174668] text-[#174668] font-bold bg-white' : 'border-transparent text-slate-500 hover:text-slate-700' }}"
-        >
-            <span>⚖️</span>
-            <span>3. Matriks Komparasi Gap</span>
-            @if($comparisonMatrix['total_gaps'] > 0)
-                <span class="px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 text-[10px]">{{ $comparisonMatrix['total_gaps'] }}</span>
-            @endif
-        </button>
-
-        <button
-            type="button"
             wire:click="switchTab('corrective_actions')"
             class="py-2.5 px-4 border-b-2 transition flex items-center gap-1.5 whitespace-nowrap {{ $activeTab === 'corrective_actions' ? 'border-[#174668] text-[#174668] font-bold bg-white' : 'border-transparent text-slate-500 hover:text-slate-700' }}"
         >
             <span>🛠️</span>
-            <span>4. Tindakan Korektif (CAPA)</span>
+            <span>3. Tindakan Korektif (CAPA)</span>
             @if($correctiveActions->count() > 0)
                 <span class="px-1.5 py-0.2 rounded-full bg-slate-100 text-slate-800 text-[10px]">{{ $correctiveActions->count() }}</span>
             @endif
@@ -180,8 +166,9 @@
 
                 <!-- 2. Documents List -->
                 @php
-                    $perItemFiles = $suratPengajuan->jawabanEvaluasi->whereNotNull('file_path');
-                    $totalAllFiles = $suratPengajuan->dokumen->count() + $perItemFiles->count();
+                    $perItemAnswersWithFiles = $suratPengajuan->jawabanEvaluasi->filter(fn($j) => $j->hasAttachments());
+                    $totalItemFilesCount = $perItemAnswersWithFiles->sum(fn($j) => count($j->getAttachments()));
+                    $totalAllFiles = $suratPengajuan->dokumen->count() + $totalItemFilesCount;
                 @endphp
                 <div class="bg-white border border-slate-200/90 rounded-xl shadow-2xs overflow-hidden">
                     <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
@@ -196,29 +183,31 @@
                     </div>
                     <div class="divide-y divide-slate-100 text-xs">
                         <!-- Per-Item Uploaded Files -->
-                        @foreach ($perItemFiles as $itemFile)
-                            <div class="px-5 py-3.5 flex items-center justify-between hover:bg-slate-50 bg-emerald-50/20">
-                                <div>
-                                    <div class="font-semibold text-slate-900 flex items-center gap-1.5">
-                                        <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#174668] text-white">
-                                            Butir #{{ $itemFile->butir_evaluasi_id }}
-                                        </span>
-                                        <span>📄</span>
-                                        <span>{{ $itemFile->file_name ?? $itemFile->bukti }}</span>
+                        @foreach ($perItemAnswersWithFiles as $itemAnswer)
+                            @foreach ($itemAnswer->getAttachments() as $att)
+                                <div class="px-5 py-3 flex items-center justify-between hover:bg-slate-50 bg-emerald-50/20">
+                                    <div>
+                                        <div class="font-semibold text-slate-900 flex items-center gap-1.5">
+                                            <span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-[#174668] text-white">
+                                                Butir #{{ $itemAnswer->butir_evaluasi_id }}
+                                            </span>
+                                            <span>📄</span>
+                                            <span>{{ $att['name'] }}</span>
+                                        </div>
+                                        <div class="text-[11px] text-slate-500 mt-0.5">
+                                            {{ format_bytes((int) ($att['size'] ?? 0)) }} • Bukti: {{ $itemAnswer->bukti ?? '-' }}
+                                        </div>
                                     </div>
-                                    <div class="text-[11px] text-slate-500 mt-0.5">
-                                        {{ $itemFile->formatUkuran() }} • Bukti: {{ $itemFile->bukti ?? '-' }}
-                                    </div>
+                                    <a
+                                        href="{{ Storage::url($att['path']) }}"
+                                        target="_blank"
+                                        class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-2xs flex items-center gap-1"
+                                    >
+                                        <span>⬇</span>
+                                        <span>Buka / Unduh</span>
+                                    </a>
                                 </div>
-                                <a
-                                    href="{{ Storage::url($itemFile->file_path) }}"
-                                    target="_blank"
-                                    class="px-3 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition shadow-2xs flex items-center gap-1"
-                                >
-                                    <span>⬇</span>
-                                    <span>Buka / Unduh</span>
-                                </a>
-                            </div>
+                            @endforeach
                         @endforeach
 
                         <!-- General Document Attachments -->
@@ -505,21 +494,28 @@
                                                             </div>
                                                         @endif
 
-                                                        @if($selfAns?->file_path)
-                                                            <div class="p-2 bg-white rounded-lg border border-emerald-300 flex items-center justify-between gap-2 shadow-2xs">
-                                                                <div class="font-semibold text-emerald-950 text-[11px] truncate flex items-center gap-1.5 overflow-hidden">
-                                                                    <span>📎</span>
-                                                                    <span class="truncate">{{ $selfAns->file_name ?? 'Berkas Lampiran' }}</span>
-                                                                    <span class="text-[10px] text-slate-400 font-mono font-normal">({{ $selfAns->formatUkuran() }})</span>
-                                                                </div>
-                                                                <a
-                                                                    href="{{ Storage::url($selfAns->file_path) }}"
-                                                                    target="_blank"
-                                                                    class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded-md shrink-0 transition shadow-2xs flex items-center gap-1"
-                                                                >
-                                                                    <span>⬇</span>
-                                                                    <span>Buka File</span>
-                                                                </a>
+                                                        @php
+                                                            $itemAttachments = $selfAns ? $selfAns->getAttachments() : [];
+                                                        @endphp
+                                                        @if(count($itemAttachments) > 0)
+                                                            <div class="space-y-1">
+                                                                @foreach($itemAttachments as $att)
+                                                                    <div class="p-1.5 bg-white rounded-lg border border-emerald-300 flex items-center justify-between gap-2 shadow-2xs">
+                                                                        <div class="font-semibold text-emerald-950 text-[11px] truncate flex items-center gap-1.5 overflow-hidden" title="{{ $att['name'] }}">
+                                                                            <span>📎</span>
+                                                                            <span class="truncate">{{ $att['name'] }}</span>
+                                                                            <span class="text-[10px] text-slate-400 font-mono font-normal">({{ format_bytes((int) ($att['size'] ?? 0)) }})</span>
+                                                                        </div>
+                                                                        <a
+                                                                            href="{{ Storage::url($att['path']) }}"
+                                                                            target="_blank"
+                                                                            class="px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] rounded shrink-0 transition shadow-2xs flex items-center gap-0.5"
+                                                                        >
+                                                                            <span>⬇</span>
+                                                                            <span>Buka</span>
+                                                                        </a>
+                                                                    </div>
+                                                                @endforeach
                                                             </div>
                                                         @endif
 
@@ -634,81 +630,7 @@
     @endif
 
     <!-- TAB 3: MATRIKS KOMPARASI GAP (SELF VS ASESOR) -->
-    @if ($activeTab === 'matriks_gap')
-        <div class="bg-white border border-slate-200 rounded-xl shadow-2xs p-5 space-y-6">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
-                <div>
-                    <h2 class="text-base font-bold text-slate-900">Matriks Komparasi: Self-Assessment KEPK vs Asesmen Asesor</h2>
-                    <p class="text-xs text-slate-500 mt-0.5">Membandingkan skor evaluasi diri mandiri dengan skor verifikasi lapangan asesor per butir penilaian.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                        {{ $comparisonMatrix['total_matches'] }} Sesuai
-                    </span>
-                    <span class="px-3 py-1 rounded-lg text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                        {{ $comparisonMatrix['total_gaps'] }} Kesenjangan (Gap)
-                    </span>
-                </div>
-            </div>
-
-            @foreach ($comparisonMatrix['sections'] as $secCode => $secData)
-                <div class="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
-                    <div class="bg-[#174668] text-white px-4 py-2.5 font-bold text-xs flex items-center justify-between">
-                        <span>Bagian {{ $secCode }}: {{ $secData['section_name'] }}</span>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-xs text-left border-collapse">
-                            <thead class="bg-slate-100 border-b border-slate-200 text-slate-600 font-bold text-[11px]">
-                                <tr>
-                                    <th class="py-2.5 px-4 w-16 text-center">KODE</th>
-                                    <th class="py-2.5 px-4">KRITERIA BUTIR</th>
-                                    <th class="py-2.5 px-4 w-28 text-center">SELF KEPK</th>
-                                    <th class="py-2.5 px-4 w-28 text-center">ASESOR</th>
-                                    <th class="py-2.5 px-4 w-36 text-center">STATUS GAP</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100">
-                                @foreach ($secData['items'] as $item)
-                                    <tr class="hover:bg-slate-50 {{ $item['has_gap'] ? 'bg-amber-50/40' : '' }}">
-                                        <td class="py-3 px-4 text-center font-bold text-slate-700">{{ $item['kode_butir'] }}</td>
-                                        <td class="py-3 px-4">
-                                            <div class="font-medium text-slate-900">{{ $item['pertanyaan'] }}</div>
-                                            @if($item['is_critical'])
-                                                <span class="inline-flex px-1.5 py-0.2 text-[9px] font-bold bg-rose-100 text-rose-800 rounded mt-0.5">⚠️ Butir Kritis</span>
-                                            @endif
-                                        </td>
-                                        <td class="py-3 px-4 text-center">
-                                            <span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-xs bg-slate-100 text-slate-800 border border-slate-200">
-                                                {{ $item['self_score'] }}
-                                            </span>
-                                        </td>
-                                        <td class="py-3 px-4 text-center">
-                                            <span class="inline-flex px-2 py-0.5 rounded font-mono font-bold text-xs {{ $item['assessor_score'] !== '-' ? 'bg-teal-100 text-teal-800 border border-teal-200' : 'bg-slate-100 text-slate-400' }}">
-                                                {{ $item['assessor_score'] }}
-                                            </span>
-                                        </td>
-                                        <td class="py-3 px-4 text-center">
-                                            @if ($item['has_gap'])
-                                                <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200">
-                                                    ⚠️ {{ $item['gap_label'] }}
-                                                </span>
-                                            @else
-                                                <span class="inline-flex px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                                                    ✓ Sesuai (0)
-                                                </span>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            @endforeach
-        </div>
-    @endif
-
-    <!-- TAB 4: TINDAKAN KOREKTIF (CAPA) -->
+    <!-- TAB 3: TINDAKAN KOREKTIF (CAPA) -->
     @if ($activeTab === 'corrective_actions')
         <div class="bg-white border border-slate-200 rounded-xl shadow-2xs p-5 space-y-6">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">

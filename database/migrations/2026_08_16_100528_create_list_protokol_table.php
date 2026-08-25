@@ -17,7 +17,12 @@ return new class extends Migration
             $table->string('nomor_protokol', 100);
             $table->string('judul');
             $table->string('peneliti_utama');
+            $table->string('review_type', 50)->default('full_board'); // exempted, expedited, full_board
+            $table->string('institusi_asal')->nullable();
             $table->date('tanggal_pengajuan')->nullable();
+            $table->date('tanggal_review')->nullable();
+            $table->string('nomor_surat_etik', 100)->nullable();
+            $table->string('status_etik', 50)->nullable();
             $table->string('status', 50)->default('draft');
             $table->timestamps();
         });

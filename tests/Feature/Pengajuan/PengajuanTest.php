@@ -12,6 +12,7 @@ use App\Livewire\Penilaian\LembarPenilaian;
 use App\Livewire\Penilaian\TugaskanPenilai;
 use App\Models\BagianEvaluasi;
 use App\Models\Institusi;
+use App\Models\JawabanEvaluasi;
 use App\Models\Kepk;
 use App\Models\SuratPengajuan;
 use App\Models\User;
@@ -88,12 +89,14 @@ test('pemohon dapat mengisi kelengkapan bukti, catatan, dan mengunggah berkas pe
         ->call('uploadBerkas', $butirPertama->id)
         ->assertHasNoErrors();
 
-    $this->assertDatabaseHas('jawaban_evaluasi', [
-        'surat_pengajuan_id' => $surat->id,
-        'butir_evaluasi_id' => $butirPertama->id,
-        'file_name' => 'sk_rektor_kepk.pdf',
-        'catatan' => 'Struktur keanggotaan KEPK telah disahkan',
-    ]);
+    $ans = JawabanEvaluasi::where('surat_pengajuan_id', $surat->id)
+        ->where('butir_evaluasi_id', $butirPertama->id)
+        ->first();
+
+    expect($ans)->not->toBeNull();
+    expect($ans->catatan)->toBe('Struktur keanggotaan KEPK telah disahkan');
+    expect($ans->hasAttachments())->toBeTrue();
+    expect($ans->getAttachments()[0]['name'])->toBe('sk_rektor_kepk.pdf');
 
     // Test hapus berkas
     Livewire::actingAs($pemohon)
@@ -101,11 +104,9 @@ test('pemohon dapat mengisi kelengkapan bukti, catatan, dan mengunggah berkas pe
         ->call('hapusBerkas', $butirPertama->id)
         ->assertHasNoErrors();
 
-    $this->assertDatabaseHas('jawaban_evaluasi', [
-        'surat_pengajuan_id' => $surat->id,
-        'butir_evaluasi_id' => $butirPertama->id,
-        'file_path' => null,
-    ]);
+    $ans->refresh();
+    expect($ans->file_attachments)->toBeNull();
+    expect($ans->hasAttachments())->toBeFalse();
 });
 
 test('pemohon dapat mengelola list protokol dan dokumen lampiran', function () {
@@ -330,6 +331,42 @@ test('asesor dapat menilai independen dan menghasilkan matriks komparasi gap', f
     $matrix = $penilaianService->getComparisonMatrix($surat, $penilai->id);
     expect($matrix['total_matches'])->toBeGreaterThanOrEqual(1);
     expect($matrix['total_gaps'])->toBeGreaterThanOrEqual(1);
+});
+
+test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol', function () {
+    Role::firstOrCreate(['name' => 'anggota_kepk']);
+
+    $pemohon = User::factory()->applicant()->create();
+    $anggota = User::factory()->create();
+    $anggota->assignRole('anggota_kepk');
+
+    $surat = SuratPengajuan::create([
+        'user_id' => $pemohon->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'draft',
+    ]);
+
+    $butirPertama = BagianEvaluasi::first()->butir()->first();
+
+    // Anggota KEPK dapat membuka dan mengisi evaluasi diri
+    Livewire::actingAs($anggota)
+        ->test(EvaluasiDiri::class, ['suratPengajuan' => $surat])
+        ->set("catatan.{$butirPertama->id}", 'Diisi oleh Anggota KEPK')
+        ->assertHasNoErrors();
+
+    // Anggota KEPK dapat membuka dan menambah list protokol
+    Livewire::actingAs($anggota)
+        ->test(ListProtokol::class, ['suratPengajuan' => $surat])
+        ->set('nomor_protokol', 'PROT-ANGGOTA-001')
+        ->set('judul', 'Penelitian Klinis Vaksin Baru')
+        ->set('peneliti_utama', 'Dr. Siti, Sp.A')
+        ->call('simpanProtokol')
+        ->assertHasNoErrors();
+
+    $this->assertDatabaseHas('list_protokol', [
+        'surat_pengajuan_id' => $surat->id,
+        'nomor_protokol' => 'PROT-ANGGOTA-001',
+    ]);
 });
 
 test('corrective action service dapat membuat dan memperbarui status siklus tindakan perbaikan', function () {

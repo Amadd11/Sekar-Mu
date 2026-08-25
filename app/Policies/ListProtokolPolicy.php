@@ -14,8 +14,12 @@ class ListProtokolPolicy
 
     public function view(User $user, ListProtokol $protokol): bool
     {
-        if ($user->isAdmin() || $user->isReviewer()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
             return true;
+        }
+
+        if ($user->isReviewer()) {
+            return $protokol->suratPengajuan->penilai()->where('user_id', $user->id)->exists();
         }
 
         return $user->id === $protokol->suratPengajuan->user_id;
@@ -23,24 +27,32 @@ class ListProtokolPolicy
 
     public function create(User $user): bool
     {
-        return $user->isApplicant() || $user->isAdmin();
+        return $user->isApplicant() || $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk();
     }
 
     public function update(User $user, ListProtokol $protokol): bool
     {
-        if ($user->isAdmin()) {
+        if (! $protokol->suratPengajuan->isEditable()) {
+            return false;
+        }
+
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $protokol->suratPengajuan->user_id) {
             return true;
         }
 
-        return $user->id === $protokol->suratPengajuan->user_id && $protokol->suratPengajuan->isEditable();
+        return false;
     }
 
     public function delete(User $user, ListProtokol $protokol): bool
     {
-        if ($user->isAdmin()) {
+        if (! $protokol->suratPengajuan->isEditable()) {
+            return false;
+        }
+
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $protokol->suratPengajuan->user_id) {
             return true;
         }
 
-        return $user->id === $protokol->suratPengajuan->user_id && $protokol->suratPengajuan->isEditable();
+        return false;
     }
 }

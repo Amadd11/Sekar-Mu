@@ -54,13 +54,23 @@ class ComplianceService
                     $secAnswered++;
                     $totalAnsweredCount++;
 
-                    match ($effectiveScore) {
-                        'A' => ($countA++ && $secA++ && $secScorePoints += 1.0 && $totalScorePoints += 1.0),
-                        'B' => ($countB++ && $secB++ && $secScorePoints += 0.5 && $totalScorePoints += 0.5),
-                        'C' => ($countC++ && $secC++),
-                        'D' => ($countD++ && $secD++),
-                        default => null,
-                    };
+                    if ($effectiveScore === 'A') {
+                        $countA++;
+                        $secA++;
+                        $secScorePoints += 1.0;
+                        $totalScorePoints += 1.0;
+                    } elseif ($effectiveScore === 'B') {
+                        $countB++;
+                        $secB++;
+                        $secScorePoints += 0.5;
+                        $totalScorePoints += 0.5;
+                    } elseif ($effectiveScore === 'C') {
+                        $countC++;
+                        $secC++;
+                    } elseif ($effectiveScore === 'D') {
+                        $countD++;
+                        $secD++;
+                    }
                 }
             }
 

@@ -164,7 +164,7 @@
             <td class="label">Nama Institusi / Lembaga:</td>
             <td>{{ $surat->formulirAplikasi->nama_institusi ?? $surat->kepk->institusi->name ?? '-' }}</td>
             <td class="label">Status Pengajuan:</td>
-            <td><strong>{{ \App\Models\SuratPengajuan::statusLabel($surat->status) }}</strong></td>
+            <td><strong>{{ $surat->status_label }}</strong></td>
         </tr>
         <tr>
             <td class="label">Singkatan / Akronim:</td>
@@ -262,7 +262,7 @@
                 <div style="font-weight: bold; color: #0f172a; margin-bottom: 3px;">
                     👤 Asesor: {{ $pe->penilai->name }}
                     <span style="font-weight: normal; color: #64748b; font-size: 9.5px;">({{ $pe->created_at->format('d M Y, H:i') }})</span>
-                    — <strong>Rekomendasi: {{ \App\Models\PenilaianEtik::labelRekomendasi($pe->rekomendasi) }}</strong>
+                    — <strong>Rekomendasi: {{ $pe->label_rekomendasi }}</strong>
                 </div>
                 @if ($pe->catatan)
                     <div style="color: #334155; font-style: italic; margin-top: 4px;">"{{ $pe->catatan }}"</div>

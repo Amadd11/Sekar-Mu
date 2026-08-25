@@ -38,17 +38,4 @@ class ReportController extends Controller
 
         return $pdf->stream($fileName);
     }
-
-    /**
-     * Download or stream Matriks Komparasi Gap Evaluasi vs Asesor (PDF).
-     */
-    public function matriksGap(SuratPengajuan $suratPengajuan): Response
-    {
-        Gate::authorize('view', $suratPengajuan);
-
-        $pdf = $this->reportService->generateComparisonMatrixReport($suratPengajuan);
-        $fileName = 'Matriks_Komparasi_Gap_APP_' . str_pad($suratPengajuan->id, 5, '0', STR_PAD_LEFT) . '.pdf';
-
-        return $pdf->stream($fileName);
-    }
 }

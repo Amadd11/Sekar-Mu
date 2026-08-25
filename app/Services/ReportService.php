@@ -75,27 +75,4 @@ class ReportService
             'printedAt' => now()->translatedFormat('d F Y, H:i'),
         ])->setPaper('a4', 'portrait');
     }
-
-    /**
-     * Generate Comparison Matrix (Self-Assessment vs Assessor Score vs Gap).
-     */
-    public function generateComparisonMatrixReport(SuratPengajuan $surat): \Barryvdh\DomPDF\PDF
-    {
-        $surat->load([
-            'kepk.institusi',
-            'formulirAplikasi',
-            'penilai',
-            'user',
-        ]);
-
-        $matrix = $this->penilaianService->getComparisonMatrix($surat);
-        $metrics = $this->complianceService->calculateComplianceMetrics($surat);
-
-        return Pdf::loadView('pdf.matriks-gap', [
-            'surat' => $surat,
-            'matrix' => $matrix,
-            'metrics' => $metrics,
-            'printedAt' => now()->translatedFormat('d F Y, H:i'),
-        ])->setPaper('a4', 'landscape');
-    }
 }

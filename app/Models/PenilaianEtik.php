@@ -52,6 +52,16 @@ class PenilaianEtik extends Model
         return $this->hasMany(CatatanPenilaian::class, 'penilaian_etik_id');
     }
 
+    public function getLabelRekomendasiAttribute(): string
+    {
+        return self::labelRekomendasi($this->rekomendasi ?? '');
+    }
+
+    public function getBadgeRekomendasiAttribute(): string
+    {
+        return self::badgeRekomendasi($this->rekomendasi ?? '');
+    }
+
     public static function labelRekomendasi(string $rekomendasi): string
     {
         return match ($rekomendasi) {

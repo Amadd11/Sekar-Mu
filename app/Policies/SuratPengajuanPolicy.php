@@ -14,8 +14,12 @@ class SuratPengajuanPolicy
 
     public function view(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin() || $user->isReviewer() || $user->isApplicant()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
             return true;
+        }
+
+        if ($user->isReviewer()) {
+            return $surat->penilai()->where('user_id', $user->id)->exists();
         }
 
         return $user->id === $surat->user_id;
@@ -23,20 +27,20 @@ class SuratPengajuanPolicy
 
     public function create(User $user): bool
     {
-        return $user->isApplicant() || $user->isAdmin();
+        return $user->isApplicant() || $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk();
     }
 
     public function update(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin()) {
+        if (! $surat->isEditable()) {
+            return false;
+        }
+
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $surat->user_id) {
             return true;
         }
 
-        if ($user->isApplicant() && $surat->isEditable()) {
-            return true;
-        }
-
-        return $user->id === $surat->user_id && $surat->isEditable();
+        return false;
     }
 
     public function delete(User $user, SuratPengajuan $surat): bool
@@ -54,14 +58,22 @@ class SuratPengajuanPolicy
 
     public function submit(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin()) {
-            return true;
+        if (! $surat->isEditable()) {
+            return false;
         }
 
-        if (($user->isKetuaKepk() || $user->id === $surat->user_id) && $surat->isEditable()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->id === $surat->user_id) {
             return true;
         }
 
         return false;
+    }
+
+    /**
+     * Determine if the user can make a final status decision on the application.
+     */
+    public function decide(User $user, SuratPengajuan $surat): bool
+    {
+        return $user->isAdmin() && $surat->status !== 'draft';
     }
 }

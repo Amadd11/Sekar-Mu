@@ -1,11 +1,3 @@
-@php
-    $user = auth()->user();
-    $latestApp = \App\Models\SuratPengajuan::where('user_id', $user->id)->latest()->first();
-    if (!$latestApp) {
-        $latestApp = \App\Models\SuratPengajuan::latest()->first();
-    }
-@endphp
-
 <!-- Left Sidebar (Classic Sekar-Mu Navy Theme) -->
 <aside
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
