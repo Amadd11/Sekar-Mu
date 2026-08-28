@@ -70,6 +70,6 @@ class SuratPengajuanPolicy
      */
     public function decide(User $user, SuratPengajuan $surat): bool
     {
-        return $user->isAdmin() && $surat->status !== 'draft';
+        return $user->isAdmin();
     }
 }

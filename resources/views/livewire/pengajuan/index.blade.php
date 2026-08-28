@@ -72,13 +72,9 @@
                 class="w-full sm:w-52 text-xs rounded-xl border border-slate-300 py-2.5 px-3 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-700 font-medium"
             >
                 <option value="">Semua Status Berkas</option>
-                <option value="draft">Draft</option>
-                <option value="submitted">Diajukan</option>
-                <option value="under_review">Sedang Dinilai</option>
-                <option value="revision_required">Perlu Perbaikan</option>
-                <option value="resubmitted">Diajukan Ulang</option>
-                <option value="approved">Disetujui</option>
-                <option value="rejected">Ditolak</option>
+                <option value="in_progress">Proses Evaluasi</option>
+                <option value="approved">Terakreditasi</option>
+                <option value="rejected">Tidak Lolos</option>
             </select>
         </div>
     </div>

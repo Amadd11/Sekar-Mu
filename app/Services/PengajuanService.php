@@ -22,7 +22,7 @@ class PengajuanService
             $surat = SuratPengajuan::create([
                 'user_id' => $user->id,
                 'kepk_id' => $data['kepk_id'],
-                'status' => 'draft',
+                'status' => SuratPengajuan::STATUS_IN_PROGRESS,
             ]);
 
             FormulirAplikasi::create([

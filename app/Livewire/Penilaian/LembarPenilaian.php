@@ -280,7 +280,6 @@ class LembarPenilaian extends Component
         ]);
 
         $metrics = $complianceService->calculateComplianceMetrics($this->suratPengajuan);
-        $gapAnalysis = $complianceService->calculateGapAnalysis($this->suratPengajuan);
         $comparisonMatrix = $penilaianService->getComparisonMatrix($this->suratPengajuan, auth()->id());
 
         $bagianList = BagianEvaluasi::with(['kelompok.butir'])->orderBy('urutan')->get();
@@ -305,7 +304,6 @@ class LembarPenilaian extends Component
 
         return view('livewire.penilaian.lembar-penilaian', [
             'metrics' => $metrics,
-            'gapAnalysis' => $gapAnalysis,
             'comparisonMatrix' => $comparisonMatrix,
             'bagianList' => $bagianList,
             'activeBagian' => $activeBagian,

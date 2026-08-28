@@ -1,42 +1,39 @@
-# Authorization
+# Authorization & Role-Based Access Control
 
-## Role-Based Access Control (Spatie)
-Use spatie/laravel-permission for role management.
+## 1. 4 Role Pengguna Utama (Spatie Laravel Permission)
 
-Available roles: `admin`, `applicant`, `reviewer` (defined as constants on User model).
+| Role | Label | Deskripsi Hak Akses |
+| :--- | :--- | :--- |
+| `admin` | Super Administrator | Akses penuh ke manajemen akun, kriteria 164 butir, penugasan asesor, dan keputusan akhir akreditasi (ACC/Tolak). |
+| `ketua_kepk` | Ketua KEPK | Mengelola profil KEPK, daftar protokol, evaluasi mandiri 164 butir, dan dokumen bukti. |
+| `anggota` | Anggota KEPK | Berkolaborasi mengisi evaluasi mandiri 164 butir dan mengunggah berkas bukti dukung. |
+| `asessor` | Asesor Akreditasi | Mengakses portal penilaian, menelaah dokumen bukti, mengisi skor asesor independen, dan memberikan rekomendasi akreditasi. |
 
-### Route Middleware
-```php
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
-    // Admin routes
-});
+---
 
-Route::middleware(['auth', 'role:reviewer'])->prefix('reviewer')->group(function () {
-    // Reviewer routes
-});
-```
+## 2. Resource-Level Policies (`SuratPengajuanPolicy`)
 
-## Resource-Level Authorization (Policies)
-Use Laravel Policies for resource-level checks.
+- **`viewAny(User $user)`**: Diizinkan untuk semua user terotentikasi.
+- **`view(User $user, SuratPengajuan $surat)`**: Diizinkan untuk Admin, Asesor yang ditugaskan, Ketua KEPK, Anggota KEPK, atau pemilik berkas.
+- **`create(User $user)`**: Diizinkan untuk Admin, Ketua KEPK, dan Anggota KEPK.
+- **`update(User $user, SuratPengajuan $surat)`**: Diizinkan jika berkas berstatus `in_progress` (editable) oleh Admin, Ketua KEPK, Anggota KEPK, atau pemilik berkas.
+- **`decide(User $user, SuratPengajuan $surat)`**: Hanya diizinkan untuk Admin (`$user->isAdmin()`).
+- **`delete(User $user, SuratPengajuan $surat)`**: Diizinkan untuk Admin atau pemilik berkas.
 
-ApplicationPolicy should cover:
-- viewAny
-- view
-- create
-- update
-- delete
-- submit
-- review
+---
 
-Centralize authorization rather than duplicating checks.
+## 3. Blade Authorization Directives
 
-## Blade Directives
 ```blade
 @role('admin')
-    {{-- Admin-only content --}}
+    {{-- Khusus Menu / Tombol Super Admin --}}
 @endrole
 
-@can('update', $application)
-    {{-- Show edit button --}}
+@role('asessor|admin')
+    {{-- Khusus Portal & Lembar Penilaian Asesor --}}
+@endrole
+
+@can('decide', $suratPengajuan)
+    {{-- Tombol ACC dan Tolak Pengajuan --}}
 @endcan
 ```

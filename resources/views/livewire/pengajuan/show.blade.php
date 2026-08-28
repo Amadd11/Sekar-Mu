@@ -5,14 +5,6 @@
         :title="$suratPengajuan->formulirAplikasi->nama_institusi ?? 'Surat Pengajuan Akreditasi KEPK'"
         :subtitle="'Permohonan asesmen dan evaluasi mandiri standar akreditasi KEPK WHO-CIOMS & KNEPK.'">
         <x-slot:actions>
-            <a
-                href="{{ route('pengajuan.pdf.hasil-akreditasi', $suratPengajuan) }}"
-                target="_blank"
-                class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-800 hover:bg-slate-900 transition shadow-xs">
-                <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                <span>Unduh Laporan PDF</span>
-            </a>
-
             <button
                 type="button"
                 onclick="window.print()"
@@ -47,41 +39,20 @@
         </div>
     @endif
 
-    <!-- 2. Status Banner & Submission Actions -->
+    <!-- 2. Status Banner -->
     <x-pengajuan.status-banner :surat="$suratPengajuan">
-        @if ($suratPengajuan->isDraft())
+        @if ($suratPengajuan->isInProgress())
             <div class="flex items-center gap-2.5 w-full md:w-auto justify-end">
                 @can('delete', $suratPengajuan)
                     <button
                         type="button"
                         wire:click="hapusDraft"
-                        wire:confirm="Yakin ingin menghapus draft surat pengajuan ini secara permanen?"
-                        class="px-4 py-2.5 text-xs font-semibold text-red-600 bg-white hover:bg-red-50 rounded-xl border border-red-200 transition shadow-2xs">
-                        Hapus Draft
-                    </button>
-                @endcan
-                @can('submit', $suratPengajuan)
-                    <button
-                        type="button"
-                        wire:click="ajukanBerkas"
-                        wire:confirm="Apakah Anda yakin ingin mengajukan berkas pengajuan etik ini untuk dinilai oleh Asesor?"
-                        class="px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition flex items-center gap-1.5 whitespace-nowrap">
-                        <span class="material-symbols-outlined text-[16px]">send</span>
-                        <span>Submit Pengajuan</span>
+                        wire:confirm="Yakin ingin menghapus berkas pengajuan ini secara permanen?"
+                        class="px-4 py-2.5 text-xs font-semibold text-red-600 bg-white hover:bg-red-50 rounded-xl border border-red-200 transition shadow-2xs cursor-pointer">
+                        Hapus Pengajuan
                     </button>
                 @endcan
             </div>
-        @elseif ($suratPengajuan->isRevisionRequired())
-            @can('submit', $suratPengajuan)
-                <button
-                    type="button"
-                    wire:click="ajukanBerkas"
-                    wire:confirm="Yakin ingin mengajukan ulang berkas perbaikan ini?"
-                    class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md shadow-amber-600/20 transition shrink-0 flex items-center gap-1.5 whitespace-nowrap">
-                    <span class="material-symbols-outlined text-[16px]">restart_alt</span>
-                    <span>Ajukan Ulang Perbaikan</span>
-                </button>
-            @endcan
         @endif
     </x-pengajuan.status-banner>
 
@@ -109,31 +80,33 @@
 
             @if ($canDecide)
                 <div class="pt-4 border-t border-slate-800 flex flex-wrap items-center gap-2.5">
-                    <span class="text-xs text-slate-400 font-semibold mr-1">Putuskan Status Akhir:</span>
+                    <span class="text-xs text-slate-400 font-semibold mr-1">Keputusan Akhir Akreditasi:</span>
                     <button
                         type="button"
                         wire:click="putuskanStatus('approved')"
-                        wire:confirm="Yakin ingin MENYETUJUI (Approve) permohonan etik ini?"
-                        class="px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">check</span>
-                        <span>Setujui (Approved)</span>
-                    </button>
-                    <button
-                        type="button"
-                        wire:click="putuskanStatus('revision_required')"
-                        wire:confirm="Yakin ingin MEMINTA PERBAIKAN kepada pemohon?"
-                        class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">edit</span>
-                        <span>Minta Perbaikan</span>
+                        wire:confirm="Yakin ingin MENYETUJUI (ACC / Terakreditasi) permohonan akreditasi ini?"
+                        class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">check_circle</span>
+                        <span>ACC (Terakreditasi)</span>
                     </button>
                     <button
                         type="button"
                         wire:click="putuskanStatus('rejected')"
-                        wire:confirm="Yakin ingin MENOLAK (Reject) permohonan etik ini?"
-                        class="px-3.5 py-1.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-bold transition flex items-center gap-1">
-                        <span class="material-symbols-outlined text-[14px]">close</span>
-                        <span>Tolak (Rejected)</span>
+                        wire:confirm="Yakin ingin MENOLAK (Tidak Lolos) permohonan akreditasi ini?"
+                        class="px-4 py-2 bg-rose-600 hover:bg-rose-500 active:bg-rose-700 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                        <span class="material-symbols-outlined text-[16px]">cancel</span>
+                        <span>Tolak (Tidak Lolos)</span>
                     </button>
+                    @if (! $suratPengajuan->isInProgress())
+                        <button
+                            type="button"
+                            wire:click="putuskanStatus('in_progress')"
+                            wire:confirm="Buka kembali pengajuan ke status Proses Evaluasi?"
+                            class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition flex items-center gap-1 cursor-pointer">
+                            <span class="material-symbols-outlined text-[15px]">lock_open</span>
+                            <span>Buka Kembali (Proses Evaluasi)</span>
+                        </button>
+                    @endif
                 </div>
             @endif
         </div>
@@ -237,7 +210,12 @@
             </div>
         </a>
 
-        <!-- Module 3: Dokumen Lampiran -->
+        <!-- Module 3: Dokumen Bukti Evaluasi -->
+        @php
+            $totalEvaluasiFilesCount = $suratPengajuan->jawabanEvaluasi->sum(function($ans) {
+                return count($ans->getAttachments());
+            });
+        @endphp
         <a href="{{ route('pengajuan.dokumen', $suratPengajuan) }}" class="bg-white border border-slate-200/90 hover:border-emerald-400 rounded-2xl p-5 shadow-2xs hover:shadow-md transition-all group flex flex-col justify-between" wire:navigate>
             <div class="flex items-start justify-between mb-3">
                 <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
@@ -247,14 +225,14 @@
             </div>
             <div>
                 <h3 class="font-display font-bold text-sm text-slate-900 group-hover:text-emerald-700 transition">
-                    Dokumen Lampiran
+                    Dokumen Bukti Evaluasi
                 </h3>
                 <p class="text-xs text-slate-500 mt-1">
-                    Kelola berkas SK pendirian, SOP & bukti dukung.
+                    Arsip berkas bukti dukung per bagian evaluasi diri.
                 </p>
                 <div class="mt-3 flex items-center justify-between text-[11px] font-mono text-slate-600 font-semibold pt-2.5 border-t border-slate-100">
                     <span>Total Berkas</span>
-                    <span class="text-emerald-700">{{ $suratPengajuan->dokumen->count() }} File Diunggah</span>
+                    <span class="text-emerald-700">{{ $totalEvaluasiFilesCount }} Berkas Terunggah</span>
                 </div>
             </div>
         </a>
@@ -297,40 +275,9 @@
                         bgColor="bg-slate-50/70" />
                 </div>
 
-                <!-- PDF Export Quick Bar -->
-                <div class="p-4 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between flex-wrap gap-3 text-xs">
-                    <span class="font-bold text-slate-700 flex items-center gap-1.5">
-                        <span class="material-symbols-outlined text-[16px] text-slate-500">picture_as_pdf</span>
-                        <span>Ekspor Dokumen Resmi (PDF):</span>
-                    </span>
-                    <div class="flex items-center gap-2 flex-wrap">
-                        <a
-                            href="{{ route('pengajuan.pdf.hasil-akreditasi', $suratPengajuan) }}"
-                            target="_blank"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-primary-700 hover:bg-primary-600 transition shadow-2xs">
-                            <span class="material-symbols-outlined text-[15px]">picture_as_pdf</span>
-                            <span>Laporan Akreditasi</span>
-                        </a>
-                        <a
-                            href="{{ route('pengajuan.pdf.evaluasi-diri', $suratPengajuan) }}"
-                            target="_blank"
-                            class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-2xs">
-                            <span class="material-symbols-outlined text-[15px]">description</span>
-                            <span>Borang 164 Butir</span>
-                        </a>
-                    </div>
-                </div>
 
-                <!-- Critical Findings Alert -->
-                @if ($metrics['critical_non_compliance_count'] > 0)
-                    <div class="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-xs text-red-800">
-                        <span class="material-symbols-outlined text-[20px] text-red-600 shrink-0">warning</span>
-                        <div>
-                            <span class="font-bold block">Ditemukan {{ $metrics['critical_non_compliance_count'] }} Temuan Kritis (Critical Non-Compliance):</span>
-                            <p class="text-[11px] text-red-700 mt-0.5">Terdapat butir kritis bernilai C yang memerlukan tindakan korektif (CAPA) sebelum akreditasi dapat disahkan.</p>
-                        </div>
-                    </div>
-                @endif
+
+
 
                 <!-- Reviewer Recommendations -->
                 @if ($suratPengajuan->penilaianEtik->isNotEmpty())

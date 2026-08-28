@@ -207,42 +207,13 @@ class ComplianceService
     }
 
     /**
-     * Identify critical findings: items where critical = true AND score = C.
+     * Identify critical findings: disabled (returns empty).
      *
      * @return list<array<string, mixed>>
      */
     public function getCriticalFindings(SuratPengajuan $surat): array
     {
-        $selfAnswers = $surat->jawabanEvaluasi()->with(['butir.kelompok.bagian'])->get()->keyBy('butir_evaluasi_id');
-        $assessorScores = \App\Models\PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id)->get()->keyBy('butir_evaluasi_id');
-
-        $allCriticalButir = ButirEvaluasi::with('kelompok.bagian')->where('is_critical', true)->get();
-        $findings = [];
-
-        foreach ($allCriticalButir as $butir) {
-            $ans = $selfAnswers->get($butir->id);
-            $ass = $assessorScores->get($butir->id);
-
-            $effectiveScore = $ass?->skor ?? $ans?->skor;
-
-            if ($effectiveScore === 'C') {
-                $bagian = $butir->kelompok?->bagian;
-                $findings[] = [
-                    'butir_id' => $butir->id,
-                    'kode_bagian' => $bagian?->kode ?? '-',
-                    'nama_bagian' => $bagian?->nama ?? '-',
-                    'kode' => $butir->kode,
-                    'pertanyaan' => $butir->pertanyaan,
-                    'standar' => $butir->standar,
-                    'catatan' => $ass?->catatan ?? $ans?->catatan,
-                    'temuan' => $ass?->temuan,
-                    'risk_level' => 'HIGH',
-                    'action_required' => 'Wajib membuat Rencana Tindakan Korektif (Corrective Action Plan) sebelum finalisasi.',
-                ];
-            }
-        }
-
-        return $findings;
+        return [];
     }
 
     /**
@@ -276,9 +247,7 @@ class ComplianceService
             $skor = $ass?->skor ?? $ans?->skor;
 
             if ($skor === 'C' || $skor === 'B' || empty($skor)) {
-                $priority = $butir->is_critical
-                    ? 'HIGH'
-                    : ($skor === 'C' ? 'MEDIUM' : 'LOW');
+                $priority = ($skor === 'C' || empty($skor)) ? 'HIGH' : 'MEDIUM';
 
                 $potentialGain = match ($skor) {
                     'C', null => 1.0, // moving from 0 to 1.0
@@ -291,7 +260,6 @@ class ComplianceService
                     'kode_bagian' => $butir->kelompok?->bagian?->kode ?? 'A',
                     'kode' => $butir->kode,
                     'pertanyaan' => $butir->pertanyaan,
-                    'is_critical' => $butir->is_critical,
                     'current_score' => $skor ?? 'Belum Diisi',
                     'priority' => $priority,
                     'potential_gain' => $potentialGain,

@@ -19,22 +19,15 @@ class PenilaianService
     public function assignReviewers(SuratPengajuan $surat, array $penilaiIds, User $penugas): void
     {
         DB::transaction(function () use ($surat, $penilaiIds, $penugas) {
+            $pivotData = [];
             foreach ($penilaiIds as $penilaiId) {
-                PenilaiPengajuan::firstOrCreate(
-                    [
-                        'surat_pengajuan_id' => $surat->id,
-                        'user_id' => $penilaiId,
-                    ],
-                    [
-                        'ditugaskan_oleh' => $penugas->id,
-                        'tanggal_penugasan' => now(),
-                    ]
-                );
+                $pivotData[$penilaiId] = [
+                    'ditugaskan_oleh' => $penugas->id,
+                    'tanggal_penugasan' => now(),
+                ];
             }
 
-            if (in_array($surat->status, ['submitted', 'resubmitted'], true)) {
-                $surat->update(['status' => 'under_review']);
-            }
+            $surat->penilai()->sync($pivotData);
         });
     }
 
@@ -69,10 +62,6 @@ class PenilaianService
                     'tanggal_keputusan' => now()->toDateString(),
                 ]
             );
-
-            if ($data['rekomendasi'] === 'revision_required') {
-                $surat->update(['status' => 'revision_required']);
-            }
 
             return $penilaian;
         });
@@ -183,7 +172,6 @@ class PenilaianService
                     'item_id' => $item->id,
                     'kode_butir' => $item->kode ?? "{$section->kode}.{$item->id}",
                     'pertanyaan' => $item->pertanyaan,
-                    'is_critical' => $item->is_critical,
                     'self_score' => $selfScore ?? '-',
                     'self_catatan' => $selfAns?->catatan,
                     'self_bukti' => $selfAns?->bukti,

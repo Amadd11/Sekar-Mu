@@ -17,7 +17,6 @@ class ButirEvaluasi extends Model
         'kelompok_evaluasi_id',
         'kode',
         'pertanyaan',
-        'is_critical',
         'evidence_required',
         'parent_item_id',
         'standar',
@@ -26,9 +25,7 @@ class ButirEvaluasi extends Model
 
     protected function casts(): array
     {
-        return [
-            'is_critical' => 'boolean',
-        ];
+        return [];
     }
 
     /**

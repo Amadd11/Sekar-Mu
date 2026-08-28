@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('kepk_id')->constrained('kepk')->cascadeOnDelete();
-            $table->string('status', 50)->default('draft');
+            $table->string('status', 50)->default('in_progress');
             $table->timestamp('diajukan_pada')->nullable();
             $table->softDeletes();
             $table->timestamps();

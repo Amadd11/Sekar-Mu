@@ -30,20 +30,15 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto shrink-0">
-                    <a
-                        href="{{ route('pengajuan.pdf.hasil-akreditasi', $suratPengajuan) }}"
-                        target="_blank"
-                        class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-primary-700 hover:bg-primary-600 active:bg-primary-800 transition shadow-md shadow-primary-700/20"
+                    <button
+                        type="button"
+                        onclick="window.print()"
+                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-2xs"
+                        title="Cetak Halaman"
                     >
-                        <span>Unduh Laporan PDF</span>
-                    </a>
-                    <a
-                        href="{{ route('pengajuan.pdf.evaluasi-diri', $suratPengajuan) }}"
-                        target="_blank"
-                        class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-2xs"
-                    >
-                        <span>Evaluasi Diri PDF</span>
-                    </a>
+                        <span class="material-symbols-outlined text-[16px]">print</span>
+                        <span>Cetak</span>
+                    </button>
                     <a href="{{ route('penilaian.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition shadow-2xs" wire:navigate>
                         &larr; Kembali ke Daftar
                     </a>
@@ -109,20 +104,20 @@
             </div>
         </div>
 
-        <!-- Card 3: Temuan Kritis -->
+        <!-- Card 3: Nilai C (Kurang) -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Temuan Kritis</span>
-                <div class="w-8 h-8 rounded-xl {{ $gapAnalysis['critical_findings_count'] > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[18px]">warning</span>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Nilai C (Kurang)</span>
+                <div class="w-8 h-8 rounded-xl {{ $metrics['counts']['C'] > 0 ? 'bg-rose-50 text-rose-600' : 'bg-slate-100 text-slate-500' }} flex items-center justify-center">
+                    <span class="material-symbols-outlined text-[18px]">cancel</span>
                 </div>
             </div>
             <div class="mt-3">
-                <div class="text-2xl sm:text-3xl font-black font-display {{ $gapAnalysis['critical_findings_count'] > 0 ? 'text-rose-600' : 'text-slate-700' }}">
-                    {{ $gapAnalysis['critical_findings_count'] }}
+                <div class="text-2xl sm:text-3xl font-black font-display {{ $metrics['counts']['C'] > 0 ? 'text-rose-600' : 'text-slate-700' }}">
+                    {{ $metrics['counts']['C'] }}
                 </div>
                 <p class="text-[11px] text-slate-400 mt-0.5">
-                    Butir kritis bernilai C
+                    Butir bernilai 0%
                 </p>
             </div>
         </div>
@@ -225,12 +220,6 @@
                                             <!-- Col 2: Kriteria & Berkas KEPK -->
                                             <td class="py-4 px-4 align-top space-y-2.5">
                                                 <div class="flex items-center gap-1.5 flex-wrap">
-                                                    @if($butir->is_critical)
-                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
-                                                            <span class="material-symbols-outlined text-[12px]">warning</span>
-                                                            <span>BUTIR KRITIS</span>
-                                                        </span>
-                                                    @endif
                                                     <span class="text-[10px] font-mono text-slate-500 font-semibold bg-slate-100 px-2 py-0.5 rounded">{{ $butir->standar ?? 'Standar Akreditasi' }}</span>
                                                 </div>
                                                 <div class="font-semibold text-slate-900 text-xs leading-relaxed">
@@ -451,95 +440,87 @@
                 </div>
             </div>
 
-            <!-- 2. Bukti Terunggah per Butir Evaluasi -->
-            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <!-- 2. Bukti Terunggah per Butir Evaluasi (Dikelompokkan per Bagian) -->
+            <div class="space-y-4">
+                <div class="flex items-center justify-between pb-1">
                     <div>
-                        <h3 class="text-sm font-bold text-slate-900 font-display">2. Berkas Bukti Dukung per Butir Evaluasi ({{ $totalItemFilesCount }})</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Lampiran dokumen bukti pemenuhan instrumen yang diunggah pemohon KEPK.</p>
+                        <h3 class="text-sm font-bold text-slate-900 font-display">Berkas Bukti Dukung Evaluasi Diri ({{ $totalItemFilesCount }} Berkas)</h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Lampiran dokumen bukti pemenuhan instrumen yang diunggah pemohon KEPK dikelompokkan per bagian.</p>
                     </div>
                 </div>
-                <div class="divide-y divide-slate-100 text-xs">
-                    @forelse ($perItemAnswersWithFiles as $itemAnswer)
-                        @foreach ($itemAnswer->getAttachments() as $att)
-                            @php
-                                $kodeButir = $itemAnswer->butir?->kode ?? ('#' . $itemAnswer->butir_evaluasi_id);
-                            @endphp
-                            <div class="px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 bg-emerald-50/15 transition">
-                                <div class="space-y-1">
-                                    <div class="font-semibold text-slate-900 flex items-center gap-2 flex-wrap">
-                                        <span class="px-2.5 py-0.5 rounded-lg text-xs font-mono font-bold bg-[#174668] text-white shadow-2xs">
-                                            Butir {{ $kodeButir }}
-                                        </span>
-                                        <span class="font-bold text-slate-800">{{ $att['name'] }}</span>
-                                    </div>
-                                    <div class="text-[11px] text-slate-500 flex items-center gap-2">
-                                        <span class="font-mono">{{ format_bytes((int) ($att['size'] ?? 0)) }}</span>
-                                        @if($itemAnswer->bukti)
-                                            <span>•</span>
-                                            <span>No. Bukti / SK: <strong class="text-slate-700">{{ $itemAnswer->bukti }}</strong></span>
-                                        @endif
-                                    </div>
-                                    @if($itemAnswer->catatan)
-                                        <div class="text-[11px] text-slate-600 bg-white p-2 rounded-lg border border-slate-200/70 mt-1">
-                                            <span class="text-slate-400 font-medium">Uraian KEPK:</span> {{ $itemAnswer->catatan }}
-                                        </div>
-                                    @endif
-                                </div>
-                                <a
-                                    href="{{ Storage::url($att['path']) }}"
-                                    target="_blank"
-                                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
-                                >
-                                    <span class="material-symbols-outlined text-[16px]">download</span>
-                                    <span>Unduh Berkas</span>
-                                </a>
-                            </div>
-                        @endforeach
-                    @empty
-                        <div class="px-6 py-10 text-center text-slate-400">
-                            <span class="text-3xl block mb-2">📁</span>
-                            Belum ada bukti dukung per butir yang diunggah pemohon.
-                        </div>
-                    @endforelse
-                </div>
-            </div>
 
-            <!-- 3. Lampiran Dokumen Umum KEPK -->
-            <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-900 font-display">3. Lampiran Dokumen Umum KEPK ({{ $suratPengajuan->dokumen->count() }})</h3>
-                        <p class="text-xs text-slate-500 mt-0.5">Dokumen SK pendirian, daftar anggota, atau berkas pengajuan umum.</p>
-                    </div>
-                </div>
-                <div class="divide-y divide-slate-100 text-xs">
-                    @forelse ($suratPengajuan->dokumen as $doc)
-                        <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition">
-                            <div class="space-y-0.5">
-                                <div class="font-semibold text-slate-900 flex items-center gap-2">
-                                    <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200 text-slate-700 uppercase">Lampiran</span>
-                                    <span>{{ $doc->nama_asli }}</span>
-                                </div>
-                                <div class="text-[11px] text-slate-400 font-mono">
-                                    {{ $doc->formatUkuran() }} • Diunggah: {{ $doc->created_at->format('d M Y, H:i') }}
-                                </div>
+                @foreach($bagianList as $bg)
+                    @php
+                        $bgItemsWithFiles = $perItemAnswersWithFiles->filter(function($ans) use ($bg) {
+                            return $ans->butir && $ans->butir->bagian_evaluasi_id === $bg->id;
+                        });
+                        $bgFilesCount = $bgItemsWithFiles->sum(function($ans) {
+                            return count($ans->getAttachments());
+                        });
+                    @endphp
+
+                    <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+                        <div class="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-slate-50/70">
+                            <div class="flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-md bg-[#174668] text-white font-mono font-bold text-[11px] flex items-center justify-center">
+                                    {{ $bg->kode }}
+                                </span>
+                                <h4 class="text-xs font-bold text-slate-800">
+                                    Bagian {{ $bg->kode }}: {{ $bg->nama }}
+                                </h4>
                             </div>
-                            <a
-                                href="{{ Storage::url($doc->path) }}"
-                                target="_blank"
-                                class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5 cursor-pointer"
-                            >
-                                <span class="material-symbols-outlined text-[16px]">visibility</span>
-                                <span>Buka</span>
-                            </a>
+                            <span class="font-mono text-[11px] px-2.5 py-0.5 rounded-md font-semibold border {{ $bgFilesCount > 0 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200' }}">
+                                {{ $bgFilesCount }} Berkas
+                            </span>
                         </div>
-                    @empty
-                        <div class="px-6 py-8 text-center text-slate-400 text-xs">
-                            Tidak ada lampiran dokumen umum tambahan.
-                        </div>
-                    @endforelse
-                </div>
+
+                        @if($bgFilesCount > 0)
+                            <div class="divide-y divide-slate-100 text-xs">
+                                @foreach($bgItemsWithFiles as $itemAnswer)
+                                    @foreach($itemAnswer->getAttachments() as $att)
+                                        @php
+                                            $kodeButir = $itemAnswer->butir?->kode ?? ('#' . $itemAnswer->butir_evaluasi_id);
+                                        @endphp
+                                        <div class="px-5 py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/70 transition">
+                                            <div class="space-y-1">
+                                                <div class="font-semibold text-slate-900 flex items-center gap-2 flex-wrap">
+                                                    <span class="px-2 py-0.5 rounded-md text-[11px] font-mono font-bold bg-slate-100 text-slate-800 border border-slate-200">
+                                                        Butir {{ $kodeButir }}
+                                                    </span>
+                                                    <span class="font-bold text-slate-800">{{ $att['name'] }}</span>
+                                                </div>
+                                                <div class="text-[11px] text-slate-500 flex items-center gap-2">
+                                                    <span class="font-mono">{{ format_bytes((int) ($att['size'] ?? 0)) }}</span>
+                                                    @if($itemAnswer->bukti)
+                                                        <span>•</span>
+                                                        <span>No. Bukti / SK: <strong class="text-slate-700">{{ $itemAnswer->bukti }}</strong></span>
+                                                    @endif
+                                                </div>
+                                                @if($itemAnswer->catatan)
+                                                    <div class="text-[11px] text-slate-600 bg-slate-50 p-2 rounded-lg border border-slate-200/60 mt-1">
+                                                        <span class="text-slate-400 font-medium">Uraian KEPK:</span> {{ $itemAnswer->catatan }}
+                                                    </div>
+                                                @endif
+                                            </div>
+                                            <a
+                                                href="{{ Storage::url($att['path']) }}"
+                                                target="_blank"
+                                                class="px-3.5 py-1.5 bg-[#174668] hover:bg-[#133e5f] text-white font-bold rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5 shrink-0 self-start sm:self-center cursor-pointer"
+                                            >
+                                                <span class="material-symbols-outlined text-[15px]">open_in_new</span>
+                                                <span>Buka Berkas</span>
+                                            </a>
+                                        </div>
+                                    @endforeach
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="px-5 py-6 text-center text-slate-400 text-xs">
+                                Belum ada berkas bukti dukung untuk Bagian {{ $bg->kode }}.
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
             </div>
         </div>
 
@@ -562,10 +543,10 @@
                                 <span class="text-slate-600 font-medium">Prediksi Tipe:</span>
                                 <span class="font-bold text-emerald-800">{{ $metrics['prediction']['type'] }}</span>
                             </div>
-                            <div class="flex items-center justify-between p-3 rounded-xl {{ $gapAnalysis['critical_findings_count'] > 0 ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-100' }}">
-                                <span class="{{ $gapAnalysis['critical_findings_count'] > 0 ? 'text-rose-900 font-semibold' : 'text-slate-600 font-medium' }}">Temuan Kritis:</span>
-                                <span class="font-bold {{ $gapAnalysis['critical_findings_count'] > 0 ? 'text-rose-700' : 'text-slate-700' }}">
-                                    {{ $gapAnalysis['critical_findings_count'] }} Butir
+                            <div class="flex items-center justify-between p-3 rounded-xl {{ $metrics['counts']['C'] > 0 ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-100' }}">
+                                <span class="{{ $metrics['counts']['C'] > 0 ? 'text-rose-900 font-semibold' : 'text-slate-600 font-medium' }}">Nilai C (Kurang):</span>
+                                <span class="font-bold {{ $metrics['counts']['C'] > 0 ? 'text-rose-700' : 'text-slate-700' }}">
+                                    {{ $metrics['counts']['C'] }} Butir
                                 </span>
                             </div>
                             <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 font-mono text-[11px]">

@@ -30,20 +30,19 @@ class SuratPengajuan extends Model
         ];
     }
 
-    public const STATUS_DRAFT = 'draft';
-    public const STATUS_SUBMITTED = 'submitted';
-    public const STATUS_UNDER_REVIEW = 'under_review';
-    public const STATUS_REVISION_REQUIRED = 'revision_required';
-    public const STATUS_RESUBMITTED = 'resubmitted';
+    public const STATUS_IN_PROGRESS = 'in_progress';
     public const STATUS_APPROVED = 'approved';
     public const STATUS_REJECTED = 'rejected';
 
+    // Legacy status aliases mapped for backward compatibility
+    public const STATUS_DRAFT = 'in_progress';
+    public const STATUS_SUBMITTED = 'in_progress';
+    public const STATUS_UNDER_REVIEW = 'in_progress';
+    public const STATUS_REVISION_REQUIRED = 'in_progress';
+    public const STATUS_RESUBMITTED = 'in_progress';
+
     public const STATUSES = [
-        self::STATUS_DRAFT,
-        self::STATUS_SUBMITTED,
-        self::STATUS_UNDER_REVIEW,
-        self::STATUS_REVISION_REQUIRED,
-        self::STATUS_RESUBMITTED,
+        self::STATUS_IN_PROGRESS,
         self::STATUS_APPROVED,
         self::STATUS_REJECTED,
     ];
@@ -162,29 +161,34 @@ class SuratPengajuan extends Model
         return $this->hasMany(CorrectiveAction::class, 'surat_pengajuan_id');
     }
 
+    public function isInProgress(): bool
+    {
+        return in_array($this->status, ['in_progress', 'draft', 'submitted', 'under_review', 'revision_required', 'resubmitted'], true);
+    }
+
     public function isDraft(): bool
     {
-        return $this->status === 'draft';
+        return $this->isInProgress();
     }
 
     public function isSubmitted(): bool
     {
-        return $this->status === 'submitted';
+        return $this->isInProgress();
     }
 
     public function isUnderReview(): bool
     {
-        return $this->status === 'under_review';
+        return $this->isInProgress();
     }
 
     public function isRevisionRequired(): bool
     {
-        return $this->status === 'revision_required';
+        return false;
     }
 
     public function isResubmitted(): bool
     {
-        return $this->status === 'resubmitted';
+        return $this->isInProgress();
     }
 
     public function isApproved(): bool
@@ -199,7 +203,7 @@ class SuratPengajuan extends Model
 
     public function isEditable(): bool
     {
-        return ! in_array($this->status, ['approved', 'rejected'], true);
+        return $this->isInProgress();
     }
 
     public function getStatusLabelAttribute(): string
@@ -225,42 +229,27 @@ class SuratPengajuan extends Model
     public static function statusLabel(string $status): string
     {
         return match ($status) {
-            'draft' => 'Draft',
-            'submitted' => 'Diajukan',
-            'under_review' => 'Sedang Dinilai',
-            'revision_required' => 'Perlu Perbaikan',
-            'resubmitted' => 'Diajukan Ulang',
-            'approved' => 'Disetujui',
-            'rejected' => 'Ditolak',
-            default => ucfirst(str_replace('_', ' ', $status)),
+            'approved' => 'Terakreditasi',
+            'rejected' => 'Tidak Lolos',
+            default => 'Proses Evaluasi',
         };
     }
 
     public static function statusIcon(string $status): string
     {
         return match ($status) {
-            'draft' => 'edit_document',
-            'submitted' => 'send',
-            'under_review' => 'pending',
-            'revision_required' => 'warning',
-            'resubmitted' => 'restart_alt',
             'approved' => 'verified',
             'rejected' => 'cancel',
-            default => 'info',
+            default => 'sync',
         };
     }
 
     public static function statusBadgeClasses(string $status): string
     {
         return match ($status) {
-            'draft' => 'bg-slate-100 text-slate-700 border-slate-200',
-            'submitted' => 'bg-blue-100 text-blue-800 border-blue-200',
-            'under_review' => 'bg-amber-100 text-amber-800 border-amber-200',
-            'revision_required' => 'bg-orange-100 text-orange-800 border-orange-200',
-            'resubmitted' => 'bg-indigo-100 text-indigo-800 border-indigo-200',
-            'approved' => 'bg-emerald-100 text-emerald-800 border-emerald-200',
-            'rejected' => 'bg-red-100 text-red-800 border-red-200',
-            default => 'bg-slate-100 text-slate-700 border-slate-200',
+            'approved' => 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+            'rejected' => 'bg-rose-50 text-rose-700 border-rose-200/80',
+            default => 'bg-blue-50 text-blue-700 border-blue-200/80',
         };
     }
 }

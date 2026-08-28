@@ -53,18 +53,15 @@ Route::middleware(['auth', 'role:asessor|admin'])->group(function () {
     Route::get('/penilaian/{suratPengajuan}', PenilaianWorkbench::class)->name('penilaian.show');
 });
 
-// 5. Modul Ekspor Laporan & Berkas PDF (ReportService)
-Route::middleware(['auth'])->group(function () {
-    Route::get('/pengajuan/{suratPengajuan}/pdf/hasil-akreditasi', [\App\Http\Controllers\ReportController::class, 'hasilAkreditasi'])->name('pengajuan.pdf.hasil-akreditasi');
-    Route::get('/pengajuan/{suratPengajuan}/pdf/evaluasi-diri', [\App\Http\Controllers\ReportController::class, 'evaluasiDiri'])->name('pengajuan.pdf.evaluasi-diri');
-    Route::get('/pengajuan/{suratPengajuan}/pdf/matriks-gap', [\App\Http\Controllers\ReportController::class, 'matriksGap'])->name('pengajuan.pdf.matriks-gap');
-});
+
 
 // 6. Modul Khusus Administrator (Admin Only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', PenilaianTugaskan::class)->name('penilaian.tugaskan');
     Route::get('/admin/kriteria', AdminKriteriaEvaluasi::class)->name('admin.kriteria.index');
+    Route::get('/admin/kriteria-evaluasi', fn () => redirect()->route('admin.kriteria.index'))->name('admin.kriteria');
     Route::get('/admin/users', \App\Livewire\Admin\ManajemenAkun::class)->name('admin.users.index');
+    Route::get('/admin/manajemen-akun', fn () => redirect()->route('admin.users.index'))->name('admin.users');
 });
 
 require __DIR__.'/auth.php';

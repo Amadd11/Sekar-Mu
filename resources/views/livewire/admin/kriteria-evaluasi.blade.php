@@ -209,14 +209,6 @@
                             <div class="font-semibold text-slate-900 leading-relaxed text-xs">
                                 {{ $b->pertanyaan }}
                             </div>
-                            @if ($b->is_critical)
-                            <div>
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200/80">
-                                    <span class="material-symbols-outlined text-[13px]">warning</span>
-                                    <span>Temuan Kritis (Critical Item)</span>
-                                </span>
-                            </div>
-                            @endif
                         </td>
 
                         <!-- Standar & Parameter -->
@@ -377,19 +369,6 @@
                                     placeholder="Otomatis jika dikosongkan..."
                                     class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs font-mono font-bold uppercase" />
                                 @error('kode') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
-                            </div>
-
-                            <div class="pt-4 sm:pt-2">
-                                <label class="flex items-center gap-2.5 cursor-pointer select-none bg-red-50/60 p-3 rounded-xl border border-red-100">
-                                    <input
-                                        type="checkbox"
-                                        wire:model="is_critical"
-                                        class="w-4 h-4 text-red-600 rounded border-slate-300 focus:ring-red-500" />
-                                    <div>
-                                        <span class="font-bold text-red-900 block text-xs">Temuan Kritis (Critical Item)</span>
-                                        <span class="text-[10px] text-red-700">Wajib A/B, nilai C memicu tindakan korektif.</span>
-                                    </div>
-                                </label>
                             </div>
                         </div>
 

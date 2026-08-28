@@ -32,13 +32,9 @@
                 wire:model.live="statusFilter"
                 class="w-full sm:w-48 text-xs rounded-lg border-slate-300 py-2 px-3 focus:border-teal-600 focus:ring-1 focus:ring-teal-600">
                 <option value="">Semua Status</option>
-                <option value="draft">Draft (Sedang Diisi)</option>
-                <option value="submitted">Diajukan</option>
-                <option value="under_review">Sedang Dinilai</option>
-                <option value="revision_required">Perlu Perbaikan</option>
-                <option value="resubmitted">Diajukan Ulang</option>
-                <option value="approved">Disetujui</option>
-                <option value="rejected">Ditolak</option>
+                <option value="in_progress">Proses Evaluasi</option>
+                <option value="approved">Terakreditasi</option>
+                <option value="rejected">Tidak Lolos</option>
             </select>
         </div>
     </div>

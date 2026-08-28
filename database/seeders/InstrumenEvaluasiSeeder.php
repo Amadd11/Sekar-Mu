@@ -23,17 +23,14 @@ class InstrumenEvaluasiSeeder extends Seeder
                     [
                         'nama' => 'Organisasi dan Landasan Hukum KEPK',
                         'jumlah_butir' => 10,
-                        'kritis' => [1, 2, 5],
                     ],
                     [
                         'nama' => 'Komposisi dan Kualifikasi Keanggotaan',
                         'jumlah_butir' => 10,
-                        'kritis' => [1, 3, 7],
                     ],
                     [
                         'nama' => 'Independensi dan Konflik Kepentingan',
                         'jumlah_butir' => 9,
-                        'kritis' => [1, 4],
                     ],
                 ],
             ],
@@ -45,17 +42,14 @@ class InstrumenEvaluasiSeeder extends Seeder
                     [
                         'nama' => 'Kualifikasi dan Pelatihan Anggota (GCP/Etik)',
                         'jumlah_butir' => 12,
-                        'kritis' => [1, 3, 6],
                     ],
                     [
                         'nama' => 'Komposisi Multidisiplin dan Keterwakilan Gender/Lay Person',
                         'jumlah_butir' => 12,
-                        'kritis' => [1, 5],
                     ],
                     [
                         'nama' => 'Prosedur Penunjukan dan Evaluasi Kinerja Anggota',
                         'jumlah_butir' => 11,
-                        'kritis' => [2, 7],
                     ],
                 ],
             ],
@@ -67,22 +61,18 @@ class InstrumenEvaluasiSeeder extends Seeder
                     [
                         'nama' => 'Penerimaan dan Verifikasi Berkas Protokol',
                         'jumlah_butir' => 19,
-                        'kritis' => [1, 5, 10],
                     ],
                     [
                         'nama' => 'Prosedur Sidang Full Board & Exempted/Expedited',
                         'jumlah_butir' => 19,
-                        'kritis' => [1, 4, 12],
                     ],
                     [
                         'nama' => 'Kriteria Telaah 7 Standar Etik CIOMS/WHO',
                         'jumlah_butir' => 18,
-                        'kritis' => [1, 3, 8, 15],
                     ],
                     [
                         'nama' => 'Pengambilan Keputusan & Dokumentasi Telaah',
                         'jumlah_butir' => 18,
-                        'kritis' => [2, 6, 11],
                     ],
                 ],
             ],
@@ -94,12 +84,10 @@ class InstrumenEvaluasiSeeder extends Seeder
                     [
                         'nama' => 'Ruang Kerja dan Fasilitas Sekretariat',
                         'jumlah_butir' => 6,
-                        'kritis' => [1, 3],
                     ],
                     [
                         'nama' => 'Sistem Informasi, Penyimpanan Aman, dan Backup Data',
                         'jumlah_butir' => 6,
-                        'kritis' => [2, 5],
                     ],
                 ],
             ],
@@ -111,12 +99,10 @@ class InstrumenEvaluasiSeeder extends Seeder
                     [
                         'nama' => 'Penelitian Populasi Rentan dan Uji Klinis',
                         'jumlah_butir' => 7,
-                        'kritis' => [1, 4],
                     ],
                     [
                         'nama' => 'Transfer Material Hayati dan Penelitian Genetik',
                         'jumlah_butir' => 7,
-                        'kritis' => [2, 5],
                     ],
                 ],
             ],
@@ -145,10 +131,8 @@ class InstrumenEvaluasiSeeder extends Seeder
                     ]
                 );
 
-                $kritisList = $kData['kritis'] ?? [];
                 for ($i = 1; $i <= $kData['jumlah_butir']; $i++) {
                     $kodeItem = $bData['kode'] . $kelompokUrutan . '.' . $i;
-                    $isCritical = in_array($i, $kritisList, true);
 
                     $bRecord = ButirEvaluasi::updateOrCreate(
                         [
@@ -157,12 +141,9 @@ class InstrumenEvaluasiSeeder extends Seeder
                         ],
                         [
                             'pertanyaan' => "Pemenuhan standar baku etik penelitian terkait " . strtolower($kData['nama']) . " (Kriteria parameter {$kodeItem}).",
-                            'is_critical' => $isCritical,
                             'standar' => "Standar {$bData['kode']}",
                             'parameter' => "Parameter {$kodeItem}",
-                            'evidence_required' => $isCritical
-                                ? "Wajib melampirkan SK/SOP resmi, bukti implementasi, dan dokumentasi pendukung terverifikasi."
-                                : "Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.",
+                            'evidence_required' => "Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.",
                         ]
                     );
 

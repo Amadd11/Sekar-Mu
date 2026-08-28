@@ -74,13 +74,11 @@ class Show extends Component
     public function render(ComplianceService $complianceService): View
     {
         $metrics = $complianceService->calculateComplianceMetrics($this->suratPengajuan);
-        $gapAnalysis = $complianceService->calculateGapAnalysis($this->suratPengajuan);
 
         $user = auth()->user();
 
         return view('livewire.pengajuan.show', [
             'metrics' => $metrics,
-            'gapAnalysis' => $gapAnalysis,
             'isAdmin' => $user?->isAdmin() ?? false,
             'canDecide' => $user?->can('decide', $this->suratPengajuan) ?? false,
         ])->layout('layouts.app');

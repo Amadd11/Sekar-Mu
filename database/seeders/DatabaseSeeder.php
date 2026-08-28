@@ -90,7 +90,7 @@ class DatabaseSeeder extends Seeder
                 'kepk_id' => $kepk->id,
             ],
             [
-                'status' => 'draft',
+                'status' => SuratPengajuan::STATUS_IN_PROGRESS,
             ]
         );
 

@@ -39,17 +39,6 @@
                         <span class="text-[11px]">Menyimpan...</span>
                     </div>
                 </div>
-
-                <!-- Action: PDF Download -->
-                <a
-                    href="{{ route('pengajuan.pdf.evaluasi-diri', $suratPengajuan) }}"
-                    target="_blank"
-                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-slate-100 border border-slate-200 transition shadow-2xs"
-                    title="Unduh PDF"
-                >
-                    <span class="material-symbols-outlined text-[16px]">picture_as_pdf</span>
-                    <span class="hidden sm:inline">Unduh PDF</span>
-                </a>
             </div>
         </div>
     </div>
@@ -204,11 +193,6 @@
                                         <!-- Column 2: Kriteria & Pertanyaan -->
                                         <td class="py-4 px-4 space-y-2">
                                             <div class="flex items-center gap-1.5 flex-wrap">
-                                                @if($butir->is_critical)
-                                                    <span class="bg-rose-50 text-rose-700 border border-rose-200 px-1.5 py-0.5 rounded text-[10px] font-bold">
-                                                        Kritis
-                                                    </span>
-                                                @endif
                                                 <span class="text-[10px] text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded font-mono">
                                                     {{ $butir->standar ?? 'Standar' }}
                                                 </span>

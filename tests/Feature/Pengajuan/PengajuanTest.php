@@ -60,7 +60,7 @@ test('pemohon dapat membuat surat pengajuan baru', function () {
 
     $this->assertDatabaseHas('surat_pengajuan', [
         'user_id' => $pemohon->id,
-        'status' => 'draft',
+        'status' => 'in_progress',
     ]);
 
     $this->assertDatabaseHas('formulir_aplikasi', [
@@ -146,22 +146,23 @@ test('pemohon dapat mengelola list protokol dan dokumen lampiran', function () {
         'nomor_protokol' => 'PR-001',
     ]);
 
-    // Dokumen Lampiran
-    $file = UploadedFile::fake()->create('sk_kepk.pdf', 500, 'application/pdf');
+    // Dokumen Evaluasi Diri per Bagian
+    $butir1 = BagianEvaluasi::first()->butir()->first();
+    $surat->jawabanEvaluasi()->create([
+        'butir_evaluasi_id' => $butir1->id,
+        'file_attachments' => [
+            ['name' => 'sk_kepk.pdf', 'path' => 'evaluasi/sk_kepk.pdf', 'size' => 1024],
+        ],
+    ]);
 
     Livewire::actingAs($pemohon)
         ->test(DokumenLivewire::class, ['suratPengajuan' => $surat])
-        ->set('file', $file)
-        ->call('unggah')
+        ->assertSee('Arsip Dokumen Bukti Evaluasi Diri')
+        ->assertSee('sk_kepk.pdf')
         ->assertHasNoErrors();
-
-    $this->assertDatabaseHas('dokumen', [
-        'surat_pengajuan_id' => $surat->id,
-        'nama_asli' => 'sk_kepk.pdf',
-    ]);
 });
 
-test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan persetujuan akhir admin', function () {
+test('alur lengkap: penugasan penilai, review rekomendasi asesor secara real-time, dan persetujuan akhir admin', function () {
     $admin = User::factory()->admin()->create();
     $pemohon = User::factory()->applicant()->create();
     $penilai = User::factory()->reviewer()->create();
@@ -169,7 +170,7 @@ test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan perset
     $surat = SuratPengajuan::create([
         'user_id' => $pemohon->id,
         'kepk_id' => $this->kepk->id,
-        'status' => 'submitted',
+        'status' => 'in_progress',
     ]);
 
     $surat->formulirAplikasi()->create([
@@ -184,9 +185,10 @@ test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan perset
         ->assertHasNoErrors();
 
     $surat->refresh();
-    expect($surat->status)->toBe('under_review');
+    expect($surat->isEditable())->toBeTrue();
+    expect($surat->status_label)->toBe('Proses Evaluasi');
 
-    // 2. Penilai membuka lembar penilaian dan meminta perbaikan
+    // 2. Penilai membuka lembar penilaian dan memberikan review real-time
     Livewire::actingAs($penilai)
         ->test(LembarPenilaian::class, ['suratPengajuan' => $surat])
         ->set('rekomendasi', 'revision_required')
@@ -195,18 +197,9 @@ test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan perset
         ->assertHasNoErrors();
 
     $surat->refresh();
-    expect($surat->status)->toBe('revision_required');
+    expect($surat->isEditable())->toBeTrue();
 
-    // 3. Pemohon mengajukan ulang (resubmit)
-    Livewire::actingAs($pemohon)
-        ->test(Show::class, ['suratPengajuan' => $surat])
-        ->call('ajukanBerkas')
-        ->assertHasNoErrors();
-
-    $surat->refresh();
-    expect($surat->status)->toBe('resubmitted');
-
-    // 4. Admin menyetujui (Approved)
+    // 3. Admin menetapkan keputusan akhir (Terakreditasi / Approved)
     Livewire::actingAs($admin)
         ->test(Show::class, ['suratPengajuan' => $surat])
         ->call('putuskanStatus', 'approved')
@@ -214,6 +207,9 @@ test('alur lengkap: penugasan penilai, review rekomendasi, perbaikan, dan perset
 
     $surat->refresh();
     expect($surat->status)->toBe('approved');
+    expect($surat->status_label)->toBe('Terakreditasi');
+    expect($surat->isApproved())->toBeTrue();
+    expect($surat->isEditable())->toBeFalse();
 });
 
 test('pemohon dicegah mengakses halaman penilaian dan penugasan', function () {
@@ -300,18 +296,14 @@ test('compliance service menghitung skor 164 butir, klasifikasi akreditasi, dan 
     expect($metrics['overall_compliance'])->toBeGreaterThanOrEqual(80);
     expect($metrics['prediction']['type'])->toBe('Tipe A');
 
-    // Beri nilai C pada butir kritis
-    $criticalItem = \App\Models\ButirEvaluasi::where('is_critical', true)->first();
+    // Beri nilai C pada salah satu butir
+    $sampleItem = \App\Models\ButirEvaluasi::first();
     $surat->jawabanEvaluasi()->updateOrCreate(
-        ['butir_evaluasi_id' => $criticalItem->id],
+        ['butir_evaluasi_id' => $sampleItem->id],
         ['skor' => 'C', 'catatan' => 'SOP belum disahkan']
     );
 
-    $findings = $complianceService->getCriticalFindings($surat);
-    expect($findings)->not->toBeEmpty();
-    expect($findings[0]['butir_id'])->toBe($criticalItem->id);
-
-    // Karena ada C, maka tidak lagi Tipe A
+    // Karena ada C, maka tidak lagi Tipe A (turun ke Tipe B)
     $metricsAfterC = $complianceService->calculateComplianceMetrics($surat);
     expect($metricsAfterC['prediction']['type'])->toBe('Tipe B');
 });

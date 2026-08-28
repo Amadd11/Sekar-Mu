@@ -17,7 +17,6 @@ class KriteriaEvaluasi extends Component
     public string $search = '';
     public string $selectedBagian = '';
     public string $selectedKelompok = '';
-    public string $criticalFilter = '';
     public int $perPage = 15;
 
     // Modal State for Butir (Kriteria & Acuan)
@@ -30,7 +29,6 @@ class KriteriaEvaluasi extends Component
     public ?int $kelompok_evaluasi_id = null;
     public string $kode = '';
     public string $pertanyaan = '';
-    public bool $is_critical = false;
     public string $standar = '';
     public string $parameter = '';
     public string $evidence_required = '';
@@ -50,7 +48,6 @@ class KriteriaEvaluasi extends Component
             'kelompok_evaluasi_id' => ['required', 'exists:kelompok_evaluasi,id'],
             'kode' => ['nullable', 'string', 'max:50'],
             'pertanyaan' => ['required', 'string', 'min:5'],
-            'is_critical' => ['boolean'],
             'standar' => ['nullable', 'string', 'max:255'],
             'parameter' => ['nullable', 'string'],
             'evidence_required' => ['nullable', 'string'],
@@ -69,11 +66,6 @@ class KriteriaEvaluasi extends Component
     }
 
     public function updatingSelectedKelompok(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatingCriticalFilter(): void
     {
         $this->resetPage();
     }
@@ -102,7 +94,6 @@ class KriteriaEvaluasi extends Component
 
         $this->kode = '';
         $this->pertanyaan = '';
-        $this->is_critical = false;
         $this->standar = 'Standar WHO-CIOMS & KNEPK';
         $this->parameter = '';
         $this->evidence_required = '';
@@ -121,7 +112,6 @@ class KriteriaEvaluasi extends Component
         $this->kelompok_evaluasi_id = $butir->kelompok_evaluasi_id;
         $this->kode = $butir->kode ?? '';
         $this->pertanyaan = $butir->pertanyaan;
-        $this->is_critical = (bool) $butir->is_critical;
         $this->standar = $butir->standar ?? '';
         $this->parameter = $butir->parameter ?? '';
         $this->evidence_required = $butir->evidence_required ?? '';
@@ -228,12 +218,6 @@ class KriteriaEvaluasi extends Component
             $query->where('butir_evaluasi.kelompok_evaluasi_id', $this->selectedKelompok);
         }
 
-        if ($this->criticalFilter === 'critical') {
-            $query->where('butir_evaluasi.is_critical', true);
-        } elseif ($this->criticalFilter === 'standard') {
-            $query->where('butir_evaluasi.is_critical', false);
-        }
-
         if ($this->search) {
             $query->where(function ($q) {
                 $q->where('butir_evaluasi.pertanyaan', 'like', "%{$this->search}%")
@@ -250,7 +234,6 @@ class KriteriaEvaluasi extends Component
 
         // Summary KPI
         $totalButir = ButirEvaluasi::count();
-        $totalKritis = ButirEvaluasi::where('is_critical', true)->count();
         $totalKelompokCount = KelompokEvaluasi::count();
         $totalBagianCount = BagianEvaluasi::count();
 
@@ -260,7 +243,6 @@ class KriteriaEvaluasi extends Component
             'daftarKelompok' => $daftarKelompok,
             'modalKelompokOptions' => $modalKelompokOptions,
             'totalButir' => $totalButir,
-            'totalKritis' => $totalKritis,
             'totalKelompokCount' => $totalKelompokCount,
             'totalBagianCount' => $totalBagianCount,
         ])->layout('layouts.app');
