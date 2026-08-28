@@ -17,15 +17,14 @@ class Dashboard extends Component
             'user' => $user,
         ];
 
-        if ($user->isReviewer() && ! $user->isAdmin()) {
-            $assignedSubmissions = $user->pengajuanDinilai()
-                ->with(['kepk.institusi', 'formulirAplikasi', 'penilaianEtik'])
+        if ($user->isAsessor() && ! $user->isAdmin()) {
+            $assignedSubmissions = SuratPengajuan::with(['kepk.institusi', 'formulirAplikasi', 'penilaianEtik', 'penilai'])
                 ->latest()
                 ->get();
 
             $data['assignedSubmissions'] = $assignedSubmissions;
             $data['totalAssigned'] = $assignedSubmissions->count();
-            $data['pendingReview'] = $assignedSubmissions->whereIn('status', ['submitted', 'under_review', 'resubmitted'])->count();
+            $data['pendingReview'] = $assignedSubmissions->whereIn('status', ['draft', 'submitted', 'under_review', 'resubmitted'])->count();
             $data['revisionRequired'] = $assignedSubmissions->where('status', 'revision_required')->count();
             $data['approvedCount'] = $assignedSubmissions->where('status', 'approved')->count();
         } elseif ($user->isAdmin()) {
@@ -44,7 +43,7 @@ class Dashboard extends Component
                 ->latest()
                 ->first();
 
-            if (! $suratPengajuan && ($user->isKetuaKepk() || $user->isAnggotaKepk())) {
+            if (! $suratPengajuan && ($user->isKetuaKepk() || $user->isAnggota())) {
                 $suratPengajuan = SuratPengajuan::with(['kepk.institusi', 'formulirAplikasi', 'profilKepk', 'jawabanEvaluasi.butir.kelompok.bagian'])
                     ->latest()
                     ->first();

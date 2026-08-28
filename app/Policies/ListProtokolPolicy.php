@@ -14,12 +14,8 @@ class ListProtokolPolicy
 
     public function view(User $user, ListProtokol $protokol): bool
     {
-        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota() || $user->isAsessor()) {
             return true;
-        }
-
-        if ($user->isReviewer()) {
-            return $protokol->suratPengajuan->penilai()->where('user_id', $user->id)->exists();
         }
 
         return $user->id === $protokol->suratPengajuan->user_id;
@@ -27,7 +23,7 @@ class ListProtokolPolicy
 
     public function create(User $user): bool
     {
-        return $user->isApplicant() || $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk();
+        return $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota();
     }
 
     public function update(User $user, ListProtokol $protokol): bool
@@ -36,7 +32,7 @@ class ListProtokolPolicy
             return false;
         }
 
-        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $protokol->suratPengajuan->user_id) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota() || $user->id === $protokol->suratPengajuan->user_id) {
             return true;
         }
 
@@ -49,7 +45,7 @@ class ListProtokolPolicy
             return false;
         }
 
-        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $protokol->suratPengajuan->user_id) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota() || $user->id === $protokol->suratPengajuan->user_id) {
             return true;
         }
 

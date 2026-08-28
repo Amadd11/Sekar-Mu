@@ -28,7 +28,7 @@ class ManajemenAkun extends Component
     // Form fields
     public string $name = '';
     public string $email = '';
-    public string $role = 'reviewer';
+    public string $role = 'asessor';
     public string $password = '';
     public string $password_confirmation = '';
 
@@ -49,7 +49,7 @@ class ManajemenAkun extends Component
         $this->editingUserId = null;
         $this->name = '';
         $this->email = '';
-        $this->role = 'reviewer';
+        $this->role = 'asessor';
         $this->password = '';
         $this->password_confirmation = '';
 
@@ -65,7 +65,7 @@ class ManajemenAkun extends Component
         $this->editingUserId = $user->id;
         $this->name = $user->name;
         $this->email = $user->email;
-        $this->role = $user->roles->first()?->name ?? 'applicant';
+        $this->role = $user->roles->first()?->name ?? 'asessor';
         $this->password = '';
         $this->password_confirmation = '';
 
@@ -159,8 +159,8 @@ class ManajemenAkun extends Component
         }
 
         $totalUsers = User::count();
-        $totalReviewers = User::role('reviewer')->count();
-        $totalApplicants = User::role(['applicant', 'ketua_kepk', 'anggota_kepk'])->count();
+        $totalAsessors = User::role('asessor')->count();
+        $totalKepk = User::role(['ketua_kepk', 'anggota'])->count();
         $totalAdmins = User::role('admin')->count();
 
         $daftarRoles = Role::orderBy('name')->get();
@@ -169,8 +169,8 @@ class ManajemenAkun extends Component
             'usersList' => $query->latest()->paginate($this->perPage),
             'daftarRoles' => $daftarRoles,
             'totalUsers' => $totalUsers,
-            'totalReviewers' => $totalReviewers,
-            'totalApplicants' => $totalApplicants,
+            'totalAsessors' => $totalAsessors,
+            'totalKepk' => $totalKepk,
             'totalAdmins' => $totalAdmins,
         ])->layout('layouts.app');
     }

@@ -27,19 +27,19 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-// 1. Modul Pembuatan Pengajuan Baru (Ketua/Anggota KEPK, Applicant & Admin)
-Route::middleware(['auth', 'role:applicant|ketua_kepk|anggota_kepk|admin'])->group(function () {
+// 1. Modul Pembuatan Pengajuan Baru (Ketua KEPK, Anggota & Admin)
+Route::middleware(['auth', 'role:ketua_kepk|anggota|admin'])->group(function () {
     Route::get('/pengajuan/create', PengajuanCreate::class)->name('pengajuan.create');
 });
 
-// 2. Rute Umum Terotentikasi (Shared: Applicant, Ketua/Anggota KEPK, Reviewer, Admin)
+// 2. Rute Umum Terotentikasi (Shared: Ketua KEPK, Anggota, Asessor, Admin)
 Route::middleware(['auth'])->group(function () {
     Route::get('/pengajuan', PengajuanIndex::class)->name('pengajuan.index');
     Route::get('/pengajuan/{suratPengajuan}', PengajuanShow::class)->name('pengajuan.show');
 });
 
-// 3. Modul Pengisian Berkas Pemohon & KEPK (Applicant, Ketua/Anggota KEPK, Admin)
-Route::middleware(['auth', 'role:applicant|ketua_kepk|anggota_kepk|admin'])->group(function () {
+// 3. Modul Pengisian Berkas (Ketua KEPK, Anggota, Admin)
+Route::middleware(['auth', 'role:ketua_kepk|anggota|admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/formulir-aplikasi', PengajuanFormulirAplikasi::class)->name('pengajuan.formulir-aplikasi');
     Route::get('/pengajuan/{suratPengajuan}/profil', PengajuanProfil::class)->name('pengajuan.profil');
     Route::get('/pengajuan/{suratPengajuan}/evaluasi-diri', PengajuanEvaluasiDiri::class)->name('pengajuan.evaluasi-diri');
@@ -47,20 +47,20 @@ Route::middleware(['auth', 'role:applicant|ketua_kepk|anggota_kepk|admin'])->gro
     Route::get('/pengajuan/{suratPengajuan}/dokumen', PengajuanDokumen::class)->name('pengajuan.dokumen');
 });
 
-// 3. Modul Penilaian Etik (Reviewer & Admin)
-Route::middleware(['auth', 'role:reviewer|admin'])->group(function () {
+// 4. Modul Penilaian Etik (Asessor & Admin)
+Route::middleware(['auth', 'role:asessor|admin'])->group(function () {
     Route::get('/penilaian', PenilaianIndex::class)->name('penilaian.index');
     Route::get('/penilaian/{suratPengajuan}', PenilaianWorkbench::class)->name('penilaian.show');
 });
 
-// 4. Modul Ekspor Laporan & Berkas PDF (ReportService)
+// 5. Modul Ekspor Laporan & Berkas PDF (ReportService)
 Route::middleware(['auth'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/pdf/hasil-akreditasi', [\App\Http\Controllers\ReportController::class, 'hasilAkreditasi'])->name('pengajuan.pdf.hasil-akreditasi');
     Route::get('/pengajuan/{suratPengajuan}/pdf/evaluasi-diri', [\App\Http\Controllers\ReportController::class, 'evaluasiDiri'])->name('pengajuan.pdf.evaluasi-diri');
     Route::get('/pengajuan/{suratPengajuan}/pdf/matriks-gap', [\App\Http\Controllers\ReportController::class, 'matriksGap'])->name('pengajuan.pdf.matriks-gap');
 });
 
-// 5. Modul Khusus Administrator (Admin Only)
+// 6. Modul Khusus Administrator (Admin Only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', PenilaianTugaskan::class)->name('penilaian.tugaskan');
     Route::get('/admin/kriteria', AdminKriteriaEvaluasi::class)->name('admin.kriteria.index');

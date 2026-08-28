@@ -65,8 +65,13 @@ class LembarPenilaian extends Component
     public function mount(SuratPengajuan $suratPengajuan): void
     {
         $user = auth()->user();
-        if (! $user->isAdmin() && (! $user->isReviewer() || ! $suratPengajuan->penilai()->where('user_id', $user->id)->exists())) {
-            abort(403, 'Akses terbatas untuk penilai yang ditugaskan atau administrator.');
+        if (! $user->isAdmin() && ! $user->isAsessor()) {
+            abort(403, 'Akses terbatas untuk penilai etik dan administrator.');
+        }
+
+        // Auto-associate assessor with this application for real-time assessment
+        if ($user->isAsessor()) {
+            $suratPengajuan->penilai()->syncWithoutDetaching([$user->id]);
         }
 
         // Normalize tab name if alias is used

@@ -5,11 +5,11 @@
             <div class="flex items-center gap-2">
                 <span class="text-xl select-none">🔍</span>
                 <h1 class="text-lg font-bold text-slate-900">
-                    Portal Penilaian Etik KEPK (Reviewer Workspace)
+                    Portal Penilaian Asesor KEPK (Real-Time Workspace)
                 </h1>
             </div>
             <p class="text-xs text-slate-500 mt-1">
-                Daftar berkas permohonan etik yang ditugaskan kepada Anda untuk diperiksa kelayakannya.
+                Daftar berkas permohonan etik dan instrumen evaluasi diri yang dapat Anda telaah & nilai secara real-time.
             </p>
         </div>
     </div>
@@ -32,6 +32,7 @@
                 wire:model.live="statusFilter"
                 class="w-full sm:w-48 text-xs rounded-lg border-slate-300 py-2 px-3 focus:border-teal-600 focus:ring-1 focus:ring-teal-600">
                 <option value="">Semua Status</option>
+                <option value="draft">Draft (Sedang Diisi)</option>
                 <option value="submitted">Diajukan</option>
                 <option value="under_review">Sedang Dinilai</option>
                 <option value="revision_required">Perlu Perbaikan</option>

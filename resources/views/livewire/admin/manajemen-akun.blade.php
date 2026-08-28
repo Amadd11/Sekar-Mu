@@ -79,7 +79,7 @@
             </div>
         </div>
 
-        <!-- Reviewers -->
+        <!-- Asessors -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Asesor Penilai</span>
@@ -88,12 +88,12 @@
                 </div>
             </div>
             <div class="mt-3">
-                <div class="text-2xl font-black text-blue-800 font-display">{{ $totalReviewers }}</div>
+                <div class="text-2xl font-black text-blue-800 font-display">{{ $totalAsessors }}</div>
                 <p class="text-[11px] text-slate-400 mt-0.5">Penelaah protokol independen</p>
             </div>
         </div>
 
-        <!-- Applicants / KEPK -->
+        <!-- Komite KEPK -->
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs flex flex-col justify-between">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Komite KEPK</span>
@@ -102,8 +102,8 @@
                 </div>
             </div>
             <div class="mt-3">
-                <div class="text-2xl font-black text-teal-800 font-display">{{ $totalApplicants }}</div>
-                <p class="text-[11px] text-slate-400 mt-0.5">Pemohon & Pengurus KEPK</p>
+                <div class="text-2xl font-black text-teal-800 font-display">{{ $totalKepk }}</div>
+                <p class="text-[11px] text-slate-400 mt-0.5">Ketua & Anggota KEPK</p>
             </div>
         </div>
 
@@ -143,10 +143,9 @@
             >
                 <option value="">Semua Peran / Role</option>
                 <option value="admin">Administrator</option>
-                <option value="reviewer">Asesor / Reviewer</option>
                 <option value="ketua_kepk">Ketua KEPK</option>
-                <option value="anggota_kepk">Anggota KEPK</option>
-                <option value="applicant">Pemohon (Applicant)</option>
+                <option value="asessor">Asesor Penilai</option>
+                <option value="anggota">Anggota KEPK</option>
             </select>
         </div>
 
@@ -187,8 +186,9 @@
                                         $primaryRole = $user->roles->first()?->name ?? 'user';
                                         $avatarStyle = match($primaryRole) {
                                             'admin' => 'bg-purple-100 text-purple-800',
-                                            'reviewer' => 'bg-blue-100 text-blue-800',
-                                            'ketua_kepk', 'anggota_kepk' => 'bg-teal-100 text-teal-800',
+                                            'asessor' => 'bg-blue-100 text-blue-800',
+                                            'ketua_kepk' => 'bg-teal-100 text-teal-800',
+                                            'anggota' => 'bg-emerald-100 text-emerald-800',
                                             default => 'bg-primary-100 text-primary-800',
                                         };
                                     @endphp
@@ -199,7 +199,7 @@
                                         <div class="font-bold text-slate-900 text-xs flex items-center gap-1.5 group-hover:text-primary-700 transition">
                                             <span>{{ $user->name }}</span>
                                             @if ($user->id === auth()->id())
-                                                <span class="text-[10px] bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md font-bold border border-primary-200/80">(Anda)</span>
+                                                 <span class="text-[10px] bg-primary-50 text-primary-700 px-2 py-0.5 rounded-md font-bold border border-primary-200/80">(Anda)</span>
                                             @endif
                                         </div>
                                         <div class="text-[11px] text-slate-400 mt-0.5 font-mono">ID: #USR-{{ str_pad($user->id, 4, '0', STR_PAD_LEFT) }}</div>
@@ -222,17 +222,16 @@
                                     @php
                                         $badgeStyle = match($role->name) {
                                             'admin' => 'bg-purple-50 text-purple-800 border-purple-200/80',
-                                            'reviewer' => 'bg-blue-50 text-blue-800 border-blue-200/80',
+                                            'asessor' => 'bg-blue-50 text-blue-800 border-blue-200/80',
                                             'ketua_kepk' => 'bg-teal-50 text-teal-800 border-teal-200/80',
-                                            'anggota_kepk' => 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
+                                            'anggota' => 'bg-emerald-50 text-emerald-800 border-emerald-200/80',
                                             default => 'bg-slate-100 text-slate-700 border-slate-200/80',
                                         };
                                         $roleLabel = match($role->name) {
                                             'admin' => 'Administrator',
-                                            'reviewer' => 'Asesor Penilai',
+                                            'asessor' => 'Asesor Penilai',
                                             'ketua_kepk' => 'Ketua KEPK',
-                                            'anggota_kepk' => 'Anggota KEPK',
-                                            'applicant' => 'Pemohon Akreditasi',
+                                            'anggota' => 'Anggota KEPK',
                                             default => ucfirst(str_replace('_', ' ', $role->name)),
                                         };
                                     @endphp
@@ -379,10 +378,9 @@
                                     wire:model="role"
                                     class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800 font-medium"
                                 >
-                                    <option value="reviewer">Asesor / Reviewer Penilai</option>
-                                    <option value="applicant">Pemohon Akreditasi (Applicant)</option>
+                                    <option value="asessor">Asesor Penilai</option>
                                     <option value="ketua_kepk">Ketua KEPK</option>
-                                    <option value="anggota_kepk">Anggota KEPK</option>
+                                    <option value="anggota">Anggota KEPK</option>
                                     <option value="admin">Administrator (Super Admin)</option>
                                 </select>
                                 @error('role') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror

@@ -63,7 +63,7 @@
                     </label>
                 @empty
                     <div class="p-6 text-center text-xs text-slate-400 border border-dashed rounded-xl">
-                        Belum ada pengguna dengan role <strong>Reviewer</strong> terdaftar di sistem.
+                        Belum ada pengguna dengan role <strong>Asesor Penilai</strong> terdaftar di sistem.
                     </div>
                 @endforelse
             </div>

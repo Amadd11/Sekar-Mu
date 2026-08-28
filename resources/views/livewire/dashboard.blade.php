@@ -1,40 +1,40 @@
 <div class="space-y-6 max-w-7xl mx-auto pb-12">
     {{-- ========================================================================= --}}
-    {{-- 1. DASHBOARD KHUSUS REVIEWER / ASESOR AKREDITASI                          --}}
+    {{-- 1. DASHBOARD KHUSUS ASESOR AKREDITASI                                     --}}
     {{-- ========================================================================= --}}
-    @if ($user->isReviewer() && ! $user->isAdmin())
-        <!-- Banner Reviewer -->
+    @if ($user->isAsessor() && ! $user->isAdmin())
+        <!-- Banner Asesor -->
         <div class="bg-gradient-to-r from-primary-700 to-primary-900 text-white rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-primary-800">
             <div class="flex items-start gap-3.5">
                 <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center text-xl shrink-0">
                     <span class="material-symbols-outlined text-[24px]">clinical_notes</span>
                 </div>
                 <div>
-                    <h2 class="font-display text-base font-bold text-white">Portal Asesor Akreditasi KEPK</h2>
+                    <h2 class="font-display text-base font-bold text-white">Portal Asesor Akreditasi KEPK (Real-Time)</h2>
                     <p class="text-xs text-primary-100/90 mt-0.5 leading-relaxed">
-                        Selamat datang, <strong>{{ $user->name }}</strong>. Anda ditugaskan untuk menelaah dokumen protokol dan penilaian independen 164 butir standar akreditasi KEPK.
+                        Selamat datang, <strong>{{ $user->name }}</strong>. Anda dapat menelaah dan menilai evaluasi diri 164 butir standar akreditasi KEPK secara real-time tanpa menunggu pengajuan berkas.
                     </p>
                 </div>
             </div>
             <a href="{{ route('penilaian.index') }}" class="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-900 bg-primary-300 hover:bg-primary-200 transition shadow-2xs" wire:navigate>
-                <span>Daftar Tugas Penilaian &rarr;</span>
+                <span>Workspace Penilaian &rarr;</span>
             </a>
         </div>
 
-        <!-- Reviewer Metric Cards -->
+        <!-- Asesor Metric Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <x-score-card title="Total Tugas Menilai" :count="$totalAssigned" color="slate" />
-            <x-score-card title="Perlu Ditelaah" :count="$pendingReview" color="amber" />
+            <x-score-card title="Total Berkas Pengajuan" :count="$totalAssigned" color="slate" />
+            <x-score-card title="Siap Ditelaah" :count="$pendingReview" color="amber" />
             <x-score-card title="Menunggu Revisi" :count="$revisionRequired" color="rose" />
             <x-score-card title="Telah Disetujui" :count="$approvedCount" color="emerald" />
         </div>
 
-        <!-- Daftar Berkas Penugasan Terbaru -->
+        <!-- Daftar Berkas Pengajuan Real-Time -->
         <div class="bg-white border border-slate-200/90 rounded-2xl shadow-xs overflow-hidden">
             <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                     <span class="text-base">📑</span>
-                    <h3 class="text-sm font-bold text-slate-900">Berkas Pengajuan Yang Ditugaskan</h3>
+                    <h3 class="text-sm font-bold text-slate-900">Berkas Pengajuan KEPK (Real-Time Assessment)</h3>
                 </div>
                 <a href="{{ route('penilaian.index') }}" class="text-xs text-primary-700 font-bold hover:underline" wire:navigate>
                     Lihat Semua &rarr;
@@ -73,7 +73,7 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="px-6 py-8 text-center text-slate-400">
-                                    Belum ada permohonan pengajuan yang ditugaskan kepada Anda saat ini.
+                                    Belum ada berkas pengajuan di dalam sistem.
                                 </td>
                             </tr>
                         @endforelse

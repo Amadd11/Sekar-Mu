@@ -43,15 +43,7 @@ class EvaluasiDiriService
     public function calculateProgress(SuratPengajuan $surat, $bagianList = null): array
     {
         $semuaBagian = $bagianList ?? BagianEvaluasi::with('butir')->orderBy('urutan')->get();
-        $idTerjawab = $surat->jawabanEvaluasi()
-            ->where(function ($q) {
-                $q->whereNotNull('file_attachments')
-                  ->orWhereNotNull('bukti')->where('bukti', '!=', '')
-                  ->orWhereNotNull('catatan')->where('catatan', '!=', '')
-                  ->orWhereNotNull('skor');
-            })
-            ->pluck('butir_evaluasi_id')
-            ->toArray();
+        $jawabanMap = $surat->jawabanEvaluasi()->get()->keyBy('butir_evaluasi_id');
 
         $progress = [];
 
@@ -61,14 +53,29 @@ class EvaluasiDiriService
                 : $bagian->butir()->get();
 
             $totalButir = $allButir->count();
-            $idButirBagian = $allButir->pluck('id')->toArray();
-            $terjawabDiBagian = count(array_intersect($idButirBagian, $idTerjawab));
-            $persentase = $totalButir > 0 ? (int) round(($terjawabDiBagian / $totalButir) * 100) : 0;
+            $lengkap = 0;
+            $belumLengkap = 0;
+
+            foreach ($allButir as $b) {
+                $ans = $jawabanMap->get($b->id);
+                $files = $ans ? $ans->getAttachments() : [];
+                $count = count($files);
+
+                if ($count >= 2) {
+                    $lengkap++;
+                } elseif ($count === 1) {
+                    $belumLengkap++;
+                }
+            }
+
+            $effective = $lengkap + ($belumLengkap * 0.5);
+            $persentase = $totalButir > 0 ? (int) round(($effective / $totalButir) * 100) : 0;
 
             $progress[$bagian->kode] = [
                 'nama' => $bagian->nama,
                 'total' => $totalButir,
-                'terjawab' => $terjawabDiBagian,
+                'terjawab' => $lengkap,
+                'belum_lengkap' => $belumLengkap,
                 'persentase' => $persentase,
             ];
         }

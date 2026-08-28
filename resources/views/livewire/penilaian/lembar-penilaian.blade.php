@@ -237,14 +237,26 @@
                                                     {{ $butir->pertanyaan }}
                                                 </div>
 
+                                                @php
+                                                    $itemAttachments = $selfAns ? $selfAns->getAttachments() : [];
+                                                    $attCount = count($itemAttachments);
+                                                @endphp
                                                 <!-- KEPK Evidence & Notes Card -->
-                                                <div class="p-3 rounded-xl border text-xs space-y-2 {{ $hasData ? 'bg-emerald-50/40 border-emerald-200' : 'bg-slate-50 border-slate-200/80' }}">
+                                                <div class="p-3 rounded-xl border text-xs space-y-2 {{ $attCount >= 2 ? 'bg-emerald-50/40 border-emerald-200' : ($attCount === 1 ? 'bg-amber-50/40 border-amber-200' : 'bg-slate-50 border-slate-200/80') }}">
                                                     <div class="flex items-center justify-between border-b border-slate-200/60 pb-1.5">
                                                         <span class="font-bold text-[10px] uppercase text-[#174668] tracking-wider">Bukti Dukung KEPK:</span>
-                                                        @if($hasData)
-                                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800">✓ Sudah Dilengkapi</span>
+                                                        @if($attCount >= 2)
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                                <span class="material-symbols-outlined text-[12px]">check_circle</span> Lengkap ({{ $attCount }} Berkas)
+                                                            </span>
+                                                        @elseif($attCount === 1)
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                                                                <span class="material-symbols-outlined text-[12px]">hourglass_top</span> Belum Lengkap (1 Berkas)
+                                                            </span>
                                                         @else
-                                                            <span class="inline-flex px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-200 text-slate-600">Belum Diisi</span>
+                                                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium bg-slate-200 text-slate-600">
+                                                                Belum Ada Berkas
+                                                            </span>
                                                         @endif
                                                     </div>
 
@@ -254,9 +266,6 @@
                                                         </div>
                                                     @endif
 
-                                                    @php
-                                                        $itemAttachments = $selfAns ? $selfAns->getAttachments() : [];
-                                                    @endphp
                                                     @if(count($itemAttachments) > 0)
                                                         <div class="space-y-1.5">
                                                             @foreach($itemAttachments as $att)

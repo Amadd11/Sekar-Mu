@@ -83,6 +83,48 @@ class JawabanEvaluasi extends Model
     }
 
     /**
+     * Determine completeness status based on uploaded files:
+     * - 0 files: 'belum'
+     * - 1 file: 'belum_lengkap'
+     * - >=2 files: 'lengkap'
+     */
+    public function getKelengkapanStatusAttribute(): string
+    {
+        $count = count($this->getAttachments());
+        if ($count >= 2) {
+            return 'lengkap';
+        }
+        if ($count === 1) {
+            return 'belum_lengkap';
+        }
+
+        return 'belum';
+    }
+
+    public function getKelengkapanLabelAttribute(): string
+    {
+        $count = count($this->getAttachments());
+        if ($count >= 2) {
+            return 'Lengkap';
+        }
+        if ($count === 1) {
+            return 'Belum Lengkap';
+        }
+
+        return 'Belum';
+    }
+
+    public function getKelengkapanBadgeClassAttribute(): string
+    {
+        $status = $this->kelengkapan_status;
+        return match ($status) {
+            'lengkap' => 'bg-emerald-50 text-emerald-700 border-emerald-200/80',
+            'belum_lengkap' => 'bg-amber-50 text-amber-700 border-amber-200/80',
+            default => 'bg-slate-100 text-slate-500 border-slate-200',
+        };
+    }
+
+    /**
      * Get primary file URL from storage.
      */
     public function fileUrl(): ?string

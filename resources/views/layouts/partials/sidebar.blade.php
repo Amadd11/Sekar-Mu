@@ -32,7 +32,7 @@
                     <span>Dashboard</span>
                 </a>
 
-                @hasanyrole('reviewer|admin')
+                @hasanyrole('asessor|admin')
                     <a
                         href="{{ route('penilaian.index') }}"
                         class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('penilaian.index') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
@@ -45,8 +45,8 @@
             </nav>
         </div>
 
-        <!-- Section: WORKSPACE PENILAIAN ASESOR (Reviewer Only) -->
-        @hasrole('reviewer')
+        <!-- Section: WORKSPACE PENILAIAN ASESOR (Asessor Only) -->
+        @hasrole('asessor')
         @php
             $targetPenilaian = request()->route('suratPengajuan') ?? $latestApp;
             $rawPenilaianTab = request()->query('tab', 'penilaian');
@@ -92,8 +92,27 @@
         @endif
         @endhasrole
 
-        <!-- Section: BORANG PENGAJUAN B01 (Applicant, Ketua/Anggota KEPK, Admin) -->
-        @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
+        <!-- Section: EVALUASI DIRI (Anggota KEPK Only) -->
+        @hasrole('anggota')
+        @if ($latestApp)
+        <div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Evaluasi Diri</p>
+            <nav class="space-y-1">
+                <a
+                    href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+                    <span>B01-03: Evaluasi Diri</span>
+                </a>
+            </nav>
+        </div>
+        @endif
+        @endhasrole
+
+        <!-- Section: BORANG PENGAJUAN B01 (Ketua KEPK & Admin Only) -->
+        @hasanyrole('ketua_kepk|admin')
         <div>
             <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Borang Pengajuan (B01)</p>
             <nav class="space-y-1">

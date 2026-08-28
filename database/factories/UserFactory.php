@@ -50,20 +50,6 @@ class UserFactory extends Factory
         });
     }
 
-    public function reviewer(): static
-    {
-        return $this->afterCreating(function (User $user) {
-            $user->assignRole('reviewer');
-        });
-    }
-
-    public function applicant(): static
-    {
-        return $this->afterCreating(function (User $user) {
-            $user->assignRole('applicant');
-        });
-    }
-
     public function ketuaKepk(): static
     {
         return $this->afterCreating(function (User $user) {
@@ -71,10 +57,32 @@ class UserFactory extends Factory
         });
     }
 
-    public function anggotaKepk(): static
+    public function asessor(): static
     {
         return $this->afterCreating(function (User $user) {
-            $user->assignRole('anggota_kepk');
+            $user->assignRole('asessor');
         });
+    }
+
+    public function anggota(): static
+    {
+        return $this->afterCreating(function (User $user) {
+            $user->assignRole('anggota');
+        });
+    }
+
+    public function reviewer(): static
+    {
+        return $this->asessor();
+    }
+
+    public function applicant(): static
+    {
+        return $this->ketuaKepk();
+    }
+
+    public function anggotaKepk(): static
+    {
+        return $this->anggota();
     }
 }

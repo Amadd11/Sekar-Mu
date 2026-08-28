@@ -21,22 +21,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['layouts.partials.sidebar', 'layouts.partials.topbar'], function ($view) {
+        View::composer(['layouts.partials.sidebar', 'layouts.partials.topbar', 'livewire.layout.navigation'], function ($view) {
             $user = auth()->user();
             $latestApp = null;
 
             if ($user) {
                 if ($user->isAdmin()) {
                     $latestApp = SuratPengajuan::latest()->first();
-                } elseif ($user->isKetuaKepk() || $user->isAnggotaKepk()) {
+                } elseif ($user->isKetuaKepk() || $user->isAnggota()) {
                     $latestApp = SuratPengajuan::where('user_id', $user->id)->latest()->first()
                         ?? SuratPengajuan::latest()->first();
-                } elseif ($user->isReviewer()) {
+                } elseif ($user->isAsessor()) {
                     $latestApp = SuratPengajuan::whereHas('penilai', function ($q) use ($user) {
                         $q->where('user_id', $user->id);
-                    })->latest()->first();
-                } elseif ($user->isApplicant()) {
-                    $latestApp = SuratPengajuan::where('user_id', $user->id)->latest()->first();
+                    })->latest()->first() ?? SuratPengajuan::latest()->first();
                 }
             }
 

@@ -199,7 +199,7 @@ class SuratPengajuan extends Model
 
     public function isEditable(): bool
     {
-        return in_array($this->status, ['draft', 'revision_required'], true);
+        return ! in_array($this->status, ['approved', 'rejected'], true);
     }
 
     public function getStatusLabelAttribute(): string

@@ -16,7 +16,7 @@ class Index extends Component
 
     public function mount(): void
     {
-        if (! auth()->user()->isReviewer() && ! auth()->user()->isAdmin()) {
+        if (! auth()->user()->isAsessor() && ! auth()->user()->isAdmin()) {
             abort(403, 'Akses terbatas untuk penilai etik dan admin.');
         }
     }
@@ -36,14 +36,7 @@ class Index extends Component
         $user = auth()->user();
 
         $query = SuratPengajuan::query()
-            ->with(['kepk.institusi', 'formulirAplikasi', 'penilai', 'penilaianEtik'])
-            ->whereIn('status', ['submitted', 'under_review', 'revision_required', 'resubmitted', 'approved', 'rejected']);
-
-        if ($user->isReviewer() && ! $user->isAdmin()) {
-            $query->whereHas('penilai', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            });
-        }
+            ->with(['kepk.institusi', 'formulirAplikasi', 'penilai', 'penilaianEtik']);
 
         if ($this->statusFilter) {
             $query->where('status', $this->statusFilter);
@@ -59,7 +52,7 @@ class Index extends Component
         }
 
         return view('livewire.penilaian.index', [
-            'pengajuanList' => $query->latest('diajukan_pada')->paginate(10),
+            'pengajuanList' => $query->latest()->paginate(10),
         ])->layout('layouts.app');
     }
 }

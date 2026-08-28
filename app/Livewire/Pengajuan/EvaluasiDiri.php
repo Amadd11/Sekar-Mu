@@ -141,6 +141,7 @@ class EvaluasiDiri extends Component
         ]);
 
         $ans = $this->suratPengajuan->jawabanEvaluasi()->where('butir_evaluasi_id', $butirId)->first();
+        $attachments = $ans ? $ans->getAttachments() : [];
         $butir = \App\Models\ButirEvaluasi::find($butirId);
         $kodeItem = $butir?->kode ?? ('butir_' . $butirId);
 
@@ -274,22 +275,28 @@ class EvaluasiDiri extends Component
             foreach ($activeBagian->kelompok as $kelompok) {
                 $butirList = $kelompok->butir;
                 $total = $butirList->count();
-                $filled = 0;
+                $lengkap = 0;
+                $belumLengkap = 0;
 
                 foreach ($butirList as $b) {
-                    $hasBukti = ! empty($this->bukti[$b->id] ?? null);
-                    $hasCatatan = ! empty($this->catatan[$b->id] ?? null);
-                    $hasFiles = isset($jawabanMap[$b->id]) && count($jawabanMap[$b->id]->getAttachments()) > 0;
+                    $itemAns = $jawabanMap[$b->id] ?? null;
+                    $itemFiles = $itemAns ? $itemAns->getAttachments() : [];
+                    $count = count($itemFiles);
 
-                    if ($hasBukti || $hasCatatan || $hasFiles) {
-                        $filled++;
+                    if ($count >= 2) {
+                        $lengkap++;
+                    } elseif ($count === 1) {
+                        $belumLengkap++;
                     }
                 }
 
+                $effectiveFilled = $lengkap + ($belumLengkap * 0.5);
+
                 $kelompokProgress[$kelompok->id] = [
                     'total' => $total,
-                    'filled' => $filled,
-                    'percentage' => $total > 0 ? (int) round(($filled / $total) * 100) : 0,
+                    'filled' => $lengkap,
+                    'belum_lengkap' => $belumLengkap,
+                    'percentage' => $total > 0 ? (int) round(($effectiveFilled / $total) * 100) : 0,
                 ];
             }
         }

@@ -17,8 +17,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Roles
-        $roles = ['admin', 'ketua_kepk', 'anggota_kepk', 'reviewer', 'applicant'];
+        // 1. Roles (Hanya 4 Role Utama Sesuai Ketentuan)
+        $roles = ['admin', 'ketua_kepk', 'asessor', 'anggota'];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role]);
         }
@@ -40,7 +40,16 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]
         );
-        $ketua->syncRoles(['ketua_kepk', 'applicant']);
+        $ketua->syncRoles(['ketua_kepk']);
+
+        $asessor = User::firstOrCreate(
+            ['email' => 'asessor@sekarmu.test'],
+            [
+                'name' => 'Prof. Siti Rahayu, Ph.D (Asesor Akreditasi)',
+                'password' => Hash::make('password'),
+            ]
+        );
+        $asessor->syncRoles(['asessor']);
 
         $anggota = User::firstOrCreate(
             ['email' => 'anggota@sekarmu.test'],
@@ -49,25 +58,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
             ]
         );
-        $anggota->syncRoles(['anggota_kepk']);
-
-        $applicant = User::firstOrCreate(
-            ['email' => 'applicant@sekarmu.test'],
-            [
-                'name' => 'Dr. dr. H. Budi Santoso, Sp.FK',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $applicant->syncRoles(['ketua_kepk', 'applicant']);
-
-        $reviewer = User::firstOrCreate(
-            ['email' => 'reviewer@sekarmu.test'],
-            [
-                'name' => 'Prof. Siti Rahayu, Ph.D (Asesor Akreditasi)',
-                'password' => Hash::make('password'),
-            ]
-        );
-        $reviewer->syncRoles(['reviewer']);
+        $anggota->syncRoles(['anggota']);
 
         // 3. Institusi & KEPK
         $institusi = Institusi::firstOrCreate(
@@ -95,13 +86,15 @@ class DatabaseSeeder extends Seeder
         // 5. Sample Surat Pengajuan
         $surat = SuratPengajuan::firstOrCreate(
             [
-                'user_id' => $applicant->id,
+                'user_id' => $ketua->id,
                 'kepk_id' => $kepk->id,
             ],
             [
                 'status' => 'draft',
             ]
         );
+
+        $surat->penilai()->syncWithoutDetaching([$asessor->id]);
 
         $surat->formulirAplikasi()->firstOrCreate(
             ['surat_pengajuan_id' => $surat->id],

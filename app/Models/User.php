@@ -61,16 +61,14 @@ class User extends Authenticatable
 
     public const ROLE_ADMIN = 'admin';
     public const ROLE_KETUA_KEPK = 'ketua_kepk';
-    public const ROLE_ANGGOTA_KEPK = 'anggota_kepk';
-    public const ROLE_REVIEWER = 'reviewer';
-    public const ROLE_APPLICANT = 'applicant';
+    public const ROLE_ASESSOR = 'asessor';
+    public const ROLE_ANGGOTA = 'anggota';
 
     public const ROLES = [
         self::ROLE_ADMIN,
         self::ROLE_KETUA_KEPK,
-        self::ROLE_ANGGOTA_KEPK,
-        self::ROLE_REVIEWER,
-        self::ROLE_APPLICANT,
+        self::ROLE_ASESSOR,
+        self::ROLE_ANGGOTA,
     ];
 
     public function isAdmin(): bool
@@ -83,18 +81,28 @@ class User extends Authenticatable
         return $this->hasRole('ketua_kepk');
     }
 
-    public function isAnggotaKepk(): bool
+    public function isAsessor(): bool
     {
-        return $this->hasRole('anggota_kepk');
+        return $this->hasRole('asessor');
     }
 
-    public function isApplicant(): bool
+    public function isAnggota(): bool
     {
-        return $this->hasAnyRole(['applicant', 'ketua_kepk', 'anggota_kepk']);
+        return $this->hasRole('anggota');
     }
 
     public function isReviewer(): bool
     {
-        return $this->hasRole('reviewer');
+        return $this->isAsessor();
+    }
+
+    public function isAnggotaKepk(): bool
+    {
+        return $this->isAnggota();
+    }
+
+    public function isApplicant(): bool
+    {
+        return $this->hasAnyRole(['ketua_kepk', 'anggota']);
     }
 }

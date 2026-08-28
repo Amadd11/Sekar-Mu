@@ -18,7 +18,7 @@
 
     <!-- Top Action Buttons -->
     <div class="flex items-center gap-2.5">
-        @if ($user?->isReviewer() || $user?->isAdmin())
+        @hasrole('asessor')
             <a
                 href="{{ route('penilaian.index') }}"
                 class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
@@ -27,18 +27,40 @@
                 <span class="material-symbols-outlined text-[18px]">open_in_new</span>
                 <span class="hidden sm:inline">Portal Penilaian</span>
             </a>
-        @elseif ($user && ($user->isApplicant() || $user->isKetuaKepk() || $user->isAnggotaKepk()) && $latestApp)
-            <a
-                href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
-                class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-4 sm:px-5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
-                wire:navigate
-            >
-                <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">fact_check</span>
-                <span class="hidden sm:inline">Evaluasi Diri</span>
-            </a>
-        @endif
+        @endhasrole
 
-        @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
+        @hasrole('anggota')
+            @if ($latestApp)
+                <a
+                    href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
+                    class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+                    <span>Evaluasi Diri</span>
+                </a>
+                <a
+                    href="{{ route('pengajuan.show', $latestApp) }}"
+                    class="bg-white border border-slate-200 text-slate-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-slate-50 transition-all flex items-center gap-1.5 shadow-2xs"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[18px]">verified</span>
+                    <span class="hidden sm:inline">Hasil Akreditasi</span>
+                </a>
+            @endif
+        @endhasrole
+
+        @hasanyrole('ketua_kepk|admin')
+            @if ($latestApp)
+                <a
+                    href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
+                    class="bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all shadow-md shadow-primary-700/20 flex items-center gap-1.5"
+                    wire:navigate
+                >
+                    <span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+                    <span class="hidden sm:inline">Evaluasi Diri</span>
+                </a>
+            @endif
             <a
                 href="{{ route('pengajuan.index') }}"
                 class="bg-white border border-slate-200 text-slate-800 px-3.5 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium hover:bg-slate-50 transition-all flex items-center gap-1.5 shadow-2xs"

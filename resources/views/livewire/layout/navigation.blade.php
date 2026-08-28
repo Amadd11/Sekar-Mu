@@ -37,7 +37,25 @@ new class extends Component
                         {{ __('Dashboard') }}
                     </x-nav-link>
 
-                    @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
+                    @hasrole('anggota')
+                        @if ($latestApp)
+                            <x-nav-link :href="route('pengajuan.evaluasi-diri', $latestApp)" :active="request()->routeIs('pengajuan.evaluasi-diri')" wire:navigate>
+                                <svg class="w-4 h-4 me-1.5 inline-block text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+                                </svg>
+                                {{ __('Evaluasi Diri') }}
+                            </x-nav-link>
+
+                            <x-nav-link :href="route('pengajuan.show', $latestApp)" :active="request()->routeIs('pengajuan.show')" wire:navigate>
+                                <svg class="w-4 h-4 me-1.5 inline-block text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                {{ __('Hasil Akreditasi') }}
+                            </x-nav-link>
+                        @endif
+                    @endhasrole
+
+                    @hasanyrole('ketua_kepk|admin')
                         <x-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')" wire:navigate>
                             <svg class="w-4 h-4 me-1.5 inline-block text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
@@ -46,7 +64,7 @@ new class extends Component
                         </x-nav-link>
                     @endhasanyrole
 
-                    @hasanyrole('reviewer|admin')
+                    @hasanyrole('asessor|admin')
                         <x-nav-link :href="route('penilaian.index')" :active="request()->routeIs('penilaian.*')" wire:navigate>
                             <svg class="w-4 h-4 me-1.5 inline-block text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
@@ -131,13 +149,24 @@ new class extends Component
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
 
-            @hasanyrole('applicant|ketua_kepk|anggota_kepk|admin')
+            @hasrole('anggota')
+                @if ($latestApp)
+                    <x-responsive-nav-link :href="route('pengajuan.evaluasi-diri', $latestApp)" :active="request()->routeIs('pengajuan.evaluasi-diri')" wire:navigate>
+                        {{ __('Evaluasi Diri') }}
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link :href="route('pengajuan.show', $latestApp)" :active="request()->routeIs('pengajuan.show')" wire:navigate>
+                        {{ __('Hasil Akreditasi') }}
+                    </x-responsive-nav-link>
+                @endif
+            @endhasrole
+
+            @hasanyrole('ketua_kepk|admin')
                 <x-responsive-nav-link :href="route('pengajuan.index')" :active="request()->routeIs('pengajuan.*')" wire:navigate>
                     {{ __('Pengajuan Etik') }}
                 </x-responsive-nav-link>
             @endhasanyrole
 
-            @hasanyrole('reviewer|admin')
+            @hasanyrole('asessor|admin')
                 <x-responsive-nav-link :href="route('penilaian.index')" :active="request()->routeIs('penilaian.*')" wire:navigate>
                     {{ __('Telaah Etik') }}
                 </x-responsive-nav-link>

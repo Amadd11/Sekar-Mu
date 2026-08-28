@@ -14,12 +14,8 @@ class SuratPengajuanPolicy
 
     public function view(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk()) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota() || $user->isAsessor()) {
             return true;
-        }
-
-        if ($user->isReviewer()) {
-            return $surat->penilai()->where('user_id', $user->id)->exists();
         }
 
         return $user->id === $surat->user_id;
@@ -27,7 +23,7 @@ class SuratPengajuanPolicy
 
     public function create(User $user): bool
     {
-        return $user->isApplicant() || $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk();
+        return $user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota();
     }
 
     public function update(User $user, SuratPengajuan $surat): bool
@@ -36,7 +32,7 @@ class SuratPengajuanPolicy
             return false;
         }
 
-        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggotaKepk() || $user->id === $surat->user_id) {
+        if ($user->isAdmin() || $user->isKetuaKepk() || $user->isAnggota() || $user->id === $surat->user_id) {
             return true;
         }
 

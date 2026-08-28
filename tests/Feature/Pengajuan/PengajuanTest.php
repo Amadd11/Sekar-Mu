@@ -26,7 +26,7 @@ use Spatie\Permission\PermissionRegistrar;
 beforeEach(function () {
     app()[PermissionRegistrar::class]->forgetCachedPermissions();
 
-    foreach (['admin', 'applicant', 'reviewer'] as $role) {
+    foreach (['admin', 'ketua_kepk', 'asessor', 'anggota'] as $role) {
         Role::firstOrCreate(['name' => $role]);
     }
 
@@ -97,6 +97,19 @@ test('pemohon dapat mengisi kelengkapan bukti, catatan, dan mengunggah berkas pe
     expect($ans->catatan)->toBe('Struktur keanggotaan KEPK telah disahkan');
     expect($ans->hasAttachments())->toBeTrue();
     expect($ans->getAttachments()[0]['name'])->toBe('sk_rektor_kepk.pdf');
+    expect($ans->kelengkapan_status)->toBe('belum_lengkap');
+
+    // Upload berkas kedua (harus menambahkan, bukan menimpa)
+    $fakeFile2 = UploadedFile::fake()->create('sop_telaah.pdf', 300, 'application/pdf');
+    Livewire::actingAs($pemohon)
+        ->test(EvaluasiDiri::class, ['suratPengajuan' => $surat])
+        ->set("uploadedFiles.{$butirPertama->id}", $fakeFile2)
+        ->call('uploadBerkas', $butirPertama->id)
+        ->assertHasNoErrors();
+
+    $ans->refresh();
+    expect($ans->totalAttachmentCount())->toBe(2);
+    expect($ans->kelengkapan_status)->toBe('lengkap');
 
     // Test hapus berkas
     Livewire::actingAs($pemohon)
@@ -215,47 +228,46 @@ test('pemohon dicegah mengakses halaman penilaian dan penugasan', function () {
     $this->actingAs($pemohon)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
 });
 
-test('reviewer dicegah membuat pengajuan dan menugaskan penilai', function () {
-    $pemohon = User::factory()->applicant()->create();
-    $reviewer = User::factory()->reviewer()->create();
+test('asessor dicegah membuat pengajuan dan menugaskan penilai', function () {
+    $ketua = User::factory()->ketuaKepk()->create();
+    $asessor = User::factory()->asessor()->create();
     $surat = SuratPengajuan::create([
-        'user_id' => $pemohon->id,
+        'user_id' => $ketua->id,
         'kepk_id' => $this->kepk->id,
-        'status' => 'submitted',
+        'status' => 'draft',
     ]);
 
-    $this->actingAs($reviewer)->get(route('pengajuan.create'))->assertForbidden();
-    $this->actingAs($reviewer)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
+    $this->actingAs($asessor)->get(route('pengajuan.create'))->assertForbidden();
+    $this->actingAs($asessor)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
 });
 
-test('reviewer tidak ditugaskan dicegah menilai berkas', function () {
-    $pemohon = User::factory()->applicant()->create();
-    $unassignedReviewer = User::factory()->reviewer()->create();
+test('asessor dapat membuka dan menilai berkas secara real time pada status draft', function () {
+    $ketua = User::factory()->ketuaKepk()->create();
+    $asessor = User::factory()->asessor()->create();
     $surat = SuratPengajuan::create([
-        'user_id' => $pemohon->id,
+        'user_id' => $ketua->id,
         'kepk_id' => $this->kepk->id,
-        'status' => 'submitted',
+        'status' => 'draft',
     ]);
 
-    $this->actingAs($unassignedReviewer)->get(route('penilaian.show', $surat))->assertForbidden();
+    $this->actingAs($asessor)->get(route('penilaian.show', $surat))->assertSuccessful();
 });
 
 test('role yang berhak dapat mengakses route masing-masing', function () {
     $admin = User::factory()->admin()->create();
-    $pemohon = User::factory()->applicant()->create();
-    $reviewer = User::factory()->reviewer()->create();
+    $ketua = User::factory()->ketuaKepk()->create();
+    $asessor = User::factory()->asessor()->create();
 
     $surat = SuratPengajuan::create([
-        'user_id' => $pemohon->id,
+        'user_id' => $ketua->id,
         'kepk_id' => $this->kepk->id,
-        'status' => 'submitted',
+        'status' => 'draft',
     ]);
-    $surat->penilai()->attach($reviewer->id, ['ditugaskan_oleh' => $admin->id, 'tanggal_penugasan' => now()]);
 
-    $this->actingAs($reviewer)->get(route('penilaian.show', $surat))->assertSuccessful();
+    $this->actingAs($asessor)->get(route('penilaian.show', $surat))->assertSuccessful();
     $this->actingAs($admin)->get(route('penilaian.tugaskan', $surat))->assertSuccessful();
     $this->actingAs($admin)->get(route('pengajuan.create'))->assertSuccessful();
-    $this->actingAs($pemohon)->get(route('pengajuan.create'))->assertSuccessful();
+    $this->actingAs($ketua)->get(route('pengajuan.create'))->assertSuccessful();
 });
 
 test('compliance service menghitung skor 164 butir, klasifikasi akreditasi, dan critical findings', function () {
@@ -334,14 +346,11 @@ test('asesor dapat menilai independen dan menghasilkan matriks komparasi gap', f
 });
 
 test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol', function () {
-    Role::firstOrCreate(['name' => 'anggota_kepk']);
-
-    $pemohon = User::factory()->applicant()->create();
-    $anggota = User::factory()->create();
-    $anggota->assignRole('anggota_kepk');
+    $ketua = User::factory()->ketuaKepk()->create();
+    $anggota = User::factory()->anggota()->create();
 
     $surat = SuratPengajuan::create([
-        'user_id' => $pemohon->id,
+        'user_id' => $ketua->id,
         'kepk_id' => $this->kepk->id,
         'status' => 'draft',
     ]);
@@ -393,4 +402,66 @@ test('corrective action service dapat membuat dan memperbarui status siklus tind
     $updated = $service->updateStatus($action, 'IN_PROGRESS', 'Sedang proses tanda tangan Rektor.');
     expect($updated->status)->toBe('IN_PROGRESS');
     expect($updated->verification_notes)->toBe('Sedang proses tanda tangan Rektor.');
+});
+
+test('status kelengkapan butir evaluasi diri: 1 berkas belum lengkap dan 2 berkas lengkap', function () {
+    $ketua = User::factory()->ketuaKepk()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $ketua->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'draft',
+    ]);
+
+    $butir1 = BagianEvaluasi::first()->butir()->first();
+    $butir2 = BagianEvaluasi::first()->butir()->skip(1)->first();
+
+    $evaluasiService = app(\App\Services\EvaluasiDiriService::class);
+
+    // 1 berkas -> belum lengkap
+    $ans1 = $evaluasiService->saveAnswer($surat, $butir1->id, [
+        'file_attachments' => [
+            ['name' => 'dokumen1.pdf', 'path' => 'evaluasi/dokumen1.pdf', 'size' => 1024],
+        ],
+    ]);
+
+    // 2 berkas -> lengkap
+    $ans2 = $evaluasiService->saveAnswer($surat, $butir2->id, [
+        'file_attachments' => [
+            ['name' => 'dokumen1.pdf', 'path' => 'evaluasi/dokumen1.pdf', 'size' => 1024],
+            ['name' => 'dokumen2.pdf', 'path' => 'evaluasi/dokumen2.pdf', 'size' => 2048],
+        ],
+    ]);
+
+    expect($ans1->kelengkapan_status)->toBe('belum_lengkap');
+    expect($ans1->kelengkapan_label)->toBe('Belum Lengkap');
+
+    expect($ans2->kelengkapan_status)->toBe('lengkap');
+    expect($ans2->kelengkapan_label)->toBe('Lengkap');
+
+    $progress = $evaluasiService->calculateProgress($surat);
+    $bagianA = $progress[BagianEvaluasi::first()->kode];
+    expect($bagianA['terjawab'])->toBe(1);
+    expect($bagianA['belum_lengkap'])->toBe(1);
+});
+
+test('role anggota dapat mengakses evaluasi diri dan hasil akreditasi', function () {
+    $ketua = User::factory()->ketuaKepk()->create();
+    $anggota = User::factory()->anggota()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $ketua->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'draft',
+    ]);
+
+    // Anggota dapat mengakses halaman detail pengajuan (hasil)
+    $this->actingAs($anggota)
+        ->get(route('pengajuan.show', $surat))
+        ->assertOk()
+        ->assertSee('Evaluasi Diri (164 Butir)')
+        ->assertSee('Hasil Penilaian & Prediksi Akreditasi');
+
+    // Anggota dapat mengakses halaman evaluasi diri
+    $this->actingAs($anggota)
+        ->get(route('pengajuan.evaluasi-diri', $surat))
+        ->assertOk();
 });

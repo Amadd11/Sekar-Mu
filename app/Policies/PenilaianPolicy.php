@@ -9,34 +9,17 @@ class PenilaianPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isReviewer() || $user->isAdmin();
+        return $user->isAsessor() || $user->isAdmin();
     }
 
     public function view(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->isReviewer()) {
-            return $surat->penilai()->where('user_id', $user->id)->exists();
-        }
-
-        return false;
+        return $user->isAdmin() || $user->isAsessor();
     }
 
     public function review(User $user, SuratPengajuan $surat): bool
     {
-        if ($user->isAdmin()) {
-            return true;
-        }
-
-        if ($user->isReviewer()) {
-            return $surat->penilai()->where('user_id', $user->id)->exists()
-                && in_array($surat->status, ['submitted', 'under_review', 'resubmitted'], true);
-        }
-
-        return false;
+        return $user->isAdmin() || $user->isAsessor();
     }
 
     public function assign(User $user): bool

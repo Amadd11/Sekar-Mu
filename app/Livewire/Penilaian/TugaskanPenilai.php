@@ -42,7 +42,7 @@ class TugaskanPenilai extends Component
 
     public function render(): View
     {
-        $daftarReviewer = User::role('reviewer')->get();
+        $daftarReviewer = User::role('asessor')->get();
 
         return view('livewire.penilaian.tugaskan-penilai', [
             'daftarReviewer' => $daftarReviewer,
