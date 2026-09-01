@@ -19,6 +19,7 @@ class SuratPengajuan extends Model
     protected $fillable = [
         'user_id',
         'kepk_id',
+        'nomor_berkas',
         'status',
         'diajukan_pada',
     ];
@@ -223,7 +224,7 @@ class SuratPengajuan extends Model
 
     public function getFormattedIdAttribute(): string
     {
-        return '#APP-' . str_pad($this->id, 5, '0', STR_PAD_LEFT);
+        return ! empty($this->nomor_berkas) ? $this->nomor_berkas : (string) $this->id;
     }
 
     public static function statusLabel(string $status): string

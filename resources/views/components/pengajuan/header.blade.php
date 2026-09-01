@@ -13,7 +13,7 @@
         <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2.5">
                 <span class="bg-slate-100 text-slate-700 font-mono text-xs px-3 py-1 rounded-lg font-bold border border-slate-200 shadow-2xs">
-                    {{ $surat->formatted_id }}
+                    No. {{ $surat->formatted_id }}
                 </span>
                 <x-pengajuan.status-badge :status="$surat->status" />
             </div>

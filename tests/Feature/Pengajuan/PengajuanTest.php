@@ -3,11 +3,7 @@
 use App\Livewire\Pengajuan\Create;
 use App\Livewire\Pengajuan\Dokumen as DokumenLivewire;
 use App\Livewire\Pengajuan\EvaluasiDiri;
-use App\Livewire\Pengajuan\FormulirAplikasi;
-use App\Livewire\Pengajuan\Index;
 use App\Livewire\Pengajuan\ListProtokol;
-use App\Livewire\Pengajuan\Show;
-use App\Livewire\Penilaian\Index as PenilaianIndex;
 use App\Livewire\Penilaian\LembarPenilaian;
 use App\Livewire\Penilaian\TugaskanPenilai;
 use App\Models\BagianEvaluasi;
@@ -220,7 +216,7 @@ test('pemohon dicegah mengakses halaman penilaian dan penugasan', function () {
         'status' => 'submitted',
     ]);
 
-    $this->actingAs($pemohon)->get(route('penilaian.index'))->assertForbidden();
+    $this->actingAs($pemohon)->get(route('penilaian.show', $surat))->assertForbidden();
     $this->actingAs($pemohon)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
 });
 

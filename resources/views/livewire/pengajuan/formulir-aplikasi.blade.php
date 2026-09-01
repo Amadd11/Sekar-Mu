@@ -33,6 +33,20 @@
         <form wire:submit="save" class="space-y-5 text-xs">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div class="sm:col-span-2">
+                    <label for="nomor_berkas" class="block font-bold text-slate-700 mb-1.5">
+                        Nomor Berkas / Surat Pengajuan <span class="text-slate-400 font-normal">(Opsional)</span>
+                    </label>
+                    <input
+                        type="text"
+                        wire:model="nomor_berkas"
+                        id="nomor_berkas"
+                        placeholder="Contoh: KEPK/2026/001 atau 01/UNPAD/2026"
+                        class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs placeholder:text-slate-400 text-slate-800" />
+                    <span class="text-[11px] text-slate-400 block mt-1">Kosongkan jika ingin menggunakan penomoran otomatis sistem (No. {{ $suratPengajuan->id }}).</span>
+                    @error('nomor_berkas') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="sm:col-span-2">
                     <label for="nama_institusi" class="block font-bold text-slate-700 mb-1.5">
                         Nama Institusi / Lembaga Pemohon <span class="text-red-500">*</span>
                     </label>

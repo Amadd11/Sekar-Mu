@@ -2,6 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Models\ButirEvaluasi;
+use App\Models\PenilaianButirAsesor;
 use App\Models\SuratPengajuan;
 use App\Services\ComplianceService;
 use App\Services\PenilaianService;
@@ -19,27 +21,60 @@ class Dashboard extends Component
         ];
 
         if ($user->isAsessor() && ! $user->isAdmin()) {
+            $totalItems = ButirEvaluasi::count() ?: 164;
+
             $assignedSubmissions = SuratPengajuan::with([
                 'kepk.institusi',
                 'formulirAplikasi',
-                'penilaianEtik.penilai',
+                'penilaianEtik' => fn ($q) => $q->where('penilai_id', $user->id),
                 'penilai',
-                'jawabanEvaluasi',
-                'penilaianButirAsesor',
+                'penilaianButirAsesor' => fn ($q) => $q->where('penilai_id', $user->id),
             ])
                 ->whereHas('penilai', fn ($q) => $q->where('user_id', $user->id))
                 ->latest()
                 ->get()
-                ->map(function ($s) use ($complianceService) {
-                    $s->calculated_metrics = $complianceService->calculateComplianceMetrics($s);
+                ->map(function ($s) use ($totalItems) {
+                    $myScores = $s->penilaianButirAsesor;
+                    $scoredCount = $myScores->whereNotNull('skor')->count();
+                    $myReview = $s->penilaianEtik->first();
+
+                    $s->my_progress = [
+                        'total_items' => $totalItems,
+                        'scored_count' => $scoredCount,
+                        'percentage' => $totalItems > 0 ? (int) round(($scoredCount / $totalItems) * 100) : 0,
+                        'count_a' => $myScores->where('skor', 'A')->count(),
+                        'count_b' => $myScores->where('skor', 'B')->count(),
+                        'count_c' => $myScores->where('skor', 'C')->count(),
+                        'findings_count' => $myScores->whereNotNull('temuan')->count(),
+                        'is_completed' => $scoredCount >= $totalItems && ! empty($myReview?->rekomendasi),
+                        'recommendation' => $myReview?->rekomendasi,
+                        'recommendation_label' => $myReview?->label_rekomendasi ?? 'Belum Ada Rekomendasi',
+                        'recommendation_badge' => $myReview?->badge_rekomendasi ?? 'bg-slate-100 text-slate-600 border-slate-200',
+                    ];
+
                     return $s;
                 });
 
+            $totalAssigned = $assignedSubmissions->count();
+            $completedCount = $assignedSubmissions->where('my_progress.is_completed', true)->count();
+            $inProgressCount = $assignedSubmissions->where('my_progress.is_completed', false)->count();
+            $totalFindingsCount = PenilaianButirAsesor::where('penilai_id', $user->id)->whereNotNull('temuan')->count();
+
+            $recentFindings = PenilaianButirAsesor::with(['butir', 'suratPengajuan.formulirAplikasi', 'suratPengajuan.kepk'])
+                ->where('penilai_id', $user->id)
+                ->where(function ($q) {
+                    $q->whereNotNull('temuan')->orWhereNotNull('catatan');
+                })
+                ->latest('updated_at')
+                ->take(4)
+                ->get();
+
             $data['assignedSubmissions'] = $assignedSubmissions;
-            $data['totalAssigned'] = $assignedSubmissions->count();
-            $data['inProgressCount'] = $assignedSubmissions->where('status', SuratPengajuan::STATUS_IN_PROGRESS)->count();
-            $data['approvedCount'] = $assignedSubmissions->where('status', SuratPengajuan::STATUS_APPROVED)->count();
-            $data['rejectedCount'] = $assignedSubmissions->where('status', SuratPengajuan::STATUS_REJECTED)->count();
+            $data['totalAssigned'] = $totalAssigned;
+            $data['completedCount'] = $completedCount;
+            $data['inProgressCount'] = $inProgressCount;
+            $data['totalFindingsCount'] = $totalFindingsCount;
+            $data['recentFindings'] = $recentFindings;
         } elseif ($user->isAdmin()) {
             $allSubmissions = SuratPengajuan::with([
                 'kepk.institusi',

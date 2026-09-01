@@ -93,7 +93,7 @@ new #[Layout('layouts.guest')] class extends Component
                             ✓
                         </div>
                         <span class="text-teal-100/90 leading-tight">
-                            Evaluasi Diri Standar KNEPK & WHO-CIOMS (164 Butir Instrumen)
+                            Evaluasi Diri Standar KNEPK & WHO-CIOMS
                         </span>
                     </div>
 

@@ -11,6 +11,7 @@ use Livewire\Component;
 class Create extends Component
 {
     public ?int $kepk_id = null;
+    public string $nomor_berkas = '';
     public string $nama_institusi = '';
     public string $singkatan = '';
     public string $alamat = '';
@@ -28,6 +29,7 @@ class Create extends Component
     {
         return [
             'kepk_id' => ['required', 'exists:kepk,id'],
+            'nomor_berkas' => ['nullable', 'string', 'max:100'],
             'nama_institusi' => ['required', 'string', 'max:255'],
             'singkatan' => ['nullable', 'string', 'max:50'],
             'alamat' => ['nullable', 'string'],

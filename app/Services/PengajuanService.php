@@ -22,6 +22,7 @@ class PengajuanService
             $surat = SuratPengajuan::create([
                 'user_id' => $user->id,
                 'kepk_id' => $data['kepk_id'],
+                'nomor_berkas' => $data['nomor_berkas'] ?? null,
                 'status' => SuratPengajuan::STATUS_IN_PROGRESS,
             ]);
 
@@ -54,6 +55,10 @@ class PengajuanService
     public function updateFormulirAplikasi(SuratPengajuan $surat, array $data): FormulirAplikasi
     {
         return DB::transaction(function () use ($surat, $data) {
+            if (array_key_exists('nomor_berkas', $data)) {
+                $surat->update(['nomor_berkas' => $data['nomor_berkas']]);
+            }
+
             return FormulirAplikasi::updateOrCreate(
                 ['surat_pengajuan_id' => $surat->id],
                 [

@@ -8,131 +8,236 @@
             <div class="h-1 bg-gradient-to-r from-[#174668] via-teal-500 to-[#174668]"></div>
             <div class="p-6 sm:p-7 relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
                 <div class="flex items-start gap-4">
-                    <div class="w-12 h-12 rounded-2xl bg-primary-50 text-primary-700 border border-primary-100 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
-                        <span class="material-symbols-outlined text-[26px]">clinical_notes</span>
+                    <div class="w-12 h-12 rounded-2xl bg-teal-50 text-teal-700 border border-teal-100 flex items-center justify-center text-2xl shrink-0 shadow-2xs">
+                        <span class="material-symbols-outlined text-[26px]">rate_review</span>
                     </div>
                     <div class="space-y-1">
                         <div class="flex items-center gap-2">
-                            <span class="bg-primary-50 text-primary-700 font-display text-[11px] px-2.5 py-0.5 rounded-md font-bold border border-primary-200/70">
+                            <span class="bg-teal-50 text-teal-700 font-display text-[11px] px-2.5 py-0.5 rounded-md font-bold border border-teal-200/70">
                                 Portal Asesor Akreditasi
                             </span>
                             <span class="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-600">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                <span>Real-Time Workspace</span>
+                                <span>Ruang Kerja Aktif</span>
                             </span>
                         </div>
                         <h1 class="font-display text-xl sm:text-2xl font-extrabold text-slate-900 leading-tight">
                             Selamat Datang, {{ $user->name }}
                         </h1>
                         <p class="text-slate-500 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                            Anda dapat menelaah, memberi catatan, dan menilai instrumen evaluasi diri KEPK secara langsung dan bersamaan secara <em>real-time</em>.
+                            Kelola antrean telaah borang KEPK, lakukan verifikasi bukti dukung butir standar, dan berikan rekomendasi independen secara terstruktur.
                         </p>
                     </div>
                 </div>
-                <a
-                    href="{{ route('penilaian.index') }}"
-                    class="shrink-0 inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition cursor-pointer"
-                    wire:navigate>
-                    <span class="material-symbols-outlined text-[18px]">fact_check</span>
-                    <span>Buka Portal Penilaian</span>
-                </a>
             </div>
         </div>
 
-        <!-- Asesor Metric Cards -->
+        <!-- Workload KPI Cards (Assessor Focus) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
-                <div class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total Pengajuan</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-slate-800 mt-1 font-display">{{ $totalAssigned }}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">Berkas ditugaskan kepada Anda</div>
+                <div class="text-[11px] text-slate-500 font-bold uppercase tracking-wider">Total Penugasan</div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-1 font-display">{{ $totalAssigned }}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Berkas KEPK ditugaskan ke Anda</div>
             </div>
 
             <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
-                <div class="text-[11px] text-blue-600 font-bold uppercase tracking-wider">Proses Evaluasi</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-blue-600 mt-1 font-display">{{ $inProgressCount }}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">Aktif dinilai & ditelaah</div>
+                <div class="text-[11px] text-amber-600 font-bold uppercase tracking-wider">Perlu Diselesaikan</div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-amber-600 mt-1 font-display">{{ $inProgressCount }}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Penilaian butir/rekomendasi berjalan</div>
             </div>
 
             <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
-                <div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider">Terakreditasi</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1 font-display">{{ $approvedCount }}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">Penilaian telah disahkan</div>
+                <div class="text-[11px] text-emerald-600 font-bold uppercase tracking-wider">Penilaian Rampung</div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-emerald-600 mt-1 font-display">{{ $completedCount }}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Seluruh butir dinilai & rekomendasi terkirim</div>
             </div>
 
             <div class="bg-white border border-slate-200/80 rounded-2xl p-4 shadow-xs">
-                <div class="text-[11px] text-rose-600 font-bold uppercase tracking-wider">Tidak Lolos</div>
-                <div class="text-2xl sm:text-3xl font-extrabold text-rose-600 mt-1 font-display">{{ $rejectedCount }}</div>
-                <div class="text-[10px] text-slate-400 mt-0.5">Belum memenuhi syarat minimal</div>
+                <div class="text-[11px] text-primary-700 font-bold uppercase tracking-wider">Catatan & Temuan</div>
+                <div class="text-2xl sm:text-3xl font-extrabold text-primary-700 mt-1 font-display">{{ $totalFindingsCount }}</div>
+                <div class="text-[10px] text-slate-400 mt-0.5">Catatan temuan aktif yang Anda tulis</div>
             </div>
         </div>
 
-        <!-- Daftar Berkas Pengajuan & Hasil Akreditasi Real-Time -->
-        <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden flex flex-col">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="text-base">📑</span>
-                    <h3 class="text-sm font-bold text-slate-900">Daftar Berkas & Hasil Akreditasi KEPK</h3>
+        <!-- Main Grid: Task Queue (Left) & Support Widgets (Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+            <!-- Left 2 Cols: Antrean Tugas Penugasan KEPK -->
+            <div class="lg:col-span-2 space-y-4">
+                <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2.5 h-2.5 rounded-full bg-primary-600"></span>
+                            <h3 class="text-sm font-bold text-slate-900">Antrean Tugas Penelaahan KEPK</h3>
+                        </div>
+                        <span class="text-xs text-slate-400 font-mono">{{ $assignedSubmissions->count() }} Permohonan</span>
+                    </div>
+
+                    <div class="divide-y divide-slate-100">
+                        @forelse ($assignedSubmissions as $item)
+                            @php
+                                $prog = $item->my_progress;
+                            @endphp
+                            <div class="p-5 hover:bg-slate-50/70 transition space-y-3.5">
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <div class="space-y-0.5">
+                                        <div class="flex items-center gap-2">
+                                            <span class="font-mono text-xs font-bold text-primary-700 bg-primary-50 px-2 py-0.5 rounded-md border border-primary-100">
+                                                No. {{ $item->formatted_id }}
+                                            </span>
+                                            <span class="font-bold text-slate-900 text-sm">
+                                                {{ $item->formulirAplikasi->nama_institusi ?? $item->kepk->name }}
+                                            </span>
+                                        </div>
+                                        <div class="text-xs text-slate-500">
+                                            {{ $item->kepk->name }} • {{ $item->kepk->institusi->name ?? '-' }}
+                                        </div>
+                                    </div>
+                                    <x-pengajuan.status-badge :status="$item->status" />
+                                </div>
+
+                                <!-- Progress Bar Penilaian Pribadi -->
+                                <div class="space-y-1.5 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                                    <div class="flex items-center justify-between text-xs">
+                                        <span class="font-semibold text-slate-700 flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-[15px] text-slate-400">checklist</span>
+                                            <span>Progres Penilaian Butir Anda</span>
+                                        </span>
+                                        <span class="font-mono font-bold text-slate-900">
+                                            {{ $prog['scored_count'] }}/{{ $prog['total_items'] }} Butir
+                                            <span class="text-primary-700">({{ $prog['percentage'] }}%)</span>
+                                        </span>
+                                    </div>
+                                    <div class="w-full bg-slate-200/80 rounded-full h-2 overflow-hidden">
+                                        <div
+                                            class="{{ $prog['percentage'] >= 100 ? 'bg-emerald-500' : 'bg-primary-700' }} h-2 rounded-full transition-all duration-500"
+                                            style="width: {{ $prog['percentage'] }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Meta Strip: Nilai A/B/C, Temuan, Rekomendasi, dan Tombol Aksi -->
+                                <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                            A: {{ $prog['count_a'] }}
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                            B: {{ $prog['count_b'] }}
+                                        </span>
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                                            C: {{ $prog['count_c'] }}
+                                        </span>
+                                        @if ($prog['findings_count'] > 0)
+                                        <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                                            {{ $prog['findings_count'] }} Temuan
+                                        </span>
+                                        @endif
+                                        <span class="px-2.5 py-0.5 rounded-md text-[11px] font-bold border {{ $prog['recommendation_badge'] }}">
+                                            {{ $prog['recommendation_label'] }}
+                                        </span>
+                                    </div>
+
+                                    <a
+                                        href="{{ route('penilaian.show', $item) }}"
+                                        class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold rounded-xl transition shadow-xs cursor-pointer {{ $prog['is_completed'] ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' : 'bg-primary-700 hover:bg-primary-600 text-white shadow-primary-700/20' }}"
+                                        wire:navigate>
+                                        <span class="material-symbols-outlined text-[16px]">{{ $prog['is_completed'] ? 'visibility' : 'edit_note' }}</span>
+                                        <span>{{ $prog['is_completed'] ? 'Buka Lembar Kerja' : 'Lanjutkan Penilaian' }}</span>
+                                    </a>
+                                </div>
+                            </div>
+                        @empty
+                            <div class="p-10 text-center text-slate-400 space-y-2">
+                                <span class="material-symbols-outlined text-[40px] text-slate-300">fact_check</span>
+                                <p class="font-semibold text-slate-600 text-xs">Belum ada berkas KEPK yang ditugaskan kepada Anda saat ini.</p>
+                                <p class="text-[11px] text-slate-400">Penugasan berkas dilakukan oleh Administrator sistem.</p>
+                            </div>
+                        @endforelse
+                    </div>
                 </div>
-                <a href="{{ route('penilaian.index') }}" class="text-xs text-primary-700 font-bold hover:underline" wire:navigate>
-                    Lihat Semua &rarr;
-                </a>
             </div>
 
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left border-collapse min-w-[750px]">
-                    <thead>
-                        <tr class="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider text-[11px]">
-                            <th class="px-6 py-3.5">No. Berkas</th>
-                            <th class="px-6 py-3.5">Institusi / KEPK</th>
-                            <th class="px-6 py-3.5">Hasil / Prediksi Akreditasi</th>
-                            <th class="px-6 py-3.5">Status</th>
-                            <th class="px-6 py-3.5 text-right">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
-                        @forelse ($assignedSubmissions->take(5) as $item)
-                            @php
-                                $m = $item->calculated_metrics ?? null;
-                            @endphp
-                            <tr class="hover:bg-slate-50/60 transition">
-                                <td class="px-6 py-3.5 font-mono font-bold text-primary-700">
-                                    {{ $item->formatted_id }}
-                                </td>
-                                <td class="px-6 py-3.5">
-                                    <div class="font-semibold text-slate-900">{{ $item->formulirAplikasi->nama_institusi ?? $item->kepk->name }}</div>
-                                    <div class="text-[11px] text-slate-500">{{ $item->kepk->institusi->name ?? '-' }}</div>
-                                </td>
-                                <td class="px-6 py-3.5">
-                                    @if ($m)
-                                        <div class="flex items-center gap-2">
-                                            <span class="px-2.5 py-0.5 rounded-md text-[10px] font-bold border {{ $m['prediction']['badge_class'] ?? 'bg-slate-100 text-slate-700' }}">
-                                                {{ $m['prediction']['type'] }}
-                                            </span>
-                                            <span class="font-mono font-bold text-primary-700 text-xs">{{ $m['overall_compliance'] }}%</span>
-                                        </div>
-                                    @else
-                                        <span class="text-slate-400 text-[11px]">-</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-3.5">
-                                    <x-pengajuan.status-badge :status="$item->status" />
-                                </td>
-                                <td class="px-6 py-3.5 text-right">
-                                    <a href="{{ route('penilaian.show', $item) }}" class="inline-flex items-center gap-1 px-3.5 py-1.5 rounded-xl text-xs font-bold text-white bg-primary-700 hover:bg-primary-600 transition shadow-2xs" wire:navigate>
-                                        <span class="material-symbols-outlined text-[14px]">search</span>
-                                        <span>Lembar Penilaian</span>
-                                    </a>
-                                </td>
-                            </tr>
+            <!-- Right 1 Col: Panduan Rubrik Skor & Catatan Terkini -->
+            <div class="space-y-4">
+                <!-- Cheatsheet Rubrik Penilaian -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+                        <span class="material-symbols-outlined text-[18px] text-primary-700">menu_book</span>
+                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Panduan Rubrik Skor (WHO & KEPPKN)</h3>
+                    </div>
+
+                    <div class="space-y-2.5 text-xs">
+                        <div class="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100 space-y-1">
+                            <div class="flex items-center gap-1.5 font-bold text-emerald-800">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>Nilai A (100% - Terpenuhi Lengkap)</span>
+                            </div>
+                            <p class="text-[11px] text-emerald-900/80 leading-relaxed">
+                                Seluruh kriteria butir terpenuhi secara substantif dan didukung dokumen bukti (SK, SOP, Arsip) yang valid dan memadai.
+                            </p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-amber-50/70 border border-amber-100 space-y-1">
+                            <div class="flex items-center gap-1.5 font-bold text-amber-800">
+                                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                                <span>Nilai B (50% - Terpenuhi Sebagian)</span>
+                            </div>
+                            <p class="text-[11px] text-amber-900/80 leading-relaxed">
+                                Kriteria telah dilaksanakan namun dokumen bukti belum lengkap, masih dalam proses penetapan, atau memerlukan perbaikan minor.
+                            </p>
+                        </div>
+
+                        <div class="p-2.5 rounded-xl bg-rose-50/70 border border-rose-100 space-y-1">
+                            <div class="flex items-center gap-1.5 font-bold text-rose-800">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                                <span>Nilai C (0% - Belum Terpenuhi)</span>
+                            </div>
+                            <p class="text-[11px] text-rose-900/80 leading-relaxed">
+                                Belum dilaksanakan, tidak ada dokumen bukti pendukung, atau belum sesuai dengan pedoman etika yang berlaku.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Catatan & Temuan Terkini -->
+                <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs space-y-3">
+                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                        <div class="flex items-center gap-2">
+                            <span class="material-symbols-outlined text-[18px] text-primary-700">history_edu</span>
+                            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Ulasan & Temuan Terkini</h3>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5">
+                        @forelse ($recentFindings as $finding)
+                            <div class="p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs space-y-1">
+                                <div class="flex items-center justify-between gap-1">
+                                    <span class="font-mono font-bold text-primary-700">
+                                        {{ $finding->butir?->kode ?? 'Butir #' . $finding->butir_evaluasi_id }}
+                                    </span>
+                                    <span class="text-[10px] text-slate-400">
+                                        {{ $finding->updated_at?->diffForHumans() ?? 'Baru saja' }}
+                                    </span>
+                                </div>
+                                @if ($finding->temuan)
+                                    <p class="text-rose-700 text-[11px] font-medium leading-relaxed">
+                                        <span class="font-bold">Temuan:</span> "{{ \Illuminate\Support\Str::limit($finding->temuan, 85) }}"
+                                    </p>
+                                @elseif ($finding->catatan)
+                                    <p class="text-slate-600 text-[11px] leading-relaxed italic">
+                                        "{{ \Illuminate\Support\Str::limit($finding->catatan, 85) }}"
+                                    </p>
+                                @endif
+                                <div class="text-[10px] text-slate-400 truncate">
+                                    {{ $finding->suratPengajuan->formulirAplikasi->nama_institusi ?? $finding->suratPengajuan->kepk->name }}
+                                </div>
+                            </div>
                         @empty
-                            <tr>
-                                <td colspan="5" class="px-6 py-10 text-center text-slate-400">
-                                    Belum ada berkas pengajuan yang ditugaskan kepada Anda saat ini.
-                                </td>
-                            </tr>
+                            <div class="py-6 text-center text-slate-400 italic text-xs">
+                                Belum ada catatan atau temuan yang Anda tulis.
+                            </div>
                         @endforelse
-                    </tbody>
-                </table>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -158,7 +263,7 @@
                             Selamat Datang, {{ $user->name }}
                         </h1>
                         <p class="text-slate-500 text-xs sm:text-sm leading-relaxed max-w-2xl">
-                            Pantau seluruh proses akreditasi KEPK, penugasan tim penilai independen, kelola instrumen 164 butir, dan sahkan hasil akreditasi secara terpusat.
+                            Pantau seluruh proses akreditasi KEPK, penugasan tim penilai independen, kelola instrumen butir evaluasi, dan sahkan hasil akreditasi secara terpusat.
                         </p>
                     </div>
                 </div>
@@ -169,7 +274,7 @@
                     </a>
                     <a href="{{ route('admin.kriteria.index') }}" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-200 transition flex items-center gap-1.5 cursor-pointer" wire:navigate>
                         <span class="material-symbols-outlined text-[16px]">rule</span>
-                        <span>Kriteria 164 Butir</span>
+                        <span>Kriteria & Acuan</span>
                     </a>
                     <a href="{{ route('pengajuan.index') }}" class="px-4 py-2.5 bg-primary-700 hover:bg-primary-600 text-white font-bold text-xs rounded-xl shadow-xs transition flex items-center gap-1.5 cursor-pointer" wire:navigate>
                         <span class="material-symbols-outlined text-[16px]">folder_shared</span>
@@ -449,7 +554,7 @@
                     <a href="{{ route('admin.kriteria.index') }}" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition font-semibold text-slate-800" wire:navigate>
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px] text-primary-700">tune</span>
-                            <span>Kriteria & Acuan 164 Butir</span>
+                            <span>Kriteria & Acuan</span>
                         </div>
                         <span class="material-symbols-outlined text-[16px] text-slate-400">chevron_right</span>
                     </a>
@@ -457,13 +562,6 @@
                         <div class="flex items-center gap-2">
                             <span class="material-symbols-outlined text-[18px] text-primary-700">folder_shared</span>
                             <span>Daftar Seluruh Pengajuan KEPK</span>
-                        </div>
-                        <span class="material-symbols-outlined text-[16px] text-slate-400">chevron_right</span>
-                    </a>
-                    <a href="{{ route('penilaian.index') }}" class="flex items-center justify-between p-2.5 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-200 transition font-semibold text-slate-800" wire:navigate>
-                        <div class="flex items-center gap-2">
-                            <span class="material-symbols-outlined text-[18px] text-primary-700">fact_check</span>
-                            <span>Portal Penilaian Asesor</span>
                         </div>
                         <span class="material-symbols-outlined text-[16px] text-slate-400">chevron_right</span>
                     </a>
@@ -509,7 +607,7 @@
                                 class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition cursor-pointer"
                                 wire:navigate>
                                 <span class="material-symbols-outlined text-[18px]">checklist</span>
-                                <span>Evaluasi Diri (164 Butir)</span>
+                                <span>Evaluasi Diri</span>
                             </a>
                             <a
                                 href="{{ route('pengajuan.dokumen', $suratPengajuan) }}"
@@ -692,7 +790,7 @@
                     </div>
                     @if ($suratPengajuan)
                         <a href="{{ route('pengajuan.evaluasi-diri', $suratPengajuan) }}" class="text-xs text-primary-700 font-bold hover:underline" wire:navigate>
-                            Buka Seluruh 164 Butir &rarr;
+                            Buka Seluruh Butir &rarr;
                         </a>
                     @endif
                 </div>

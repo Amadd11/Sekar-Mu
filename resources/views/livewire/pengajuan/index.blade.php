@@ -117,14 +117,40 @@
                                 {{ $item->created_at->format('d M Y') }}
                             </td>
                             <td class="px-6 py-4 text-right whitespace-nowrap">
-                                <a
-                                    href="{{ route('pengajuan.show', $item) }}"
-                                    class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-primary-700 hover:bg-primary-600 transition shadow-2xs"
-                                    wire:navigate
-                                >
-                                    <span>Buka Berkas</span>
-                                    <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
-                                </a>
+                                <div class="flex items-center justify-end gap-2">
+                                    @if (auth()->user()->isAdmin())
+                                        <a
+                                            href="{{ route('penilaian.tugaskan', $item) }}"
+                                            title="Tugaskan Asesor Penilai"
+                                            class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 shadow-2xs transition"
+                                            wire:navigate
+                                        >
+                                            <span class="material-symbols-outlined text-[16px] text-teal-600">person_add</span>
+                                            <span>Tugaskan Asesor</span>
+                                        </a>
+                                    @endif
+
+                                    @if (! $item->isApproved() && (! auth()->user()->isAsessor() || auth()->user()->isAdmin()))
+                                        <a
+                                            href="{{ route('pengajuan.formulir-aplikasi', $item) }}"
+                                            title="Edit Berkas & Identitas"
+                                            class="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 border border-slate-200/80 transition"
+                                            wire:navigate
+                                        >
+                                            <span class="material-symbols-outlined text-[15px]">edit</span>
+                                            <span>Edit</span>
+                                        </a>
+                                    @endif
+
+                                    <a
+                                        href="{{ route('pengajuan.show', $item) }}"
+                                        class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-primary-700 hover:bg-primary-600 transition shadow-2xs"
+                                        wire:navigate
+                                    >
+                                        <span>Buka Berkas</span>
+                                        <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+                                    </a>
+                                </div>
                             </td>
                         </tr>
                     @empty
@@ -187,22 +213,38 @@
                     <!-- Modal Body Form -->
                     <form wire:submit="simpanPengajuan">
                         <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto custom-scrollbar text-xs">
-                            <!-- 1. Tujuan KEPK -->
-                            <div class="space-y-2 pb-4 border-b border-slate-100">
-                                <label for="modal_kepk_id" class="block font-bold text-slate-700">
-                                    Komisi Etik Tujuan Pengajuan <span class="text-red-500">*</span>
-                                </label>
-                                <select
-                                    wire:model="kepk_id"
-                                    id="modal_kepk_id"
-                                    class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800"
-                                >
-                                    <option value="">-- Pilih KEPK --</option>
-                                    @foreach ($daftarKepk as $k)
-                                        <option value="{{ $k->id }}">{{ $k->name }} ({{ $k->institusi->name ?? '-' }})</option>
-                                    @endforeach
-                                </select>
-                                @error('kepk_id') <span class="text-red-500 text-[11px] block font-medium">{{ $message }}</span> @enderror
+                            <!-- 1. Tujuan KEPK & Nomor Berkas -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pb-4 border-b border-slate-100">
+                                <div>
+                                    <label for="modal_kepk_id" class="block font-bold text-slate-700 mb-1">
+                                        Komisi Etik Tujuan <span class="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        wire:model="kepk_id"
+                                        id="modal_kepk_id"
+                                        class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800"
+                                    >
+                                        <option value="">-- Pilih KEPK --</option>
+                                        @foreach ($daftarKepk as $k)
+                                            <option value="{{ $k->id }}">{{ $k->name }} ({{ $k->institusi->name ?? '-' }})</option>
+                                        @endforeach
+                                    </select>
+                                    @error('kepk_id') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label for="modal_nomor_berkas" class="block font-bold text-slate-700 mb-1">
+                                        Nomor Berkas <span class="text-slate-400 font-normal text-[11px]">(Opsional)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="nomor_berkas"
+                                        id="modal_nomor_berkas"
+                                        placeholder="Contoh: KEPK/2026/001"
+                                        class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs placeholder:text-slate-400"
+                                    />
+                                    @error('nomor_berkas') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
+                                </div>
                             </div>
 
                             <!-- 2. Identitas Institusi -->

@@ -1,8 +1,7 @@
 <!-- Left Sidebar (Classic Sekar-Mu Navy Theme) -->
 <aside
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-    class="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#174668] text-white flex flex-col transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen shrink-0 shadow-lg border-r border-[#133a57]"
->
+    class="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#174668] text-white flex flex-col transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen shrink-0 shadow-lg border-r border-[#133a57]">
     <!-- Brand Header -->
     <div class="p-5 border-b border-[#1f557c]/60 bg-[#133e5f]">
         <div class="flex items-center gap-3">
@@ -26,33 +25,22 @@
                 <a
                     href="{{ route('dashboard') }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('dashboard') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('dashboard') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">dashboard</span>
                     <span>Dashboard</span>
                 </a>
 
-                @hasanyrole('asessor|admin')
-                    <a
-                        href="{{ route('penilaian.index') }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('penilaian.index') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('penilaian.index') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">clinical_notes</span>
-                        <span>Daftar Penugasan</span>
-                    </a>
-                @endhasanyrole
             </nav>
         </div>
 
         <!-- Section: WORKSPACE PENILAIAN ASESOR (Asessor Only) -->
         @hasrole('asessor')
         @php
-            $targetPenilaian = request()->route('suratPengajuan') ?? $latestApp;
-            $rawPenilaianTab = request()->query('tab', 'penilaian');
-            $currentPenilaianTab = in_array($rawPenilaianTab, ['dokumen', 'berkas', 'protokol'])
-                ? 'dokumen'
-                : (in_array($rawPenilaianTab, ['rekomendasi', 'catatan']) ? 'rekomendasi' : 'penilaian');
+        $targetPenilaian = request()->route('suratPengajuan') ?? $latestApp;
+        $rawPenilaianTab = request()->query('tab', 'penilaian');
+        $currentPenilaianTab = in_array($rawPenilaianTab, ['dokumen', 'berkas', 'protokol'])
+        ? 'dokumen'
+        : (in_array($rawPenilaianTab, ['rekomendasi', 'catatan']) ? 'rekomendasi' : 'penilaian');
         @endphp
         @if ($targetPenilaian)
         <div>
@@ -64,8 +52,7 @@
                 <a
                     href="{{ route('penilaian.show', [$targetPenilaian, 'tab' => 'penilaian']) }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'penilaian') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'penilaian') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
                     <span>Penilaian</span>
                 </a>
@@ -73,8 +60,7 @@
                 <a
                     href="{{ route('penilaian.show', [$targetPenilaian, 'tab' => 'dokumen']) }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'dokumen') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'dokumen') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">folder</span>
                     <span>Dokumen</span>
                 </a>
@@ -82,8 +68,7 @@
                 <a
                     href="{{ route('penilaian.show', [$targetPenilaian, 'tab' => 'rekomendasi']) }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'rekomendasi') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ (request()->routeIs('penilaian.show') && $currentPenilaianTab === 'rekomendasi') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">gavel</span>
                     <span>Form Rekomendasi</span>
                 </a>
@@ -92,95 +77,78 @@
         @endif
         @endhasrole
 
-        <!-- Section: EVALUASI DIRI (Anggota KEPK Only) -->
-        @hasrole('anggota')
-        @if ($latestApp)
-        <div>
-            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Evaluasi Diri</p>
-            <nav class="space-y-1">
-                <a
-                    href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
-                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
-                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
-                    <span>B01-03: Evaluasi Diri</span>
-                </a>
-            </nav>
-        </div>
-        @endif
-        @endhasrole
-
-        <!-- Section: BORANG PENGAJUAN B01 (Ketua KEPK & Admin Only) -->
-        @hasanyrole('ketua_kepk|admin')
+        <!-- Section: BORANG PENGAJUAN B01 (Ketua KEPK, Anggota & Admin) -->
+        @hasanyrole('ketua_kepk|anggota|admin')
         <div>
             <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Borang Pengajuan (B01)</p>
             <nav class="space-y-1">
                 <a
                     href="{{ route('pengajuan.index') }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.index') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.index') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">description</span>
                     <span>B01-01: Surat Pengajuan</span>
                 </a>
 
                 @if ($latestApp)
-                    <a
-                        href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
-                        <span>B01-03: Evaluasi Diri</span>
-                    </a>
+                <a
+                    href="{{ route('pengajuan.formulir-aplikasi', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.formulir-aplikasi') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.formulir-aplikasi') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">apartment</span>
+                    <span>B01-02: Formulir Aplikasi</span>
+                </a>
 
-                    <a
-                        href="{{ route('pengajuan.list-protokol', $latestApp) }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.list-protokol') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.list-protokol') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">list_alt</span>
-                        <span>B01-04: List Protokol Riset</span>
-                    </a>
+                <a
+                    href="{{ route('pengajuan.evaluasi-diri', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.evaluasi-diri') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}" style="font-variation-settings: 'FILL' 1;">fact_check</span>
+                    <span>B01-03: Evaluasi Diri</span>
+                </a>
 
-                    <a
-                        href="{{ route('pengajuan.dokumen', $latestApp) }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.dokumen') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.dokumen') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">folder</span>
-                        <span>Dokumen Lampiran</span>
-                    </a>
-                @elseif (auth()->user()->can('create', \App\Models\SuratPengajuan::class))
-                    <a
-                        href="{{ route('pengajuan.create') }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition text-teal-100/80 hover:bg-[#1f5379] hover:text-white"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] text-teal-300">add_circle</span>
-                        <span>Buat Pengajuan Baru</span>
-                    </a>
+                <a
+                    href="{{ route('pengajuan.list-protokol', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.list-protokol') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.list-protokol') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">list_alt</span>
+                    <span>B01-04: List Protokol Riset</span>
+                </a>
+
+                <a
+                    href="{{ route('pengajuan.dokumen', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.dokumen') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.dokumen') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">folder</span>
+                    <span>Dokumen Lampiran</span>
+                </a>
                 @endif
             </nav>
         </div>
         @endhasanyrole
 
-        <!-- Section: HASIL & PELAPORAN -->
-        @if ($latestApp && auth()->user()->can('view', $latestApp))
-            <div>
-                <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Hasil & Pelaporan</p>
-                <nav class="space-y-1">
-                    <a
-                        href="{{ route('pengajuan.show', $latestApp) }}"
-                        class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.show') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                        wire:navigate
-                    >
-                        <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.show') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">verified</span>
-                        <span>Hasil Akreditasi</span>
-                    </a>
-                </nav>
-            </div>
+        <!-- Section: HASIL & PELAPORAN (Ketua KEPK, Anggota & Admin) -->
+        @if ($latestApp && (! auth()->user()->isAsessor() || auth()->user()->isAdmin()) && auth()->user()->can('view', $latestApp))
+        <div>
+            <p class="px-3 text-[10px] font-bold text-teal-200/70 uppercase tracking-wider mb-2">Hasil & Pelaporan</p>
+            <nav class="space-y-1">
+                <a
+                    href="{{ route('pengajuan.show', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.show') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.show') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">verified</span>
+                    <span>Hasil Akreditasi</span>
+                </a>
+
+                <a
+                    href="{{ route('pengajuan.matriks', $latestApp) }}"
+                    class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('pengajuan.matriks') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
+                    wire:navigate>
+                    <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('pengajuan.matriks') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">table_chart</span>
+                    <span>Matriks Tabulasi</span>
+                </a>
+            </nav>
+        </div>
         @endif
 
         <!-- Section: MASTER DATA & PENGATURAN (Admin Only) -->
@@ -191,8 +159,7 @@
                 <a
                     href="{{ route('admin.users.index') }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('admin.users.*') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.users.*') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">manage_accounts</span>
                     <span>Manajemen Akun</span>
                 </a>
@@ -200,10 +167,9 @@
                 <a
                     href="{{ route('admin.kriteria.index') }}"
                     class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-medium transition group {{ request()->routeIs('admin.kriteria.*') ? 'bg-[#225c84] text-white font-bold border-l-4 border-teal-300 shadow-2xs' : 'text-teal-100/80 hover:bg-[#1f5379] hover:text-white' }}"
-                    wire:navigate
-                >
+                    wire:navigate>
                     <span class="material-symbols-outlined text-[20px] {{ request()->routeIs('admin.kriteria.*') ? 'text-teal-300' : 'text-teal-200/70 group-hover:text-white' }}">tune</span>
-                    <span>Kriteria & Acuan (164)</span>
+                    <span>Kriteria & Acuan</span>
                 </a>
             </nav>
         </div>

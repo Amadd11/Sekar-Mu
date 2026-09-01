@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        View::composer(['layouts.partials.sidebar', 'layouts.partials.topbar', 'livewire.layout.navigation'], function ($view) {
+        View::composer(['layouts.partials.sidebar', 'layouts.partials.topbar'], function ($view) {
             $user = auth()->user();
             $latestApp = null;
 

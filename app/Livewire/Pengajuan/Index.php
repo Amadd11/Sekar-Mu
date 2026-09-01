@@ -19,6 +19,7 @@ class Index extends Component
     // Modal Create State
     public bool $showCreateModal = false;
     public ?int $kepk_id = null;
+    public string $nomor_berkas = '';
     public string $nama_institusi = '';
     public string $singkatan = '';
     public string $alamat = '';
@@ -36,6 +37,7 @@ class Index extends Component
     {
         return [
             'kepk_id' => ['required', 'exists:kepk,id'],
+            'nomor_berkas' => ['nullable', 'string', 'max:100'],
             'nama_institusi' => ['required', 'string', 'max:255'],
             'singkatan' => ['nullable', 'string', 'max:50'],
             'alamat' => ['nullable', 'string'],
@@ -68,7 +70,7 @@ class Index extends Component
     public function bukaModalCreate(): void
     {
         $this->resetValidation();
-        $this->reset(['nama_institusi', 'singkatan', 'alamat', 'kota', 'telepon', 'email', 'deskripsi', 'visi', 'misi']);
+        $this->reset(['nomor_berkas', 'nama_institusi', 'singkatan', 'alamat', 'kota', 'telepon', 'email', 'deskripsi', 'visi', 'misi']);
         
         $defaultKepk = Kepk::where('status', 'active')->first() ?? Kepk::first();
         if ($defaultKepk) {

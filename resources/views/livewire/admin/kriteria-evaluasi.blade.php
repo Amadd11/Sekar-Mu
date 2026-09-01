@@ -12,9 +12,6 @@
                         <span class="material-symbols-outlined text-[15px]">tune</span>
                         <span>Master Instrumen Evaluasi</span>
                     </span>
-                    <span class="bg-slate-100 text-slate-700 font-mono text-xs px-3 py-1 rounded-lg font-bold border border-slate-200 shadow-2xs">
-                        164 Butir Standar WHO-CIOMS & KEPPKN
-                    </span>
                 </div>
             </div>
 
@@ -25,7 +22,7 @@
                         Kelola Kriteria & Acuan Standar Akreditasi
                     </h1>
                     <p class="text-slate-500 text-xs sm:text-sm leading-relaxed">
-                        Kelola parameter instrumen penilaian 164 butir, bobot temuan kritis, dan acuan bukti dukung akreditasi KEPK.
+                        Kelola parameter instrumen penilaian, bobot temuan kritis, dan acuan bukti dukung akreditasi KEPK.
                     </p>
                 </div>
 
@@ -35,7 +32,7 @@
                         wire:click="bukaModalKelompok"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer shadow-2xs">
                         <span class="material-symbols-outlined text-[18px]">category</span>
-                        <span>+ Kelompok Acuan</span>
+                        <span>Kelola Kelompok</span>
                     </button>
 
                     <button
@@ -61,7 +58,7 @@
     @endif
 
     <!-- 2. KPI Summary Cards -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
             <div class="flex items-center justify-between">
                 <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Butir</span>
@@ -71,17 +68,6 @@
             </div>
             <div class="text-2xl font-black text-slate-900 font-display mt-2">{{ $totalButir }}</div>
             <p class="text-[11px] text-slate-400 mt-0.5">Instrumen aktif dalam sistem</p>
-        </div>
-
-        <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Butir Kritis</span>
-                <span class="w-8 h-8 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                    <span class="material-symbols-outlined text-[18px]">warning</span>
-                </span>
-            </div>
-            <div class="text-2xl font-black text-red-600 font-display mt-2">{{ $totalKritis }}</div>
-            <p class="text-[11px] text-slate-400 mt-0.5">Wajib dipenuhi (Critical items)</p>
         </div>
 
         <div class="bg-white border border-slate-200/80 rounded-2xl p-5 shadow-xs">
@@ -140,17 +126,6 @@
                 @foreach ($daftarKelompok as $k)
                 <option value="{{ $k->id }}">{{ $k->nama }}</option>
                 @endforeach
-            </select>
-        </div>
-
-        <!-- Filter Kritis -->
-        <div class="w-full lg:w-44">
-            <select
-                wire:model.live="criticalFilter"
-                class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-700 font-medium">
-                <option value="">Semua Tipe Butir</option>
-                <option value="critical">⚠️ Temuan Kritis</option>
-                <option value="standard">Butir Standar</option>
             </select>
         </div>
 
@@ -256,7 +231,7 @@
                                     type="button"
                                     wire:click="hapusKriteria({{ $b->id }})"
                                     wire:confirm="Apakah Anda yakin ingin menghapus butir kriteria {{ $b->kode }} ini?"
-                                    class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                                    class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                                     title="Hapus Kriteria">
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
                                 </button>
@@ -454,86 +429,145 @@
     </div>
     @endif
 
-    <!-- 6. Modal Dialog: Tambah Kelompok Acuan Standar -->
+    <!-- 6. Modal Dialog: Kelola Kelompok Acuan Standar -->
     @if ($showKelompokModal)
     <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-kelompok-title" role="dialog" aria-modal="true">
-        <div class="fixed inset-0 bg-slate-900/25 transition-opacity" wire:click="tutupModalKelompok"></div>
+        <div class="fixed inset-0 bg-slate-900/40 transition-opacity" wire:click="tutupModalKelompok"></div>
 
         <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
-            <div class="relative transform overflow-hidden rounded-2xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-lg border border-slate-200/80">
+            <div class="relative transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-2xl border border-slate-200">
                 <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/60">
                     <div class="flex items-center gap-3">
-                        <span class="text-2xl select-none">📂</span>
+                        <div class="w-10 h-10 rounded-2xl bg-primary-50 text-primary-700 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-[22px]">category</span>
+                        </div>
                         <div>
                             <h3 class="font-display font-bold text-base text-slate-900 leading-tight" id="modal-kelompok-title">
-                                Tambah Kelompok Acuan Standar
+                                Kelola Kelompok Acuan Standar
                             </h3>
                             <p class="text-xs text-slate-500 mt-0.5">
-                                Kategori pengelompokan butir di dalam Bagian Standar Evaluasi.
+                                Tambah baru atau hapus kategori pengelompokan butir standar akreditasi.
                             </p>
                         </div>
                     </div>
                     <button
                         type="button"
                         wire:click="tutupModalKelompok"
-                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition">
+                        class="p-1.5 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition cursor-pointer">
                         <span class="material-symbols-outlined text-[20px]">close</span>
                     </button>
                 </div>
 
-                <form wire:submit="simpanKelompok">
-                    <div class="p-6 space-y-4 text-xs">
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">
-                                Pilih Bagian Evaluasi (A-E) <span class="text-red-500">*</span>
-                            </label>
-                            <select
-                                wire:model="kelompok_bagian_id"
-                                class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800">
-                                @foreach ($daftarBagian as $b)
-                                <option value="{{ $b->id }}">Bagian {{ $b->kode }}: {{ $b->nama }}</option>
-                                @endforeach
-                            </select>
+                <div class="p-6 space-y-6 text-xs max-h-[75vh] overflow-y-auto">
+                    <!-- Form Tambah Baru -->
+                    <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+                        <div class="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-primary-700">add_circle</span>
+                            <span>Tambah Kelompok Acuan Baru</span>
                         </div>
 
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">
-                                Nama Kelompok Standar <span class="text-red-500">*</span>
-                            </label>
-                            <input
-                                type="text"
-                                wire:model="kelompok_nama"
-                                placeholder="Contoh: Prosedur Sidang & Dokumentasi"
-                                class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs" />
-                            @error('kelompok_nama') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
-                        </div>
+                        <form wire:submit="simpanKelompok" class="space-y-3">
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">
+                                        Bagian Standar <span class="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        wire:model="kelompok_bagian_id"
+                                        class="w-full text-xs rounded-xl border border-slate-300 py-2 px-3 focus:border-primary-600 focus:ring-1 focus:ring-primary-500/20 shadow-2xs text-slate-800 bg-white">
+                                        @foreach ($daftarBagian as $b)
+                                        <option value="{{ $b->id }}">Bagian {{ $b->kode }}: {{ $b->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
 
-                        <div>
-                            <label class="block font-bold text-slate-700 mb-1">
-                                Urutan Kelompok
-                            </label>
-                            <input
-                                type="number"
-                                wire:model="kelompok_urutan"
-                                min="1"
-                                class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs font-mono font-bold" />
-                        </div>
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">
+                                        Nama Kelompok Standar <span class="text-red-500">*</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        wire:model="kelompok_nama"
+                                        placeholder="Nama kelompok..."
+                                        class="w-full text-xs rounded-xl border border-slate-300 py-2 px-3 focus:border-primary-600 focus:ring-1 focus:ring-primary-500/20 shadow-2xs bg-white" />
+                                    @error('kelompok_nama') <span class="text-red-500 text-[11px] block mt-1 font-medium">{{ $message }}</span> @enderror
+                                </div>
+
+                                <div>
+                                    <label class="block font-semibold text-slate-600 mb-1">
+                                        Urutan
+                                    </label>
+                                    <div class="flex items-center gap-2">
+                                        <input
+                                            type="number"
+                                            wire:model="kelompok_urutan"
+                                            min="1"
+                                            class="w-20 text-xs rounded-xl border border-slate-300 py-2 px-3 focus:border-primary-600 focus:ring-1 focus:ring-primary-500/20 shadow-2xs font-mono font-bold bg-white" />
+                                        <button
+                                            type="submit"
+                                            class="flex-1 px-3 py-2 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl transition cursor-pointer shadow-2xs">
+                                            + Simpan
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
                     </div>
 
-                    <div class="p-4 sm:px-6 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-3 rounded-b-2xl">
-                        <button
-                            type="button"
-                            wire:click="tutupModalKelompok"
-                            class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 transition">
-                            Batal
-                        </button>
-                        <button
-                            type="submit"
-                            class="inline-flex items-center gap-2 px-5 py-2.5 bg-primary-700 hover:bg-primary-600 active:bg-primary-800 text-white font-bold text-xs rounded-xl shadow-md shadow-primary-700/20 transition cursor-pointer">
-                            <span>Simpan Kelompok</span>
-                        </button>
+                    <!-- Daftar Kelompok & Tombol Hapus -->
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between pb-1">
+                            <span class="font-bold text-slate-800 text-xs uppercase tracking-wider">
+                                Daftar Kelompok Acuan ({{ $semuaKelompok->count() }} Kelompok)
+                            </span>
+                            <span class="text-[11px] text-slate-400">Kelompok dengan 0 butir dapat dihapus langsung</span>
+                        </div>
+
+                        <div class="border border-slate-200 rounded-2xl overflow-hidden divide-y divide-slate-100 max-h-80 overflow-y-auto">
+                            @forelse ($semuaKelompok as $kel)
+                            <div class="p-3 bg-white hover:bg-slate-50/70 transition flex items-center justify-between gap-3 text-xs">
+                                <div class="flex items-center gap-2.5 overflow-hidden flex-1">
+                                    <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-700 font-mono text-xs flex items-center justify-center font-bold shrink-0">
+                                        {{ $kel->bagian?->kode ?? '-' }}
+                                    </span>
+                                    <div class="overflow-hidden">
+                                        <div class="font-bold text-slate-900 truncate">{{ $kel->nama }}</div>
+                                        <div class="text-[11px] text-slate-400">Bagian {{ $kel->bagian?->kode }}: {{ $kel->bagian?->nama }} • Urutan #{{ $kel->urutan }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 shrink-0">
+                                    <span class="font-mono text-[11px] px-2 py-0.5 rounded-lg border {{ $kel->butir_count > 0 ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-amber-50 text-amber-700 border-amber-200' }}">
+                                        {{ $kel->butir_count }} Butir
+                                    </span>
+
+                                    <button
+                                        type="button"
+                                        wire:click="hapusKelompok({{ $kel->id }})"
+                                        wire:confirm="Yakin ingin menghapus kelompok standar '{{ $kel->nama }}'{{ $kel->butir_count > 0 ? ' beserta ' . $kel->butir_count . ' butir kriteria di dalamnya' : '' }}?"
+                                        class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer flex items-center justify-center"
+                                        title="Hapus Kelompok Standar">
+                                        <span class="material-symbols-outlined text-[18px]">delete</span>
+                                    </button>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="p-6 text-center text-slate-400 italic">
+                                Belum ada kelompok acuan standar.
+                            </div>
+                            @endforelse
+                        </div>
                     </div>
-                </form>
+                </div>
+
+                <div class="p-4 sm:px-6 bg-slate-50/80 border-t border-slate-100 flex items-center justify-end gap-3 rounded-b-3xl">
+                    <button
+                        type="button"
+                        wire:click="tutupModalKelompok"
+                        class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-200/70 transition cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>

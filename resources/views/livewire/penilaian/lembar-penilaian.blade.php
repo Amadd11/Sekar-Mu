@@ -30,17 +30,8 @@
                 </div>
 
                 <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto shrink-0">
-                    <button
-                        type="button"
-                        onclick="window.print()"
-                        class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 transition shadow-2xs"
-                        title="Cetak Halaman"
-                    >
-                        <span class="material-symbols-outlined text-[16px]">print</span>
-                        <span>Cetak</span>
-                    </button>
-                    <a href="{{ route('penilaian.index') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition shadow-2xs" wire:navigate>
-                        &larr; Kembali ke Daftar
+                    <a href="{{ route('dashboard') }}" class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200 transition shadow-2xs" wire:navigate>
+                        &larr; Kembali ke Dashboard
                     </a>
                 </div>
             </div>
@@ -149,7 +140,7 @@
         $allComments = $semuaPenilaian->flatMap->catatanPenilaian;
     @endphp
 
-    <!-- 1. TAB PENILAIAN (164 BUTIR STANDAR) -->
+    <!-- 1. TAB PENILAIAN BUTIR STANDAR -->
     @if ($activeTab === 'penilaian')
         <!-- Section Selector Cards (Bagian A s.d. E) -->
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
@@ -563,7 +554,7 @@
                         class="w-full py-3 px-4 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold rounded-2xl text-xs transition shadow-2xs flex items-center justify-center gap-2 cursor-pointer"
                     >
                         <span class="material-symbols-outlined text-[18px]">edit_note</span>
-                        <span>Kembali Cek Borang 164 Butir</span>
+                        <span>Kembali Cek Borang Penilaian</span>
                     </button>
                 </div>
 

@@ -8,7 +8,7 @@
 ## 2. Pengajuan Permohonan KEPK
 - `GET /pengajuan` → `App\Livewire\Pengajuan\Index` (`pengajuan.index`)
 - `GET /pengajuan/create` → `App\Livewire\Pengajuan\Create` (`pengajuan.create` - Ketua, Anggota & Admin)
-- `GET /pengajuan/{suratPengajuan}` → `App\Livewire\Pengajuan\Show` (`pengajuan.show`)
+- `GET /pengajuan/{suratPengajuan}` → `App\Livewire\HasilAkreditasi\Index` (`pengajuan.show`)
 
 ## 3. Modul Pengisian Berkas & Evaluasi Mandiri (Ketua, Anggota & Admin)
 - `GET /pengajuan/{suratPengajuan}/formulir-aplikasi` → `App\Livewire\Pengajuan\FormulirAplikasi` (`pengajuan.formulir-aplikasi`)

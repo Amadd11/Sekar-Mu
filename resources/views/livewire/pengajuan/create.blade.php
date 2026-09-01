@@ -29,27 +29,44 @@
     <!-- Form Card -->
     <div class="bg-white border border-slate-200/80 rounded-2xl p-6 sm:p-8 shadow-xs">
         <form wire:submit="save" class="space-y-6 text-xs">
-            <!-- 1. Tujuan KEPK -->
-            <div class="space-y-3 pb-6 border-b border-slate-100">
+            <!-- 1. Tujuan KEPK & Nomor Berkas -->
+            <div class="space-y-4 pb-6 border-b border-slate-100">
                 <div class="flex items-center gap-2">
                     <span class="material-symbols-outlined text-primary-700 text-[20px]">health_and_safety</span>
-                    <h3 class="font-display text-sm font-bold text-slate-900">1. Komisi Etik Tujuan Pengajuan</h3>
+                    <h3 class="font-display text-sm font-bold text-slate-900">1. Komisi Etik Tujuan & Nomor Berkas</h3>
                 </div>
-                <div>
-                    <label for="kepk_id" class="block font-semibold text-slate-700 mb-1.5">
-                        Pilih KEPK Akreditasi <span class="text-red-500">*</span>
-                    </label>
-                    <select
-                        wire:model="kepk_id"
-                        id="kepk_id"
-                        class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800"
-                    >
-                        <option value="">-- Pilih KEPK --</option>
-                        @foreach ($daftarKepk as $k)
-                            <option value="{{ $k->id }}">{{ $k->name }} ({{ $k->institusi->name ?? '-' }})</option>
-                        @endforeach
-                    </select>
-                    @error('kepk_id') <span class="text-red-500 text-[11px] block mt-1.5 font-medium">{{ $message }}</span> @enderror
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="kepk_id" class="block font-semibold text-slate-700 mb-1.5">
+                            Pilih KEPK Akreditasi <span class="text-red-500">*</span>
+                        </label>
+                        <select
+                            wire:model="kepk_id"
+                            id="kepk_id"
+                            class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs text-slate-800"
+                        >
+                            <option value="">-- Pilih KEPK --</option>
+                            @foreach ($daftarKepk as $k)
+                                <option value="{{ $k->id }}">{{ $k->name }} ({{ $k->institusi->name ?? '-' }})</option>
+                            @endforeach
+                        </select>
+                        @error('kepk_id') <span class="text-red-500 text-[11px] block mt-1.5 font-medium">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div>
+                        <label for="nomor_berkas" class="block font-semibold text-slate-700 mb-1.5">
+                            Nomor Berkas Pengajuan <span class="text-slate-400 font-normal">(Opsional)</span>
+                        </label>
+                        <input
+                            type="text"
+                            wire:model="nomor_berkas"
+                            id="nomor_berkas"
+                            placeholder="Contoh: KEPK/2026/001 atau 01/UNPAD"
+                            class="w-full text-xs rounded-xl border border-slate-300 py-2.5 px-3.5 focus:border-primary-600 focus:ring-2 focus:ring-primary-500/20 shadow-2xs placeholder:text-slate-400"
+                        />
+                        <span class="text-[10px] text-slate-400 block mt-1">Kosongkan jika ingin menggunakan penomoran otomatis sistem.</span>
+                        @error('nomor_berkas') <span class="text-red-500 text-[11px] block mt-1.5 font-medium">{{ $message }}</span> @enderror
+                    </div>
                 </div>
             </div>
 

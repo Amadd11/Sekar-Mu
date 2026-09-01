@@ -189,6 +189,17 @@ class KriteriaEvaluasi extends Component
         $this->showKelompokModal = false;
     }
 
+    public function hapusKelompok(int $id): void
+    {
+        $kelompok = KelompokEvaluasi::withCount('butir')->findOrFail($id);
+        $nama = $kelompok->nama;
+        $butirCount = $kelompok->butir_count;
+
+        $kelompok->delete();
+
+        session()->flash('status', "Kelompok Acuan Standar '{$nama}'" . ($butirCount > 0 ? " beserta {$butirCount} butir kriteria" : "") . " berhasil dihapus.");
+    }
+    
     public function render(): View
     {
         // Bagian & Kelompok for dropdowns
@@ -201,6 +212,14 @@ class KriteriaEvaluasi extends Component
         $modalKelompokOptions = KelompokEvaluasi::query()
             ->when($this->bagian_evaluasi_id, fn($q) => $q->where('bagian_evaluasi_id', $this->bagian_evaluasi_id))
             ->orderBy('urutan')
+            ->get();
+
+        $semuaKelompok = KelompokEvaluasi::with('bagian')
+            ->withCount('butir')
+            ->join('bagian_evaluasi', 'kelompok_evaluasi.bagian_evaluasi_id', '=', 'bagian_evaluasi.id')
+            ->select('kelompok_evaluasi.*')
+            ->orderBy('bagian_evaluasi.urutan')
+            ->orderBy('kelompok_evaluasi.urutan')
             ->get();
 
         // Main Query
@@ -242,6 +261,7 @@ class KriteriaEvaluasi extends Component
             'daftarBagian' => $daftarBagian,
             'daftarKelompok' => $daftarKelompok,
             'modalKelompokOptions' => $modalKelompokOptions,
+            'semuaKelompok' => $semuaKelompok,
             'totalButir' => $totalButir,
             'totalKelompokCount' => $totalKelompokCount,
             'totalBagianCount' => $totalBagianCount,

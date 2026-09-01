@@ -11,6 +11,7 @@ class FormulirAplikasi extends Component
 {
     public SuratPengajuan $suratPengajuan;
 
+    public string $nomor_berkas = '';
     public string $nama_institusi = '';
     public string $singkatan = '';
     public string $alamat = '';
@@ -24,6 +25,7 @@ class FormulirAplikasi extends Component
     protected function rules(): array
     {
         return [
+            'nomor_berkas' => ['nullable', 'string', 'max:100'],
             'nama_institusi' => ['required', 'string', 'max:255'],
             'singkatan' => ['nullable', 'string', 'max:50'],
             'alamat' => ['nullable', 'string'],
@@ -38,6 +40,7 @@ class FormulirAplikasi extends Component
         $this->authorize('update', $suratPengajuan);
 
         $this->suratPengajuan = $suratPengajuan->load('formulirAplikasi');
+        $this->nomor_berkas = $suratPengajuan->nomor_berkas ?? '';
 
         if ($form = $suratPengajuan->formulirAplikasi) {
             $this->nama_institusi = $form->nama_institusi ?? '';
