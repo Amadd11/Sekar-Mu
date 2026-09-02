@@ -67,12 +67,4 @@ class ButirEvaluasi extends Model
     {
         return $this->hasMany(PenilaianButirAsesor::class, 'butir_evaluasi_id');
     }
-
-    /**
-     * @return HasMany<CorrectiveAction>
-     */
-    public function correctiveActions(): HasMany
-    {
-        return $this->hasMany(CorrectiveAction::class, 'butir_evaluasi_id');
-    }
 }

@@ -220,11 +220,11 @@
                                 </div>
                                 @if ($finding->temuan)
                                     <p class="text-rose-700 text-[11px] font-medium leading-relaxed">
-                                        <span class="font-bold">Temuan:</span> "{{ \Illuminate\Support\Str::limit($finding->temuan, 85) }}"
+                                        <span class="font-bold">Temuan:</span> "{{ Str::limit($finding->temuan, 85) }}"
                                     </p>
                                 @elseif ($finding->catatan)
                                     <p class="text-slate-600 text-[11px] leading-relaxed italic">
-                                        "{{ \Illuminate\Support\Str::limit($finding->catatan, 85) }}"
+                                        "{{ Str::limit($finding->catatan, 85) }}"
                                     </p>
                                 @endif
                                 <div class="text-[10px] text-slate-400 truncate">

@@ -154,14 +154,6 @@ class SuratPengajuan extends Model
         return $this->hasMany(PenilaianButirAsesor::class, 'surat_pengajuan_id');
     }
 
-    /**
-     * @return HasMany<CorrectiveAction>
-     */
-    public function correctiveActions(): HasMany
-    {
-        return $this->hasMany(CorrectiveAction::class, 'surat_pengajuan_id');
-    }
-
     public function isInProgress(): bool
     {
         return in_array($this->status, ['in_progress', 'draft', 'submitted', 'under_review', 'revision_required', 'resubmitted'], true);

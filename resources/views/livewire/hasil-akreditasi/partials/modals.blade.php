@@ -158,3 +158,78 @@
         <span>Tindakan ini tidak dapat dibatalkan. Pastikan Anda tidak lagi memerlukan arsip permohonan ini.</span>
     </div>
 </x-confirm-modal>
+
+<!-- Modal 4: Konfirmasi Sahkan Akreditasi (ACC) -->
+<x-confirm-modal
+    :show="$showAccModal"
+    title="Sahkan Status Terakreditasi?"
+    type="success"
+    icon="verified"
+    confirmText="Ya, Sahkan Akreditasi"
+    cancelText="Batalkan"
+    onConfirm="eksekusiAcc"
+    onCancel="batalAcc"
+>
+    <div class="flex items-center justify-center gap-2 mb-2">
+        <span class="font-mono text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-0.5 rounded-xl border border-emerald-200">
+            No. {{ $suratPengajuan->formatted_id }}
+        </span>
+    </div>
+    <p>
+        Apakah Anda yakin ingin mengesahkan permohonan akreditasi untuk <strong>{{ $suratPengajuan->formulirAplikasi->nama_institusi ?? 'KEPK Pemohon' }}</strong> sebagai <strong class="text-emerald-700 font-bold">Terakreditasi</strong>?
+    </p>
+    <div class="p-3 rounded-xl bg-emerald-50 border border-emerald-200/80 text-emerald-900 text-[11px] font-medium text-left flex items-start gap-2 mt-2">
+        <span class="material-symbols-outlined text-emerald-600 text-[16px] shrink-0 mt-0.5">task_alt</span>
+        <span>Keputusan ini akan menetapkan status akreditasi resmi dan mengunci instrumen evaluasi sebagai arsip final.</span>
+    </div>
+</x-confirm-modal>
+
+<!-- Modal 5: Konfirmasi Tolak Akreditasi (Tidak Lolos) -->
+<x-confirm-modal
+    :show="$showRejectModal"
+    title="Tetapkan Status Tidak Lolos?"
+    type="danger"
+    icon="gpp_bad"
+    confirmText="Ya, Tetapkan Tidak Lolos"
+    cancelText="Batalkan"
+    onConfirm="eksekusiReject"
+    onCancel="batalReject"
+>
+    <div class="flex items-center justify-center gap-2 mb-2">
+        <span class="font-mono text-xs font-bold text-rose-700 bg-rose-50 px-3 py-0.5 rounded-xl border border-rose-200">
+            No. {{ $suratPengajuan->formatted_id }}
+        </span>
+    </div>
+    <p>
+        Apakah Anda yakin ingin menetapkan status permohonan akreditasi ini menjadi <strong class="text-rose-600 font-bold">Tidak Lolos</strong>?
+    </p>
+    <div class="p-3 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-900 text-[11px] font-medium text-left flex items-start gap-2 mt-2">
+        <span class="material-symbols-outlined text-rose-600 text-[16px] shrink-0 mt-0.5">info</span>
+        <span>Institusi pemohon akan menerima hasil penetapan ini beserta catatan telaah perbaikan dari tim asesor.</span>
+    </div>
+</x-confirm-modal>
+
+<!-- Modal 6: Konfirmasi Buka Kembali Evaluasi -->
+<x-confirm-modal
+    :show="$showReopenModal"
+    title="Buka Kembali Proses Evaluasi?"
+    type="warning"
+    icon="lock_open"
+    confirmText="Ya, Buka Kembali"
+    cancelText="Batalkan"
+    onConfirm="eksekusiReopen"
+    onCancel="batalReopen"
+>
+    <div class="flex items-center justify-center gap-2 mb-2">
+        <span class="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-3 py-0.5 rounded-xl border border-amber-200">
+            No. {{ $suratPengajuan->formatted_id }}
+        </span>
+    </div>
+    <p>
+        Apakah Anda ingin mengembalikan status permohonan ini ke <strong class="text-amber-700 font-bold">Proses Evaluasi</strong>?
+    </p>
+    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-900 text-[11px] font-medium text-left flex items-start gap-2 mt-2">
+        <span class="material-symbols-outlined text-amber-600 text-[16px] shrink-0 mt-0.5">refresh</span>
+        <span>Keputusan final akan dibatalkan sementara dan tim penilai dapat melanjutkan penelaahan butir evaluasi.</span>
+    </div>
+</x-confirm-modal>

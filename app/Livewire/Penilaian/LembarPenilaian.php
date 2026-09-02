@@ -4,12 +4,10 @@ namespace App\Livewire\Penilaian;
 
 use App\Models\BagianEvaluasi;
 use App\Models\CatatanPenilaian;
-use App\Models\CorrectiveAction;
 use App\Models\PenilaianButirAsesor;
-use App\Models\PenilaianEtik as PenilaianEtikModel;
+use App\Models\PenilaianEtik;
 use App\Models\SuratPengajuan;
 use App\Services\ComplianceService;
-use App\Services\CorrectiveActionService;
 use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Locked;
@@ -46,7 +44,6 @@ class LembarPenilaian extends Component
         'penilaianEtik.penilai',
         'penilaianEtik.catatanPenilaian.user',
         'penilaianButirAsesor',
-        'correctiveActions.butir',
     ];
 
     public SuratPengajuan $suratPengajuan;
@@ -84,7 +81,7 @@ class LembarPenilaian extends Component
      */
     public array $evidenceStrength = [];
 
-    public ?PenilaianEtikModel $currentPenilaian = null;
+    public ?PenilaianEtik $currentPenilaian = null;
 
     /**
      * @return array<string, array<int, string>>
@@ -265,17 +262,6 @@ class LembarPenilaian extends Component
         ], $overrides);
     }
 
-    public function updateCorrectiveActionStatus(int $actionId, string $status, CorrectiveActionService $service, ?string $notes = null): void
-    {
-        $this->ensureAssignedOrAdmin();
-
-        $action = CorrectiveAction::findOrFail($actionId);
-        $service->updateStatus($action, $status, $notes);
-        $this->suratPengajuan->refresh();
-
-        session()->flash('action_status', "Status tindakan perbaikan berhasil diubah menjadi {$status}.");
-    }
-
     public function simpanPenilaian(PenilaianService $service): void
     {
         $this->ensureAssignedOrAdmin();
@@ -350,7 +336,6 @@ class LembarPenilaian extends Component
                 'activeBagian' => null,
                 'sectionProgress' => [],
                 'semuaPenilaian' => collect(),
-                'correctiveActions' => collect(),
             ])->layout('layouts.app');
         }
 
@@ -370,7 +355,6 @@ class LembarPenilaian extends Component
             'activeBagian' => $activeBagian,
             'sectionProgress' => $sectionProgress,
             'semuaPenilaian' => $this->suratPengajuan->penilaianEtik()->with(['penilai', 'catatanPenilaian.user'])->get(),
-            'correctiveActions' => $this->suratPengajuan->correctiveActions()->with('butir')->get(),
         ])->layout('layouts.app');
     }
 

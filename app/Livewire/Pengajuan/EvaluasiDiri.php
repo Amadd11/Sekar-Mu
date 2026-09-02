@@ -3,9 +3,11 @@
 namespace App\Livewire\Pengajuan;
 
 use App\Models\BagianEvaluasi;
+use App\Models\ButirEvaluasi;
 use App\Models\SuratPengajuan;
 use App\Services\EvaluasiDiriService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -22,6 +24,14 @@ class EvaluasiDiri extends Component
 
     #[Url(as: 'section')]
     public string $activeSection = 'A';
+
+    #[Url(as: 'q')]
+    public string $search = '';
+
+    public bool $showDeleteFileModal = false;
+    public ?int $selectedDeleteFileButirId = null;
+    public ?int $selectedDeleteFileIndex = null;
+    public string $selectedDeleteFileName = '';
 
     /**
      * @var array<int, string>
@@ -142,12 +152,12 @@ class EvaluasiDiri extends Component
 
         $ans = $this->suratPengajuan->jawabanEvaluasi()->where('butir_evaluasi_id', $butirId)->first();
         $attachments = $ans ? $ans->getAttachments() : [];
-        $butir = \App\Models\ButirEvaluasi::find($butirId);
+        $butir = ButirEvaluasi::find($butirId);
         $kodeItem = $butir?->kode ?? ('butir_' . $butirId);
 
         $newNames = [];
         foreach ($filesToUpload as $file) {
-            if ($file instanceof \Illuminate\Http\UploadedFile) {
+            if ($file instanceof UploadedFile) {
                 $filename = $file->getClientOriginalName();
                 $path = $file->store("evaluasi/{$kodeItem}", 'public');
 
@@ -213,6 +223,40 @@ class EvaluasiDiri extends Component
         session()->flash("status_{$butirId}", "Berkas lampiran bukti dukung berhasil diperbarui.");
     }
 
+    public function resetSearch(): void
+    {
+        $this->search = '';
+    }
+
+    public function konfirmasiHapusBerkas(int $butirId, int $fileIndex, string $fileName): void
+    {
+        if (! $this->suratPengajuan->isEditable()) {
+            return;
+        }
+
+        $this->selectedDeleteFileButirId = $butirId;
+        $this->selectedDeleteFileIndex = $fileIndex;
+        $this->selectedDeleteFileName = $fileName;
+        $this->showDeleteFileModal = true;
+    }
+
+    public function batalHapusBerkas(): void
+    {
+        $this->showDeleteFileModal = false;
+        $this->selectedDeleteFileButirId = null;
+        $this->selectedDeleteFileIndex = null;
+        $this->selectedDeleteFileName = '';
+    }
+
+    public function eksekusiHapusBerkas(): void
+    {
+        if ($this->selectedDeleteFileButirId !== null && $this->selectedDeleteFileIndex !== null) {
+            $this->hapusBerkas($this->selectedDeleteFileButirId, $this->selectedDeleteFileIndex);
+        }
+
+        $this->batalHapusBerkas();
+    }
+
     public function setSkor(int $butirId, string $skorValue, EvaluasiDiriService $service): void
     {
         if (! $this->suratPengajuan->isEditable()) {
@@ -272,6 +316,18 @@ class EvaluasiDiri extends Component
         // Pre-compute kelompok progress so Blade has no heavy PHP logic
         $kelompokProgress = [];
         if ($activeBagian) {
+            // Apply real-time search filtering on butir if search term is provided
+            if (! empty(trim($this->search))) {
+                $searchTerm = strtolower(trim($this->search));
+                foreach ($activeBagian->kelompok as $kelompok) {
+                    $kelompok->setRelation('butir', $kelompok->butir->filter(function ($b) use ($searchTerm) {
+                        return str_contains(strtolower($b->kode), $searchTerm)
+                            || str_contains(strtolower($b->deskripsi), $searchTerm)
+                            || str_contains(strtolower($b->panduan_asesor ?? ''), $searchTerm);
+                    }));
+                }
+            }
+
             foreach ($activeBagian->kelompok as $kelompok) {
                 $butirList = $kelompok->butir;
                 $total = $butirList->count();

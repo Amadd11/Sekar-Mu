@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Penilaian;
+namespace App\Livewire\Admin;
 
 use App\Models\SuratPengajuan;
 use App\Models\User;
@@ -83,7 +83,7 @@ class TugaskanPenilai extends Component
 
         $daftarReviewer = $query->orderBy('name')->get();
 
-        return view('livewire.penilaian.tugaskan-penilai', [
+        return view('livewire.admin.tugaskan-penilai', [
             'daftarReviewer' => $daftarReviewer,
         ])->layout('layouts.app');
     }

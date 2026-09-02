@@ -117,6 +117,40 @@ class ListProtokol extends Component
         $this->showModal = true;
     }
 
+    public bool $showDeleteModal = false;
+    public ?int $selectedDeleteId = null;
+    public string $selectedDeleteJudul = '';
+
+    public function konfirmasiHapus(int $id, string $judul): void
+    {
+        if (! $this->suratPengajuan->isEditable()) {
+            return;
+        }
+
+        $this->selectedDeleteId = $id;
+        $this->selectedDeleteJudul = $judul;
+        $this->showDeleteModal = true;
+    }
+
+    public function batalHapus(): void
+    {
+        $this->showDeleteModal = false;
+        $this->selectedDeleteId = null;
+        $this->selectedDeleteJudul = '';
+    }
+
+    public function eksekusiHapus(ListProtokolService $service): void
+    {
+        if ($this->selectedDeleteId && $this->suratPengajuan->isEditable()) {
+            $protokol = ListProtokolModel::findOrFail($this->selectedDeleteId);
+            $service->delete($protokol);
+            $this->suratPengajuan->refresh();
+            session()->flash('status', 'Protokol riset berhasil dihapus.');
+        }
+
+        $this->batalHapus();
+    }
+
     public function hapus(int $id, ListProtokolService $service): void
     {
         if (! $this->suratPengajuan->isEditable()) {

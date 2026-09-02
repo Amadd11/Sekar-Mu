@@ -23,6 +23,10 @@
             'icon_bg' => 'bg-teal-50 text-teal-700 border-teal-200/70',
             'btn' => 'bg-teal-700 hover:bg-teal-600 active:bg-teal-800 shadow-teal-700/20 text-white',
         ],
+        'success' => [
+            'icon_bg' => 'bg-emerald-50 text-emerald-600 border-emerald-200/70',
+            'btn' => 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 active:scale-95 shadow-emerald-600/25 text-white',
+        ],
     ][$type] ?? [
         'icon_bg' => 'bg-rose-50 text-rose-600 border-rose-200/70',
         'btn' => 'bg-rose-600 hover:bg-rose-700 text-white',

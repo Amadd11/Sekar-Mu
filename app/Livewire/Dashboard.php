@@ -3,8 +3,10 @@
 namespace App\Livewire;
 
 use App\Models\ButirEvaluasi;
+use App\Models\Kepk;
 use App\Models\PenilaianButirAsesor;
 use App\Models\SuratPengajuan;
+use App\Models\User;
 use App\Services\ComplianceService;
 use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
@@ -103,10 +105,10 @@ class Dashboard extends Component
             $data['needAssign'] = $allSubmissions->where(fn ($s) => $s->penilai->isEmpty())->count();
             $data['approvedAll'] = $allSubmissions->where('status', SuratPengajuan::STATUS_APPROVED)->count();
             $data['rejectedAll'] = $allSubmissions->where('status', SuratPengajuan::STATUS_REJECTED)->count();
-            $data['totalAsesor'] = \App\Models\User::role('asessor')->count();
-            $data['totalKepk'] = \App\Models\Kepk::count();
-            $data['totalUsers'] = \App\Models\User::count();
-            $data['asesorList'] = \App\Models\User::role('asessor')->with(['roles'])->get();
+            $data['totalAsesor'] = User::role('asessor')->count();
+            $data['totalKepk'] = Kepk::count();
+            $data['totalUsers'] = User::count();
+            $data['asesorList'] = User::role('asessor')->with(['roles'])->get();
         } else {
             // Ketua KEPK & Anggota KEPK
             $suratPengajuan = SuratPengajuan::with([

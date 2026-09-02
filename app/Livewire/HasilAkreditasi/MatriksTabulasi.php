@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\Pengajuan;
+namespace App\Livewire\HasilAkreditasi;
 
 use App\Models\BagianEvaluasi;
 use App\Models\SuratPengajuan;
@@ -186,7 +186,7 @@ class MatriksTabulasi extends Component
 
         $metrics = $complianceService->calculateComplianceMetrics($this->suratPengajuan);
 
-        return view('livewire.pengajuan.matriks-tabulasi', [
+        return view('livewire.hasil-akreditasi.matriks-tabulasi', [
             'filteredSections' => $filteredSections,
             'allSections' => $allSections,
             'stats' => $stats,

@@ -6,13 +6,17 @@ use App\Livewire\Pengajuan\Dokumen as DokumenLivewire;
 use App\Livewire\Pengajuan\EvaluasiDiri;
 use App\Livewire\Pengajuan\ListProtokol;
 use App\Livewire\Penilaian\LembarPenilaian;
-use App\Livewire\Penilaian\TugaskanPenilai;
+use App\Livewire\Admin\TugaskanPenilai;
 use App\Models\BagianEvaluasi;
+use App\Models\ButirEvaluasi;
 use App\Models\Institusi;
 use App\Models\JawabanEvaluasi;
 use App\Models\Kepk;
 use App\Models\SuratPengajuan;
 use App\Models\User;
+use App\Services\ComplianceService;
+use App\Services\EvaluasiDiriService;
+use App\Services\PenilaianService;
 use Database\Seeders\InstrumenEvaluasiSeeder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -285,10 +289,10 @@ test('compliance service menghitung skor 164 butir, klasifikasi akreditasi, dan 
         'status' => 'draft',
     ]);
 
-    $allButir = \App\Models\ButirEvaluasi::all();
+    $allButir = ButirEvaluasi::all();
     expect($allButir->count())->toBe(164);
 
-    $complianceService = app(\App\Services\ComplianceService::class);
+    $complianceService = app(ComplianceService::class);
 
     // Initial empty metrics
     $initialMetrics = $complianceService->calculateComplianceMetrics($surat);
@@ -308,7 +312,7 @@ test('compliance service menghitung skor 164 butir, klasifikasi akreditasi, dan 
     expect($metrics['prediction']['type'])->toBe('Tipe A');
 
     // Beri nilai C pada salah satu butir
-    $sampleItem = \App\Models\ButirEvaluasi::first();
+    $sampleItem = ButirEvaluasi::first();
     $surat->jawabanEvaluasi()->updateOrCreate(
         ['butir_evaluasi_id' => $sampleItem->id],
         ['skor' => 'C', 'catatan' => 'SOP belum disahkan']
@@ -331,15 +335,15 @@ test('asesor dapat menilai independen dan menghasilkan matriks komparasi gap', f
     ]);
     $surat->penilai()->attach($penilai->id, ['ditugaskan_oleh' => $admin->id, 'tanggal_penugasan' => now()]);
 
-    $butir1 = \App\Models\ButirEvaluasi::first();
-    $butir2 = \App\Models\ButirEvaluasi::skip(1)->first();
+    $butir1 = ButirEvaluasi::first();
+    $butir2 = ButirEvaluasi::skip(1)->first();
 
     // Pemohon mengisi Self-Assessment (butir1 = A, butir2 = A)
     $surat->jawabanEvaluasi()->create(['butir_evaluasi_id' => $butir1->id, 'skor' => 'A']);
     $surat->jawabanEvaluasi()->create(['butir_evaluasi_id' => $butir2->id, 'skor' => 'A']);
 
     // Asesor menilai independen (butir1 = A (match), butir2 = B (gap))
-    $penilaianService = app(\App\Services\PenilaianService::class);
+    $penilaianService = app(PenilaianService::class);
     $penilaianService->saveItemAssessment($surat, $penilai, $butir1->id, ['skor' => 'A']);
     $penilaianService->saveItemAssessment($surat, $penilai, $butir2->id, ['skor' => 'B', 'temuan' => 'Bukti implementasi belum lengkap']);
 
@@ -381,32 +385,6 @@ test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol',
     ]);
 });
 
-test('corrective action service dapat membuat dan memperbarui status siklus tindakan perbaikan', function () {
-    $pemohon = User::factory()->applicant()->create();
-    $surat = SuratPengajuan::create([
-        'user_id' => $pemohon->id,
-        'kepk_id' => $this->kepk->id,
-        'status' => 'submitted',
-    ]);
-
-    $service = app(\App\Services\CorrectiveActionService::class);
-    $action = $service->createAction($surat, [
-        'finding' => 'SK Susunan Keanggotaan KEPK belum diperbarui',
-        'risk' => 'Legalitas telaah protokol berpotensi tidak sah',
-        'action' => 'Penerbitan SK Rektor terbaru untuk kepengurusan KEPK',
-        'pic_name' => 'Dr. Budi',
-        'priority' => 'HIGH',
-        'deadline' => now()->addDays(14)->toDateString(),
-    ]);
-
-    expect($action->status)->toBe('OPEN');
-    expect($action->priority)->toBe('HIGH');
-
-    $updated = $service->updateStatus($action, 'IN_PROGRESS', 'Sedang proses tanda tangan Rektor.');
-    expect($updated->status)->toBe('IN_PROGRESS');
-    expect($updated->verification_notes)->toBe('Sedang proses tanda tangan Rektor.');
-});
-
 test('status kelengkapan butir evaluasi diri: 1 berkas belum lengkap dan 2 berkas lengkap', function () {
     $ketua = User::factory()->ketuaKepk()->create();
     $surat = SuratPengajuan::create([
@@ -418,7 +396,7 @@ test('status kelengkapan butir evaluasi diri: 1 berkas belum lengkap dan 2 berka
     $butir1 = BagianEvaluasi::first()->butir()->first();
     $butir2 = BagianEvaluasi::first()->butir()->skip(1)->first();
 
-    $evaluasiService = app(\App\Services\EvaluasiDiriService::class);
+    $evaluasiService = app(EvaluasiDiriService::class);
 
     // 1 berkas -> belum lengkap
     $ans1 = $evaluasiService->saveAnswer($surat, $butir1->id, [

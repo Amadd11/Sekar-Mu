@@ -45,11 +45,14 @@
 
     <!-- Flash Messages -->
     @if (session('status'))
-    <div class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs">
+    <div x-data="{ show: true }" x-show="show" x-transition.opacity.duration.300ms x-init="setTimeout(() => show = false, 5000)" class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs p-4 rounded-2xl flex items-center justify-between shadow-2xs">
         <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-emerald-600 text-[18px]">check_circle</span>
             <span class="font-semibold">{{ session('status') }}</span>
         </div>
+        <button type="button" @click="show = false" class="text-emerald-500 hover:text-emerald-700 p-1 rounded-lg hover:bg-emerald-100/60 transition cursor-pointer" title="Tutup">
+            <span class="material-symbols-outlined text-[16px] block">close</span>
+        </button>
     </div>
     @endif
 
@@ -107,16 +110,17 @@
                                 <span class="text-slate-400">{{ $item->formulirAplikasi->kota ?? '-' }}</span>
                             </div>
                         </td>
-                        <td class="px-6 py-4 whitespace-nowrap space-y-1">
-                            <div>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center gap-2">
                                 <x-pengajuan.status-badge :status="$item->status" />
+
+                                @if ($item->penilaianEtik->isNotEmpty())
+                                <span class="inline-flex items-center gap-1 text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200/70" title="{{ $item->penilaianEtik->count() }} telaah asesor masuk">
+                                    <span class="material-symbols-outlined text-[13px] text-teal-600 shrink-0">rate_review</span>
+                                    <span>{{ $item->penilaianEtik->count() }} Telaah</span>
+                                </span>
+                                @endif
                             </div>
-                            @if ($item->penilaianEtik->isNotEmpty())
-                            <div class="inline-flex items-center gap-1 text-[10px] font-bold text-teal-700 bg-teal-50 border border-teal-200/80 px-2 py-0.5 rounded-md">
-                                <span class="material-symbols-outlined text-[13px]">rate_review</span>
-                                <span>{{ $item->penilaianEtik->count() }} Telaah Masuk</span>
-                            </div>
-                            @endif
                         </td>
                         <td class="px-6 py-4 text-slate-500 font-mono text-xs whitespace-nowrap">
                             {{ $item->created_at->format('d M Y') }}

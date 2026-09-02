@@ -122,9 +122,8 @@
                                 <td class="px-4 py-3 text-right">
                                     <button
                                         type="button"
-                                        wire:click="hapusAnggota({{ $m->id }})"
-                                        wire:confirm="Yakin ingin menghapus anggota '{{ $m->nama }}' ini?"
-                                        class="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                                        wire:click="konfirmasiHapusAnggota({{ $m->id }}, '{{ addslashes($m->nama) }}')"
+                                        class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition cursor-pointer"
                                         title="Hapus Anggota"
                                     >
                                         <span class="material-symbols-outlined text-[16px]">delete</span>
@@ -182,4 +181,20 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal Konfirmasi Hapus Anggota -->
+    <x-confirm-modal
+        :show="$showDeleteAnggotaModal"
+        title="Hapus Anggota KEPK?"
+        type="danger"
+        icon="person_remove"
+        confirmText="Ya, Hapus Anggota"
+        cancelText="Batalkan"
+        onConfirm="eksekusiHapusAnggota"
+        onCancel="batalHapusAnggota"
+    >
+        <p>
+            Apakah Anda yakin ingin menghapus data keanggotaan <strong class="text-slate-900 font-semibold">{{ $selectedAnggotaNama }}</strong> dari profil komite ini?
+        </p>
+    </x-confirm-modal>
 </div>

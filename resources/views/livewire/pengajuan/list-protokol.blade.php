@@ -159,9 +159,8 @@
                                 </button>
                                 <button
                                     type="button"
-                                    wire:click="hapus({{ $p->id }})"
-                                    wire:confirm="Yakin ingin menghapus protokol riset ini?"
-                                    class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded text-[11px] transition"
+                                    wire:click="konfirmasiHapus({{ $p->id }}, '{{ addslashes($p->judul) }}')"
+                                    class="px-2 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-semibold rounded text-[11px] transition cursor-pointer"
                                     title="Hapus Protokol">
                                     🗑️ Hapus
                                 </button>
@@ -340,4 +339,23 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal Konfirmasi Hapus Protokol -->
+    <x-confirm-modal
+        :show="$showDeleteModal"
+        title="Hapus Protokol Riset?"
+        type="danger"
+        icon="delete"
+        confirmText="Ya, Hapus Protokol"
+        cancelText="Batalkan"
+        onConfirm="eksekusiHapus"
+        onCancel="batalHapus"
+    >
+        <p>
+            Apakah Anda yakin ingin menghapus data protokol riset <strong class="text-slate-900 font-semibold">{{ $selectedDeleteJudul }}</strong>?
+        </p>
+        <p class="text-slate-500 text-xs mt-1">
+            Data protokol yang dihapus tidak dapat dipulihkan kembali.
+        </p>
+    </x-confirm-modal>
 </div>

@@ -119,17 +119,57 @@
         </div>
     </details>
 
+    <!-- Search Butir Bar -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 p-3 shadow-2xs flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="relative w-full sm:w-96">
+            <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[18px] text-slate-400">search</span>
+            <input
+                type="text"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Cari butir evaluasi (kode, kata kunci, SOP)..."
+                class="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-8 py-2 text-xs text-slate-800 placeholder:text-slate-400 focus:bg-white focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition"
+            />
+            @if ($search !== '')
+                <button
+                    type="button"
+                    wire:click="resetSearch"
+                    class="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 text-xs p-0.5 cursor-pointer"
+                    title="Hapus pencarian"
+                >
+                    <span class="material-symbols-outlined text-[15px]">close</span>
+                </button>
+            @endif
+        </div>
+
+        @if ($search !== '')
+        <div class="text-[11px] text-slate-500">
+            Hasil pencarian untuk: <strong class="text-slate-800">"{{ $search }}"</strong>
+        </div>
+        @else
+        <div class="text-[11px] text-slate-400">
+            Ketik kata kunci untuk mencari butir di Bagian {{ $activeBagian->kode }}
+        </div>
+        @endif
+    </div>
+
     <!-- 4. Kelompok & Table Items -->
     <div class="space-y-6">
+        @php
+        $anyButirFound = false;
+        @endphp
         @foreach ($activeBagian->kelompok as $kIdx => $kelompok)
         @php
         $butirList = $kelompok->butir;
+        if ($butirList->isNotEmpty()) {
+            $anyButirFound = true;
+        }
         $kProg = $kelompokProgress[$kelompok->id] ?? ['total' => 0, 'filled' => 0, 'percentage' => 0, 'belum_lengkap' => 0];
         $totalButirKelompok = $kProg['total'];
         $terisiKelompok = $kProg['filled'];
         $persenKelompok = $kProg['percentage'];
         @endphp
 
+        @if ($butirList->isNotEmpty())
         <div class="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
             <!-- Kelompok Subheader -->
             <div class="px-5 py-4 bg-slate-50/80 border-b border-slate-200/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -267,8 +307,7 @@
                                             @if ($isEditable)
                                             <button
                                                 type="button"
-                                                wire:click="hapusBerkas({{ $butir->id }}, {{ $fIdx }})"
-                                                wire:confirm="Hapus berkas '{{ $att['name'] }}'?"
+                                                wire:click="konfirmasiHapusBerkas({{ $butir->id }}, {{ $fIdx }}, '{{ addslashes($att['name']) }}')"
                                                 class="w-5 h-5 rounded text-slate-400 hover:text-rose-600 hover:bg-rose-50 flex items-center justify-center transition cursor-pointer"
                                                 title="Hapus berkas">
                                                 <span class="material-symbols-outlined text-[13px]">close</span>
@@ -298,6 +337,8 @@
                                         <span class="material-symbols-outlined text-[13px] animate-spin">progress_activity</span>
                                         <span>Mengunggah...</span>
                                     </div>
+
+                                    <span class="text-[10px] text-slate-400 block mt-1">Maks. 10MB per berkas (PDF, JPG, PNG)</span>
 
                                     @error("uploadedFiles.{$butir->id}")
                                     <span class="text-rose-600 text-[10px] block font-medium mt-1">{{ $message }}</span>
@@ -350,7 +391,22 @@
                 </table>
             </div>
         </div>
+        @endif
         @endforeach
+
+        @if (! $anyButirFound && $search !== '')
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-12 text-center text-slate-400">
+            <span class="material-symbols-outlined text-[40px] text-slate-300 block mb-2">search_off</span>
+            <p class="text-sm font-semibold text-slate-700">Tidak ada butir evaluasi yang cocok</p>
+            <p class="text-xs text-slate-400 mt-1">Tidak ditemukan butir dengan kata kunci "{{ $search }}" di Bagian {{ $activeBagian->kode }}.</p>
+            <button
+                type="button"
+                wire:click="resetSearch"
+                class="mt-3 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer">
+                Reset Pencarian
+            </button>
+        </div>
+        @endif
     </div>
 
     <!-- 5. Minimalist Bottom Navigation -->
@@ -391,4 +447,23 @@
         </div>
     </div>
     @endif
+
+    <!-- Modal Konfirmasi Hapus Berkas Lampiran -->
+    <x-confirm-modal
+        :show="$showDeleteFileModal"
+        title="Hapus Berkas Bukti Dukung?"
+        type="danger"
+        icon="delete"
+        confirmText="Ya, Hapus Berkas"
+        cancelText="Batalkan"
+        onConfirm="eksekusiHapusBerkas"
+        onCancel="batalHapusBerkas"
+    >
+        <p>
+            Apakah Anda yakin ingin menghapus berkas <strong class="text-slate-900 font-semibold">{{ $selectedDeleteFileName }}</strong> dari butir evaluasi ini?
+        </p>
+        <p class="text-slate-500 text-xs mt-1">
+            Berkas yang dihapus akan dibersihkan dari penyimpanan sistem.
+        </p>
+    </x-confirm-modal>
 </div>

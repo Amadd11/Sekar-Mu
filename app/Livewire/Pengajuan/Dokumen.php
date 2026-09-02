@@ -5,6 +5,7 @@ namespace App\Livewire\Pengajuan;
 use App\Models\BagianEvaluasi;
 use App\Models\SuratPengajuan;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 
 class Dokumen extends Component
@@ -113,7 +114,7 @@ class Dokumen extends Component
                                 return [
                                     'name' => $att['name'] ?? 'Dokumen',
                                     'path' => $path,
-                                    'url' => \Illuminate\Support\Facades\Storage::url($path),
+                                    'url' => Storage::url($path),
                                     'size' => (int) ($att['size'] ?? 0),
                                     'size_formatted' => format_bytes((int) ($att['size'] ?? 0)),
                                     'is_pdf' => str_ends_with(strtolower($path), '.pdf') || str_ends_with(strtolower($att['name'] ?? ''), '.pdf'),

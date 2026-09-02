@@ -73,6 +73,36 @@ class Profil extends Component
         session()->flash('anggota_status', 'Anggota KEPK berhasil ditambahkan.');
     }
 
+    public bool $showDeleteAnggotaModal = false;
+    public ?int $selectedAnggotaId = null;
+    public string $selectedAnggotaNama = '';
+
+    public function konfirmasiHapusAnggota(int $anggotaId, string $nama): void
+    {
+        $this->selectedAnggotaId = $anggotaId;
+        $this->selectedAnggotaNama = $nama;
+        $this->showDeleteAnggotaModal = true;
+    }
+
+    public function batalHapusAnggota(): void
+    {
+        $this->showDeleteAnggotaModal = false;
+        $this->selectedAnggotaId = null;
+        $this->selectedAnggotaNama = '';
+    }
+
+    public function eksekusiHapusAnggota(PengajuanService $service): void
+    {
+        if ($this->selectedAnggotaId) {
+            $anggota = AnggotaKepk::findOrFail($this->selectedAnggotaId);
+            $service->removeMember($anggota);
+            $this->suratPengajuan->refresh();
+            session()->flash('anggota_status', 'Anggota KEPK berhasil dihapus.');
+        }
+
+        $this->batalHapusAnggota();
+    }
+
     public function hapusAnggota(int $anggotaId, PengajuanService $service): void
     {
         $anggota = AnggotaKepk::findOrFail($anggotaId);

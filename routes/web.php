@@ -1,5 +1,11 @@
 <?php
 
+use App\Livewire\Admin\KriteriaEvaluasi as AdminKriteriaEvaluasi;
+use App\Livewire\Admin\ManajemenAkun as AdminManajemenAkun;
+use App\Livewire\Admin\TugaskanPenilai as AdminTugaskanPenilai;
+use App\Livewire\Dashboard;
+use App\Livewire\HasilAkreditasi\Index as HasilAkreditasiIndex;
+use App\Livewire\HasilAkreditasi\MatriksTabulasi as HasilAkreditasiMatriksTabulasi;
 use App\Livewire\Pengajuan\Create as PengajuanCreate;
 use App\Livewire\Pengajuan\Dokumen as PengajuanDokumen;
 use App\Livewire\Pengajuan\EvaluasiDiri as PengajuanEvaluasiDiri;
@@ -7,11 +13,7 @@ use App\Livewire\Pengajuan\FormulirAplikasi as PengajuanFormulirAplikasi;
 use App\Livewire\Pengajuan\Index as PengajuanIndex;
 use App\Livewire\Pengajuan\ListProtokol as PengajuanListProtokol;
 use App\Livewire\Pengajuan\Profil as PengajuanProfil;
-use App\Livewire\Pengajuan\MatriksTabulasi as PengajuanMatriksTabulasi;
-use App\Livewire\HasilAkreditasi\Index as HasilAkreditasiIndex;
 use App\Livewire\Penilaian\LembarPenilaian as PenilaianWorkbench;
-use App\Livewire\Penilaian\TugaskanPenilai as PenilaianTugaskan;
-use App\Livewire\Admin\KriteriaEvaluasi as AdminKriteriaEvaluasi;
 use Illuminate\Support\Facades\Route;
 
 // Halaman utama (Root) langsung mengarah ke Login untuk tamu, atau Dashboard untuk yang sudah masuk
@@ -19,7 +21,7 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-Route::get('/dashboard', \App\Livewire\Dashboard::class)
+Route::get('/dashboard', Dashboard::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -45,7 +47,7 @@ Route::middleware(['auth', 'role:ketua_kepk|anggota|admin'])->group(function () 
     Route::get('/pengajuan/{suratPengajuan}/evaluasi-diri', PengajuanEvaluasiDiri::class)->name('pengajuan.evaluasi-diri');
     Route::get('/pengajuan/{suratPengajuan}/list-protokol', PengajuanListProtokol::class)->name('pengajuan.list-protokol');
     Route::get('/pengajuan/{suratPengajuan}/dokumen', PengajuanDokumen::class)->name('pengajuan.dokumen');
-    Route::get('/pengajuan/{suratPengajuan}/matriks', PengajuanMatriksTabulasi::class)->name('pengajuan.matriks');
+    Route::get('/pengajuan/{suratPengajuan}/matriks', HasilAkreditasiMatriksTabulasi::class)->name('pengajuan.matriks');
 });
 
 // 4. Modul Penilaian Etik (Asessor & Admin)
@@ -54,16 +56,13 @@ Route::middleware(['auth', 'role:asessor|admin'])->group(function () {
     Route::get('/penilaian/{suratPengajuan}', PenilaianWorkbench::class)->name('penilaian.show');
 });
 
-
-
-// 6. Modul Khusus Administrator (Admin Only)
+// 5. Modul Khusus Administrator (Admin Only)
 Route::middleware(['auth', 'role:admin'])->group(function () {
-    Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', PenilaianTugaskan::class)->name('penilaian.tugaskan');
+    Route::get('/pengajuan/{suratPengajuan}/tugaskan-penilai', AdminTugaskanPenilai::class)->name('penilaian.tugaskan');
     Route::get('/admin/kriteria', AdminKriteriaEvaluasi::class)->name('admin.kriteria.index');
     Route::get('/admin/kriteria-evaluasi', fn () => redirect()->route('admin.kriteria.index'))->name('admin.kriteria');
-    Route::get('/admin/users', \App\Livewire\Admin\ManajemenAkun::class)->name('admin.users.index');
+    Route::get('/admin/users', AdminManajemenAkun::class)->name('admin.users.index');
     Route::get('/admin/manajemen-akun', fn () => redirect()->route('admin.users.index'))->name('admin.users');
 });
 
 require __DIR__.'/auth.php';
-

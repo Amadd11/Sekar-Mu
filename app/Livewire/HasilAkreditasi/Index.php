@@ -50,7 +50,6 @@ class Index extends Component
             'penilaianEtik.penilai.roles',
             'penilaianEtik.catatanPenilaian.user',
             'penilaianButirAsesor.butir',
-            'correctiveActions.butir',
             'jawabanEvaluasi.butir',
             'user',
         ]);
@@ -149,6 +148,78 @@ class Index extends Component
         session()->flash('status', 'Berkas pengajuan etik berhasil diajukan untuk dinilai!');
     }
 
+    // Decision & Action Modals State
+    public bool $showAccModal = false;
+    public bool $showRejectModal = false;
+    public bool $showReopenModal = false;
+    public bool $showDeleteModal = false;
+
+    public function bukaModalAcc(): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+        $this->showAccModal = true;
+    }
+
+    public function batalAcc(): void
+    {
+        $this->showAccModal = false;
+    }
+
+    public function eksekusiAcc(PenilaianService $service): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+
+        $service->finalizeDecision($this->suratPengajuan, 'approved');
+        $this->suratPengajuan->refresh();
+        $this->showAccModal = false;
+
+        session()->flash('status', 'Permohonan akreditasi berhasil disahkan sebagai Terakreditasi!');
+    }
+
+    public function bukaModalReject(): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+        $this->showRejectModal = true;
+    }
+
+    public function batalReject(): void
+    {
+        $this->showRejectModal = false;
+    }
+
+    public function eksekusiReject(PenilaianService $service): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+
+        $service->finalizeDecision($this->suratPengajuan, 'rejected');
+        $this->suratPengajuan->refresh();
+        $this->showRejectModal = false;
+
+        session()->flash('status', 'Permohonan akreditasi resmi ditetapkan statusnya menjadi Tidak Lolos.');
+    }
+
+    public function bukaModalReopen(): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+        $this->showReopenModal = true;
+    }
+
+    public function batalReopen(): void
+    {
+        $this->showReopenModal = false;
+    }
+
+    public function eksekusiReopen(PenilaianService $service): void
+    {
+        $this->authorize('decide', $this->suratPengajuan);
+
+        $service->finalizeDecision($this->suratPengajuan, 'in_progress');
+        $this->suratPengajuan->refresh();
+        $this->showReopenModal = false;
+
+        session()->flash('status', 'Status permohonan berhasil dikembalikan ke Proses Evaluasi.');
+    }
+
     public function putuskanStatus(string $status, PenilaianService $service): void
     {
         $this->authorize('decide', $this->suratPengajuan);
@@ -158,8 +229,6 @@ class Index extends Component
 
         session()->flash('status', 'Status keputusan akhir pengajuan berhasil ditetapkan: ' . $this->suratPengajuan->status_label);
     }
-
-    public bool $showDeleteModal = false;
 
     public function konfirmasiHapus(): void
     {

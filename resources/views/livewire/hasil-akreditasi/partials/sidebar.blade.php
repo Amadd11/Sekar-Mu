@@ -44,7 +44,7 @@
 
                 @if ($penilaian && $penilaian->catatan)
                     <p class="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200/60 italic leading-relaxed">
-                        "{{ \Illuminate\Support\Str::limit($penilaian->catatan, 140) }}"
+                        "{{ Str::limit($penilaian->catatan, 140) }}"
                     </p>
                 @endif
             </div>

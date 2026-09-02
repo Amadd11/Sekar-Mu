@@ -103,8 +103,7 @@ $pageTitle = 'Manajemen Pengguna';
             type="button"
             @click="logoutModalOpen = true"
             title="Keluar / Logout"
-            class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer flex items-center justify-center border border-transparent hover:border-rose-100"
-        >
+            class="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition cursor-pointer flex items-center justify-center border border-transparent hover:border-rose-100">
             <span class="material-symbols-outlined text-[20px]">logout</span>
         </button>
     </div>

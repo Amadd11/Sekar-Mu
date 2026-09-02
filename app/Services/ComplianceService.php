@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\BagianEvaluasi;
 use App\Models\ButirEvaluasi;
+use App\Models\PenilaianButirAsesor;
 use App\Models\SuratPengajuan;
 
 class ComplianceService
@@ -17,7 +18,7 @@ class ComplianceService
     {
         $allSections = BagianEvaluasi::with(['butir.kelompok'])->orderBy('urutan')->get();
         $selfAnswers = $surat->jawabanEvaluasi()->with('butir')->get()->keyBy('butir_evaluasi_id');
-        $assessorScores = \App\Models\PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id)->get()->keyBy('butir_evaluasi_id');
+        $assessorScores = PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id)->get()->keyBy('butir_evaluasi_id');
 
         $hasAssessorEvaluations = $assessorScores->isNotEmpty();
 
@@ -232,7 +233,7 @@ class ComplianceService
             ->get()
             ->keyBy('butir_evaluasi_id');
 
-        $assessorScores = \App\Models\PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id)
+        $assessorScores = PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id)
             ->get()
             ->keyBy('butir_evaluasi_id');
 

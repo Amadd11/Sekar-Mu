@@ -14,24 +14,24 @@
 
     <div class="space-y-4 text-xs">
         @php
-        $defaultSections = [
-        'A' => ['nama' => 'Regulasi, Kelembagaan, dan Tata Kelola', 'total' => 29],
-        'B' => ['nama' => 'Keanggotaan dan Kompetensi', 'total' => 35],
-        'C' => ['nama' => 'Operasional dan Prosedur', 'total' => 74],
-        'D' => ['nama' => 'Fasilitas dan Sumber Daya', 'total' => 12],
-        'E' => ['nama' => 'Penelitian Khusus', 'total' => 14],
-        ];
+            $defaultSections = [
+                'A' => ['nama' => 'Regulasi, Kelembagaan, dan Tata Kelola', 'total' => 29],
+                'B' => ['nama' => 'Keanggotaan dan Kompetensi', 'total' => 35],
+                'C' => ['nama' => 'Operasional dan Prosedur', 'total' => 74],
+                'D' => ['nama' => 'Fasilitas dan Sumber Daya', 'total' => 12],
+                'E' => ['nama' => 'Penelitian Khusus', 'total' => 14],
+            ];
         @endphp
 
         @foreach ($defaultSections as $secCode => $secMeta)
-        @php
-        $sData = $metrics['sections'][$secCode] ?? [
-        'nama' => $secMeta['nama'],
-        'answered_items' => 0,
-        'total_items' => $secMeta['total'],
-        'compliance_percentage' => 0,
-        ];
-        @endphp
+            @php
+                $sData = $metrics['sections'][$secCode] ?? [
+                    'nama' => $secMeta['nama'],
+                    'answered_items' => 0,
+                    'total_items' => $secMeta['total'],
+                    'compliance_percentage' => 0,
+                ];
+            @endphp
         <div class="space-y-1.5 p-3 rounded-2xl bg-slate-50/70 border border-slate-100">
             <div class="flex items-center justify-between text-xs">
                 <span class="font-bold text-slate-800">Bagian {{ $secCode }}: {{ $secMeta['nama'] }}</span>
@@ -75,7 +75,7 @@
                             <span class="font-bold text-slate-900 block text-xs">{{ $penilaian->penilai->name ?? 'Asesor' }}</span>
                             <span class="text-[10px] text-slate-400 font-mono">
                                 {{ $penilaian->penilai->email ?? '-' }} • 
-                                {{ $penilaian->tanggal_keputusan ? \Carbon\Carbon::parse($penilaian->tanggal_keputusan)->format('d M Y') : $penilaian->updated_at->format('d M Y') }}
+                                {{ $penilaian->tanggal_keputusan?->format('d M Y') ?? $penilaian->updated_at->format('d M Y') }}
                             </span>
                         </div>
                     </div>
