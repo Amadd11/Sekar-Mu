@@ -2,12 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\BagianEvaluasi;
 use App\Models\CatatanPenilaian;
 use App\Models\PenilaiPengajuan;
+use App\Models\PenilaianButirAsesor;
 use App\Models\PenilaianEtik;
 use App\Models\SuratPengajuan;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class PenilaianService
 {
@@ -18,17 +19,15 @@ class PenilaianService
      */
     public function assignReviewers(SuratPengajuan $surat, array $penilaiIds, User $penugas): void
     {
-        DB::transaction(function () use ($surat, $penilaiIds, $penugas) {
-            $pivotData = [];
-            foreach ($penilaiIds as $penilaiId) {
-                $pivotData[$penilaiId] = [
-                    'ditugaskan_oleh' => $penugas->id,
-                    'tanggal_penugasan' => now(),
-                ];
-            }
+        $pivotData = [];
+        foreach ($penilaiIds as $penilaiId) {
+            $pivotData[$penilaiId] = [
+                'ditugaskan_oleh' => $penugas->id,
+                'tanggal_penugasan' => now(),
+            ];
+        }
 
-            $surat->penilai()->sync($pivotData);
-        });
+        $surat->penilai()->sync($pivotData);
     }
 
     /**
@@ -36,11 +35,9 @@ class PenilaianService
      */
     public function removeReviewer(SuratPengajuan $surat, int $penilaiId): void
     {
-        DB::transaction(function () use ($surat, $penilaiId) {
-            PenilaiPengajuan::where('surat_pengajuan_id', $surat->id)
-                ->where('user_id', $penilaiId)
-                ->delete();
-        });
+        PenilaiPengajuan::where('surat_pengajuan_id', $surat->id)
+            ->where('user_id', $penilaiId)
+            ->delete();
     }
 
     /**
@@ -50,21 +47,17 @@ class PenilaianService
      */
     public function submitReview(SuratPengajuan $surat, User $penilai, array $data): PenilaianEtik
     {
-        return DB::transaction(function () use ($surat, $penilai, $data) {
-            $penilaian = PenilaianEtik::updateOrCreate(
-                [
-                    'surat_pengajuan_id' => $surat->id,
-                    'penilai_id' => $penilai->id,
-                ],
-                [
-                    'rekomendasi' => $data['rekomendasi'],
-                    'catatan' => $data['catatan'] ?? null,
-                    'tanggal_keputusan' => now()->toDateString(),
-                ]
-            );
-
-            return $penilaian;
-        });
+        return PenilaianEtik::updateOrCreate(
+            [
+                'surat_pengajuan_id' => $surat->id,
+                'penilai_id' => $penilai->id,
+            ],
+            [
+                'rekomendasi' => $data['rekomendasi'],
+                'catatan' => $data['catatan'] ?? null,
+                'tanggal_keputusan' => now()->toDateString(),
+            ]
+        );
     }
 
     /**
@@ -72,14 +65,12 @@ class PenilaianService
      */
     public function addComment(PenilaianEtik $penilaian, User $user, string $catatan): CatatanPenilaian
     {
-        return DB::transaction(function () use ($penilaian, $user, $catatan) {
-            return CatatanPenilaian::create([
-                'penilaian_etik_id' => $penilaian->id,
-                'user_id' => $user->id,
-                'catatan' => $catatan,
-                'selesai' => false,
-            ]);
-        });
+        return CatatanPenilaian::create([
+            'penilaian_etik_id' => $penilaian->id,
+            'user_id' => $user->id,
+            'catatan' => $catatan,
+            'selesai' => false,
+        ]);
     }
 
     /**
@@ -87,11 +78,9 @@ class PenilaianService
      */
     public function toggleResolveComment(CatatanPenilaian $catatan): void
     {
-        DB::transaction(function () use ($catatan) {
-            $catatan->update([
-                'selesai' => ! $catatan->selesai,
-            ]);
-        });
+        $catatan->update([
+            'selesai' => ! $catatan->selesai,
+        ]);
     }
 
     /**
@@ -99,24 +88,22 @@ class PenilaianService
      *
      * @param  array<string, mixed>  $data
      */
-    public function saveItemAssessment(SuratPengajuan $surat, User $penilai, int $butirId, array $data): \App\Models\PenilaianButirAsesor
+    public function saveItemAssessment(SuratPengajuan $surat, User $penilai, int $butirId, array $data): PenilaianButirAsesor
     {
-        return DB::transaction(function () use ($surat, $penilai, $butirId, $data) {
-            return \App\Models\PenilaianButirAsesor::updateOrCreate(
-                [
-                    'surat_pengajuan_id' => $surat->id,
-                    'penilai_id' => $penilai->id,
-                    'butir_evaluasi_id' => $butirId,
-                ],
-                [
-                    'skor' => $data['skor'] ?? null,
-                    'evidence_strength' => $data['evidence_strength'] ?? null,
-                    'catatan' => $data['catatan'] ?? null,
-                    'temuan' => $data['temuan'] ?? null,
-                    'rekomendasi' => $data['rekomendasi'] ?? null,
-                ]
-            );
-        });
+        return PenilaianButirAsesor::updateOrCreate(
+            [
+                'surat_pengajuan_id' => $surat->id,
+                'penilai_id' => $penilai->id,
+                'butir_evaluasi_id' => $butirId,
+            ],
+            [
+                'skor' => $data['skor'] ?? null,
+                'evidence_strength' => $data['evidence_strength'] ?? null,
+                'catatan' => $data['catatan'] ?? null,
+                'temuan' => $data['temuan'] ?? null,
+                'rekomendasi' => $data['rekomendasi'] ?? null,
+            ]
+        );
     }
 
     /**
@@ -126,10 +113,10 @@ class PenilaianService
      */
     public function getComparisonMatrix(SuratPengajuan $surat, ?int $penilaiId = null): array
     {
-        $allSections = \App\Models\BagianEvaluasi::with(['butir.kelompok'])->orderBy('urutan')->get();
+        $allSections = BagianEvaluasi::with(['butir.kelompok'])->orderBy('urutan')->get();
         $selfAnswers = $surat->jawabanEvaluasi()->get()->keyBy('butir_evaluasi_id');
 
-        $assessorQuery = \App\Models\PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id);
+        $assessorQuery = PenilaianButirAsesor::where('surat_pengajuan_id', $surat->id);
         if ($penilaiId) {
             $assessorQuery->where('penilai_id', $penilaiId);
         }
@@ -151,21 +138,12 @@ class PenilaianService
                 $selfScore = $selfAns?->skor;
                 $assessorScore = $assessorAns?->skor;
 
-                $hasGap = false;
-                $gapDescription = '0 (Sesuai)';
+                $gap = $this->compareScores($selfScore, $assessorScore);
 
-                if ($selfScore && $assessorScore) {
-                    if ($selfScore !== $assessorScore) {
-                        $hasGap = true;
-                        $totalGaps++;
-                        $gapDescription = "Gap ({$selfScore} vs {$assessorScore})";
-                    } else {
-                        $totalMatches++;
-                    }
-                } elseif ($selfScore || $assessorScore) {
-                    $hasGap = true;
+                if ($gap['has_gap']) {
                     $totalGaps++;
-                    $gapDescription = 'Gap (Belum Lengkap)';
+                } elseif ($gap['type'] === 'match') {
+                    $totalMatches++;
                 }
 
                 $sectionRows[] = [
@@ -178,8 +156,9 @@ class PenilaianService
                     'assessor_score' => $assessorScore ?? '-',
                     'assessor_catatan' => $assessorAns?->catatan,
                     'assessor_temuan' => $assessorAns?->temuan,
-                    'has_gap' => $hasGap,
-                    'gap_label' => $gapDescription,
+                    'has_gap' => $gap['has_gap'],
+                    'gap_type' => $gap['type'],
+                    'gap_label' => $this->gapLabel($gap['type'], $selfScore, $assessorScore),
                 ];
             }
 
@@ -197,17 +176,39 @@ class PenilaianService
         ];
     }
 
+    private function compareScores(mixed $selfScore, mixed $assessorScore): array
+    {
+        if ($selfScore && $assessorScore) {
+            return $selfScore === $assessorScore
+                ? ['has_gap' => false, 'type' => 'match']
+                : ['has_gap' => true, 'type' => 'mismatch'];
+        }
+
+        if ($selfScore || $assessorScore) {
+            return ['has_gap' => true, 'type' => 'incomplete'];
+        }
+
+        return ['has_gap' => false, 'type' => 'empty'];
+    }
+
+    private function gapLabel(string $type, mixed $selfScore, mixed $assessorScore): string
+    {
+        return match ($type) {
+            'mismatch' => "Gap ({$selfScore} vs {$assessorScore})",
+            'incomplete' => 'Gap (Belum Lengkap)',
+            default => '0 (Sesuai)',
+        };
+    }
+
     /**
      * Finalize the committee's decision on the application.
      */
     public function finalizeDecision(SuratPengajuan $surat, string $keputusan): SuratPengajuan
     {
-        return DB::transaction(function () use ($surat, $keputusan) {
-            $surat->update([
-                'status' => $keputusan,
-            ]);
+        $surat->update([
+            'status' => $keputusan,
+        ]);
 
-            return $surat->fresh();
-        });
+        return $surat->fresh();
     }
 }

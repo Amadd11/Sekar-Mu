@@ -45,6 +45,78 @@
     </div>
 </div>
 
+<!-- Card: Ulasan & Rekomendasi Tim Asesor Penilai -->
+@if ($suratPengajuan->penilaianEtik->isNotEmpty())
+<div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-5">
+    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+                <span class="material-symbols-outlined text-[18px]">rate_review</span>
+            </div>
+            <div>
+                <h3 class="text-sm font-bold text-slate-900">Ulasan & Rekomendasi Tim Asesor Penilai</h3>
+                <p class="text-[11px] text-slate-500">Hasil telaah independen oleh asesor penilai yang ditugaskan</p>
+            </div>
+        </div>
+        <span class="text-xs font-mono font-bold text-slate-600 bg-slate-100 px-3 py-1 rounded-xl border border-slate-200">
+            {{ $suratPengajuan->penilaianEtik->count() }} Ulasan Masuk
+        </span>
+    </div>
+
+    <div class="space-y-4">
+        @foreach ($suratPengajuan->penilaianEtik as $penilaian)
+            <div class="p-4 rounded-2xl bg-slate-50/80 border border-slate-200/80 space-y-3 text-xs">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200/60 pb-2.5">
+                    <div class="flex items-center gap-2.5">
+                        <div class="w-8 h-8 rounded-full bg-primary-100 text-primary-800 flex items-center justify-center font-bold text-xs shrink-0">
+                            {{ strtoupper(substr($penilaian->penilai->name ?? 'A', 0, 1)) }}
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-900 block text-xs">{{ $penilaian->penilai->name ?? 'Asesor' }}</span>
+                            <span class="text-[10px] text-slate-400 font-mono">
+                                {{ $penilaian->penilai->email ?? '-' }} • 
+                                {{ $penilaian->tanggal_keputusan ? \Carbon\Carbon::parse($penilaian->tanggal_keputusan)->format('d M Y') : $penilaian->updated_at->format('d M Y') }}
+                            </span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="inline-flex items-center px-3 py-1 rounded-xl text-xs font-bold border shadow-2xs {{ $penilaian->badge_rekomendasi }}">
+                            {{ $penilaian->label_rekomendasi }}
+                        </span>
+                    </div>
+                </div>
+
+                <div>
+                    <span class="text-[10px] font-bold uppercase text-slate-400 block mb-1">Pertimbangan & Catatan Asesor:</span>
+                    <p class="text-slate-700 leading-relaxed bg-white p-3.5 rounded-xl border border-slate-200/60 whitespace-pre-line italic">
+                        "{{ $penilaian->catatan ?? 'Tidak ada catatan kesimpulan tambahan.' }}"
+                    </p>
+                </div>
+
+                @if ($penilaian->catatanPenilaian->isNotEmpty())
+                    <div class="pt-2 border-t border-slate-200/60 space-y-1.5">
+                        <span class="text-[10px] font-bold text-slate-500 uppercase block">Catatan Butir Terkait ({{ $penilaian->catatanPenilaian->count() }}):</span>
+                        <div class="space-y-1.5">
+                            @foreach ($penilaian->catatanPenilaian as $c)
+                                <div class="p-2.5 rounded-xl bg-white border border-slate-200/60 text-[11px] flex items-start gap-2">
+                                    <span class="material-symbols-outlined text-[15px] {{ $c->selesai ? 'text-emerald-600' : 'text-amber-500' }} shrink-0 mt-0.5">
+                                        {{ $c->selesai ? 'check_circle' : 'pending' }}
+                                    </span>
+                                    <div class="flex-1">
+                                        <span class="text-slate-800">{{ $c->catatan }}</span>
+                                        <span class="text-[10px] text-slate-400 block mt-0.5 font-mono">Penilai: {{ $c->user->name ?? 'User' }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 <!-- Section 1: Identitas Institusi -->
 <div class="bg-white border border-slate-200/80 rounded-3xl p-6 shadow-xs space-y-4">
     <div class="flex items-center justify-between pb-3 border-b border-slate-100">

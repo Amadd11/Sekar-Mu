@@ -133,3 +133,28 @@
         </div>
     </div>
 @endif
+
+<!-- Modal 3: Reusable Modal Konfirmasi Hapus Berkas -->
+<x-confirm-modal
+    :show="$showDeleteModal"
+    title="Hapus Berkas Pengajuan?"
+    type="danger"
+    icon="delete_forever"
+    confirmText="Ya, Hapus"
+    cancelText="Batalkan"
+    onConfirm="hapusDraft"
+    onCancel="batalHapus"
+>
+    <div class="flex items-center justify-center gap-2 mb-2">
+        <span class="font-mono text-xs font-bold text-rose-700 bg-rose-50 px-3 py-0.5 rounded-xl border border-rose-200">
+            No. {{ $suratPengajuan->formatted_id }}
+        </span>
+    </div>
+    <p>
+        Apakah Anda yakin ingin menghapus berkas permohonan ini? Seluruh data isian borang, instrumen evaluasi diri, dan dokumen lampiran akan <strong class="text-slate-700 font-semibold">dihapus secara permanen</strong> dari sistem.
+    </p>
+    <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-[11px] font-semibold text-left flex items-start gap-2 mt-2">
+        <span class="material-symbols-outlined text-amber-600 text-[16px] shrink-0 mt-0.5">warning</span>
+        <span>Tindakan ini tidak dapat dibatalkan. Pastikan Anda tidak lagi memerlukan arsip permohonan ini.</span>
+    </div>
+</x-confirm-modal>

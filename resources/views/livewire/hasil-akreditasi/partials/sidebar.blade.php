@@ -12,16 +12,41 @@
         @endif
     </div>
 
-    <div class="space-y-2.5">
+    <div class="space-y-3">
         @forelse ($suratPengajuan->penilai as $rev)
-            <div class="flex items-center gap-3 text-xs p-3 rounded-2xl bg-slate-50 border border-slate-200/70">
-                <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs shrink-0">
-                    {{ strtoupper(substr($rev->name, 0, 1)) }}
+            @php
+            $penilaian = $suratPengajuan->penilaianEtik->firstWhere('penilai_id', $rev->id);
+            @endphp
+            <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2.5">
+                <div class="flex items-center gap-3 text-xs">
+                    <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-800 flex items-center justify-center font-bold text-xs shrink-0">
+                        {{ strtoupper(substr($rev->name, 0, 1)) }}
+                    </div>
+                    <div class="overflow-hidden flex-1">
+                        <div class="font-bold text-slate-900 truncate">{{ $rev->name }}</div>
+                        <div class="text-[11px] text-slate-500 truncate">{{ $rev->email }}</div>
+                    </div>
                 </div>
-                <div class="overflow-hidden flex-1">
-                    <div class="font-bold text-slate-900 truncate">{{ $rev->name }}</div>
-                    <div class="text-[11px] text-slate-500 truncate">{{ $rev->email }}</div>
+
+                <div class="pt-2 border-t border-slate-200/70 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-500 font-medium">Rekomendasi:</span>
+                    @if ($penilaian)
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold border {{ $penilaian->badge_rekomendasi }}">
+                            {{ $penilaian->label_rekomendasi }}
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                            <span class="material-symbols-outlined text-[12px]">hourglass_top</span>
+                            <span>Menunggu Telaah</span>
+                        </span>
+                    @endif
                 </div>
+
+                @if ($penilaian && $penilaian->catatan)
+                    <p class="text-[11px] text-slate-600 bg-white p-2.5 rounded-xl border border-slate-200/60 italic leading-relaxed">
+                        "{{ \Illuminate\Support\Str::limit($penilaian->catatan, 140) }}"
+                    </p>
+                @endif
             </div>
         @empty
             <p class="text-xs text-slate-400 italic text-center py-2">Belum ada asesor penilai ditugaskan.</p>

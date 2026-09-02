@@ -37,6 +37,10 @@ class FormulirAplikasi extends Component
 
     public function mount(SuratPengajuan $suratPengajuan): void
     {
+        if (auth()->user()?->isAnggota()) {
+            abort(403, 'Anggota KEPK tidak memiliki hak akses ke Halaman Formulir Aplikasi.');
+        }
+
         $this->authorize('update', $suratPengajuan);
 
         $this->suratPengajuan = $suratPengajuan->load('formulirAplikasi');

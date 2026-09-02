@@ -43,6 +43,10 @@ class ListProtokol extends Component
 
     public function mount(SuratPengajuan $suratPengajuan): void
     {
+        if (auth()->user()?->isAnggota()) {
+            abort(403, 'Anggota KEPK tidak memiliki hak akses ke Halaman List Protokol Riset.');
+        }
+
         $this->authorize('view', $suratPengajuan);
 
         $this->suratPengajuan = $suratPengajuan->load('listProtokol');

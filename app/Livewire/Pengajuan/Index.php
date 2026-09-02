@@ -30,6 +30,15 @@ class Index extends Component
     public string $visi = '';
     public string $misi = '';
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', SuratPengajuan::class);
+
+        if (request()->query('create') == '1') {
+            $this->bukaModalCreate();
+        }
+    }
+
     /**
      * @return array<string, array<int, string>>
      */
@@ -48,13 +57,6 @@ class Index extends Component
             'visi' => ['nullable', 'string'],
             'misi' => ['nullable', 'string'],
         ];
-    }
-
-    public function mount(): void
-    {
-        if (request()->query('create') == '1') {
-            $this->bukaModalCreate();
-        }
     }
 
     public function updatingSearch(): void
@@ -94,6 +96,45 @@ class Index extends Component
         session()->flash('status', 'Draft surat pengajuan berhasil dibuat! Silakan lanjutkan pengisian berkas evaluasi diri.');
 
         return $this->redirect(route('pengajuan.show', $surat), navigate: true);
+    }
+
+    // Modal Delete State
+    public bool $showDeleteModal = false;
+    public ?int $deletingId = null;
+    public string $deletingNomor = '';
+
+    public function konfirmasiHapus(int $id): void
+    {
+        $surat = SuratPengajuan::findOrFail($id);
+        $this->authorize('delete', $surat);
+
+        $this->deletingId = $surat->id;
+        $this->deletingNomor = $surat->formatted_id;
+        $this->showDeleteModal = true;
+    }
+
+    public function batalHapus(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingId = null;
+        $this->deletingNomor = '';
+    }
+
+    public function hapusPengajuan(PengajuanService $service): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
+        $surat = SuratPengajuan::findOrFail($this->deletingId);
+        $this->authorize('delete', $surat);
+
+        $formattedId = $surat->formatted_id;
+        $service->delete($surat);
+
+        $this->batalHapus();
+
+        session()->flash('status', "Berkas pengajuan No. {$formattedId} berhasil dihapus secara permanen.");
     }
 
     public function render(): View

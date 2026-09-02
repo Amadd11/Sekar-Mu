@@ -263,9 +263,8 @@
                                     @if ($user->id !== auth()->id())
                                         <button
                                             type="button"
-                                            wire:click="hapusUser({{ $user->id }})"
-                                            wire:confirm="Apakah Anda yakin ingin menghapus akun pengguna '{{ $user->name }}' ini?"
-                                            class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition"
+                                            wire:click="konfirmasiHapus({{ $user->id }})"
+                                            class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                                             title="Hapus Akun"
                                         >
                                             <span class="material-symbols-outlined text-[18px]">delete</span>
@@ -451,4 +450,24 @@
             </div>
         </div>
     @endif
+
+    <!-- Reusable Modal Konfirmasi Hapus Akun -->
+    <x-confirm-modal
+        :show="$showDeleteModal"
+        title="Hapus Akun Pengguna?"
+        type="danger"
+        icon="person_remove"
+        confirmText="Ya, Hapus Akun"
+        cancelText="Batalkan"
+        onConfirm="hapusUser"
+        onCancel="batalHapus"
+    >
+        <p>
+            Apakah Anda yakin ingin menghapus akun pengguna <strong class="text-slate-900 font-semibold">{{ $deletingUserName }}</strong>? Akun ini tidak akan lagi dapat mengakses sistem SekarMU.
+        </p>
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-[11px] font-semibold text-left flex items-start gap-2 mt-2">
+            <span class="material-symbols-outlined text-amber-600 text-[16px] shrink-0 mt-0.5">warning</span>
+            <span>Tindakan ini tidak dapat dibatalkan.</span>
+        </div>
+    </x-confirm-modal>
 </div>

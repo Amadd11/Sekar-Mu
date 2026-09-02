@@ -5,9 +5,9 @@
         :title="'Formulir Aplikasi (B01-02) — Identitas Institusi'"
         :subtitle="'Lengkapi data legalitas dan identitas resmi institusi pemohon akreditasi komite etik.'">
         <x-slot:actions>
-            <a href="{{ route('pengajuan.show', $suratPengajuan) }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5" wire:navigate>
+            <a href="{{ route('pengajuan.index') }}" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2.5 rounded-xl text-xs font-bold transition shadow-xs flex items-center gap-1.5" wire:navigate>
                 <span>&larr;</span>
-                <span>Detail Pengajuan</span>
+                <span>Daftar Pengajuan</span>
             </a>
         </x-slot:actions>
     </x-pengajuan.header>
@@ -111,7 +111,7 @@
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-slate-100">
-                <a href="{{ route('pengajuan.show', $suratPengajuan) }}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition" wire:navigate>
+                <a href="{{ route('pengajuan.index') }}" class="px-4 py-2.5 rounded-xl text-xs font-semibold text-slate-600 hover:bg-slate-100 transition" wire:navigate>
                     Batal
                 </a>
                 <button

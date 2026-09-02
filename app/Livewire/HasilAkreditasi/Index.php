@@ -159,6 +159,19 @@ class Index extends Component
         session()->flash('status', 'Status keputusan akhir pengajuan berhasil ditetapkan: ' . $this->suratPengajuan->status_label);
     }
 
+    public bool $showDeleteModal = false;
+
+    public function konfirmasiHapus(): void
+    {
+        $this->authorize('delete', $this->suratPengajuan);
+        $this->showDeleteModal = true;
+    }
+
+    public function batalHapus(): void
+    {
+        $this->showDeleteModal = false;
+    }
+
     public function hapusDraft(PengajuanService $service)
     {
         $this->authorize('delete', $this->suratPengajuan);

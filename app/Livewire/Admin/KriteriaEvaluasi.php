@@ -37,7 +37,12 @@ class KriteriaEvaluasi extends Component
     public bool $showKelompokModal = false;
     public ?int $kelompok_bagian_id = null;
     public string $kelompok_nama = '';
-    public int $kelompok_urutan = 1;
+    public function mount(): void
+    {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Halaman Master Kriteria & Acuan Standar hanya dapat diakses oleh Administrator.');
+        }
+    }
 
     /**
      * @return array<string, array<int, string>>
@@ -148,56 +153,60 @@ class KriteriaEvaluasi extends Component
         $this->showModal = false;
     }
 
-    public function hapusKriteria(int $id): void
-    {
-        $butir = ButirEvaluasi::with('kelompok.bagian')->findOrFail($id);
-        $kodeItem = $butir->kode;
-        $butir->delete();
+    // Modal Delete State
+    public bool $showDeleteModal = false;
+    public string $deleteType = ''; // 'kriteria' or 'kelompok'
+    public ?int $deletingId = null;
+    public string $deletingTitle = '';
 
-        session()->flash('status', "Kriteria Butir {$kodeItem} berhasil dihapus dari sistem.");
+    public function konfirmasiHapusKriteria(int $id): void
+    {
+        $butir = ButirEvaluasi::findOrFail($id);
+        $this->deletingId = $butir->id;
+        $this->deletingTitle = "Kriteria Butir {$butir->kode}";
+        $this->deleteType = 'kriteria';
+        $this->showDeleteModal = true;
     }
 
-    // Modal Kelompok Acuan
-    public function bukaModalKelompok(): void
-    {
-        $this->kelompok_bagian_id = BagianEvaluasi::orderBy('urutan')->first()?->id;
-        $this->kelompok_nama = '';
-        $this->kelompok_urutan = (KelompokEvaluasi::max('urutan') ?? 0) + 1;
-        $this->showKelompokModal = true;
-    }
-
-    public function tutupModalKelompok(): void
-    {
-        $this->showKelompokModal = false;
-    }
-
-    public function simpanKelompok(): void
-    {
-        $this->validate([
-            'kelompok_bagian_id' => ['required', 'exists:bagian_evaluasi,id'],
-            'kelompok_nama' => ['required', 'string', 'min:3', 'max:255'],
-            'kelompok_urutan' => ['required', 'integer', 'min:1'],
-        ]);
-
-        KelompokEvaluasi::create([
-            'bagian_evaluasi_id' => $this->kelompok_bagian_id,
-            'nama' => $this->kelompok_nama,
-            'urutan' => $this->kelompok_urutan,
-        ]);
-
-        session()->flash('status', "Kelompok Acuan Standar '{$this->kelompok_nama}' berhasil ditambahkan!");
-        $this->showKelompokModal = false;
-    }
-
-    public function hapusKelompok(int $id): void
+    public function konfirmasiHapusKelompok(int $id): void
     {
         $kelompok = KelompokEvaluasi::withCount('butir')->findOrFail($id);
-        $nama = $kelompok->nama;
-        $butirCount = $kelompok->butir_count;
+        $this->deletingId = $kelompok->id;
+        $this->deletingTitle = "Kelompok Acuan Standar '{$kelompok->nama}'" . ($kelompok->butir_count > 0 ? " ({$kelompok->butir_count} butir)" : "");
+        $this->deleteType = 'kelompok';
+        $this->showDeleteModal = true;
+    }
 
-        $kelompok->delete();
+    public function batalHapus(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingId = null;
+        $this->deletingTitle = '';
+        $this->deleteType = '';
+    }
 
-        session()->flash('status', "Kelompok Acuan Standar '{$nama}'" . ($butirCount > 0 ? " beserta {$butirCount} butir kriteria" : "") . " berhasil dihapus.");
+    public function prosesHapus(): void
+    {
+        if (! $this->deletingId) {
+            return;
+        }
+
+        if ($this->deleteType === 'kriteria') {
+            $butir = ButirEvaluasi::findOrFail($this->deletingId);
+            $kodeItem = $butir->kode;
+            $butir->delete();
+
+            session()->flash('status', "Kriteria Butir {$kodeItem} berhasil dihapus dari sistem.");
+        } elseif ($this->deleteType === 'kelompok') {
+            $kelompok = KelompokEvaluasi::withCount('butir')->findOrFail($this->deletingId);
+            $nama = $kelompok->nama;
+            $butirCount = $kelompok->butir_count;
+            $kelompok->delete();
+
+            session()->flash('status', "Kelompok Acuan Standar '{$nama}'" . ($butirCount > 0 ? " beserta {$butirCount} butir kriteria" : "") . " berhasil dihapus.");
+        }
+
+        $this->batalHapus();
     }
     
     public function render(): View

@@ -32,6 +32,13 @@ class ManajemenAkun extends Component
     public string $password = '';
     public string $password_confirmation = '';
 
+    public function mount(): void
+    {
+        if (! auth()->user()?->isAdmin()) {
+            abort(403, 'Halaman Manajemen Akun hanya dapat diakses oleh Administrator.');
+        }
+    }
+
     public function updatingSearch(): void
     {
         $this->resetPage();
@@ -128,7 +135,12 @@ class ManajemenAkun extends Component
         $this->showModal = false;
     }
 
-    public function hapusUser(int $userId): void
+    // Delete Modal State
+    public bool $showDeleteModal = false;
+    public ?int $deletingUserId = null;
+    public string $deletingUserName = '';
+
+    public function konfirmasiHapus(int $userId): void
     {
         if (auth()->id() === $userId) {
             session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif!');
@@ -137,10 +149,38 @@ class ManajemenAkun extends Component
         }
 
         $user = User::findOrFail($userId);
+        $this->deletingUserId = $user->id;
+        $this->deletingUserName = $user->name;
+        $this->showDeleteModal = true;
+    }
+
+    public function batalHapus(): void
+    {
+        $this->showDeleteModal = false;
+        $this->deletingUserId = null;
+        $this->deletingUserName = '';
+    }
+
+    public function hapusUser(): void
+    {
+        if (! $this->deletingUserId) {
+            return;
+        }
+
+        if (auth()->id() === $this->deletingUserId) {
+            session()->flash('error', 'Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif!');
+            $this->batalHapus();
+
+            return;
+        }
+
+        $user = User::findOrFail($this->deletingUserId);
         $name = $user->name;
         $user->delete();
 
-        session()->flash('status', "Akun pengguna '{$name}' telah dihapus.");
+        $this->batalHapus();
+
+        session()->flash('status', "Akun pengguna '{$name}' telah berhasil dihapus secara permanen.");
     }
 
     public function render(): View

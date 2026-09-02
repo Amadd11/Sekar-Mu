@@ -707,6 +707,115 @@
             </div>
         </div>
 
+        <!-- 3.5 DASHBOARD ANALYTICS & VISUAL PROGRESS INSIGHTS -->
+        <div class="bg-white border border-slate-200/90 rounded-3xl p-6 sm:p-7 shadow-xs space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-primary-700 to-teal-600 text-white flex items-center justify-center shadow-md shadow-primary-700/20">
+                        <span class="material-symbols-outlined text-[22px]">analytics</span>
+                    </div>
+                    <div>
+                        <h2 class="font-display text-base sm:text-lg font-extrabold text-slate-900 leading-tight">
+                            Analitis Visual & Kesiapan Akreditasi Real-Time
+                        </h2>
+                        <p class="text-slate-500 text-xs mt-0.5">
+                            Visualisasi sebaran skor 164 butir standar WHO-CIOMS & proyeksi kelulusan KEPK.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>{{ $metrics['total_answered'] }} / {{ $metrics['total_items'] }} Butir Evaluasi</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                <!-- Donut Progress Gauge (4 cols) -->
+                <div class="lg:col-span-4 p-5 rounded-2xl bg-slate-50/80 border border-slate-100 text-center flex flex-col items-center justify-center space-y-3">
+                    <div class="relative w-36 h-36 flex items-center justify-center">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-slate-200 stroke-current" stroke-width="3.5" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path class="text-primary-700 stroke-current transition-all duration-700" stroke-width="3.5" stroke-dasharray="{{ $metrics['overall_compliance'] }}, 100" stroke-linecap="round" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                            <span class="text-3xl font-black font-display text-slate-900 tracking-tight">{{ $metrics['overall_compliance'] }}%</span>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Kepatuhan</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <div class="font-bold text-slate-800 text-xs">Prediksi Status: <span class="text-primary-700 font-extrabold">{{ $metrics['prediction']['type'] }}</span></div>
+                        <p class="text-[11px] text-slate-500 leading-snug">
+                            {{ $metrics['overall_compliance'] >= 80 ? 'Target akreditasi KEPK terpenuhi dengan baik!' : 'Lengkapi sisa butir standar untuk meningkatkan kategori akreditasi.' }}
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Distribution Stacked Bar & Breakdowns (8 cols) -->
+                <div class="lg:col-span-8 space-y-5">
+                    <div class="space-y-2">
+                        <div class="flex items-center justify-between text-xs font-bold text-slate-700">
+                            <span>Komposisi Sebaran Evaluasi</span>
+                            <span class="font-mono text-slate-500">{{ $metrics['total_answered'] }} Terisi ({{ round(($metrics['total_answered']/max($metrics['total_items'], 1))*100) }}%)</span>
+                        </div>
+
+                        @php
+                            $totalItems = max($metrics['total_items'], 1);
+                            $pctA = round(($metrics['counts']['A'] / $totalItems) * 100, 1);
+                            $pctB = round(($metrics['counts']['B'] / $totalItems) * 100, 1);
+                            $pctC = round(($metrics['counts']['C'] / $totalItems) * 100, 1);
+                            $unanswered = max(0, $totalItems - $metrics['total_answered']);
+                            $pctUnanswered = round(($unanswered / $totalItems) * 100, 1);
+                        @endphp
+
+                        <div class="w-full h-4 rounded-xl bg-slate-100 overflow-hidden flex shadow-inner">
+                            <div style="width: {{ $pctA }}%" class="bg-emerald-500 h-full transition-all duration-500" title="Nilai A (100%): {{ $metrics['counts']['A'] }} Butir"></div>
+                            <div style="width: {{ $pctB }}%" class="bg-amber-500 h-full transition-all duration-500" title="Nilai B (50%): {{ $metrics['counts']['B'] }} Butir"></div>
+                            <div style="width: {{ $pctC }}%" class="bg-rose-500 h-full transition-all duration-500" title="Nilai C (0%): {{ $metrics['counts']['C'] }} Butir"></div>
+                            <div style="width: {{ $pctUnanswered }}%" class="bg-slate-200 h-full transition-all duration-500" title="Belum Diisi: {{ $unanswered }} Butir"></div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                            <div class="p-2 rounded-xl bg-emerald-50 border border-emerald-200/70 text-emerald-800 text-[11px] flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-emerald-500 shrink-0"></span>
+                                <div>
+                                    <div class="font-extrabold font-mono text-xs">{{ $metrics['counts']['A'] }} <span class="font-normal text-[10px]">({{ $pctA }}%)</span></div>
+                                    <div class="text-[10px] opacity-80">Nilai A (Penuh)</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 rounded-xl bg-amber-50 border border-amber-200/70 text-amber-800 text-[11px] flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-amber-500 shrink-0"></span>
+                                <div>
+                                    <div class="font-extrabold font-mono text-xs">{{ $metrics['counts']['B'] }} <span class="font-normal text-[10px]">({{ $pctB }}%)</span></div>
+                                    <div class="text-[10px] opacity-80">Nilai B (Sebagian)</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 rounded-xl bg-rose-50 border border-rose-200/70 text-rose-800 text-[11px] flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-rose-500 shrink-0"></span>
+                                <div>
+                                    <div class="font-extrabold font-mono text-xs">{{ $metrics['counts']['C'] }} <span class="font-normal text-[10px]">({{ $pctC }}%)</span></div>
+                                    <div class="text-[10px] opacity-80">Nilai C (Kurang)</div>
+                                </div>
+                            </div>
+
+                            <div class="p-2 rounded-xl bg-slate-100 border border-slate-200 text-slate-700 text-[11px] flex items-center gap-2">
+                                <span class="w-3 h-3 rounded-full bg-slate-300 shrink-0"></span>
+                                <div>
+                                    <div class="font-extrabold font-mono text-xs">{{ $unanswered }} <span class="font-normal text-[10px]">({{ $pctUnanswered }}%)</span></div>
+                                    <div class="text-[10px] opacity-80">Belum Diisi</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 4. Ulasan & Rekomendasi Asesor Penilai (Jika Ada) -->
         @if ($suratPengajuan && $suratPengajuan->penilaianEtik->isNotEmpty())
             <div class="bg-white border border-slate-200/80 rounded-2xl shadow-xs p-5 space-y-4">

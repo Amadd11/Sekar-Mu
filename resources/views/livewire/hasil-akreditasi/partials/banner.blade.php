@@ -174,9 +174,39 @@
                         <span>Buka Kembali</span>
                     </button>
                     @endif
+
+                    @can('delete', $suratPengajuan)
+                    <button
+                        type="button"
+                        wire:click="konfirmasiHapus"
+                        title="Hapus Berkas Pengajuan"
+                        class="px-3 py-2 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 cursor-pointer {{ $isHeroDark ? 'bg-rose-500/20 hover:bg-rose-600 text-rose-200 hover:text-white border border-rose-500/30' : 'bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200/80' }}">
+                        <span class="material-symbols-outlined text-[15px]">delete</span>
+                        <span>Hapus Berkas</span>
+                    </button>
+                    @endcan
                     @endif
                 </div>
             </div>
+
+            @if ($suratPengajuan->penilaianEtik->isNotEmpty() && $suratPengajuan->isInProgress())
+            <div class="mt-3.5 pt-3 border-t {{ $isHeroDark ? 'border-white/15' : 'border-slate-200/80' }} flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-emerald-600 text-[18px]">verified</span>
+                    <span class="{{ $isHeroDark ? 'text-white' : 'text-slate-800' }}">
+                        <strong>{{ $suratPengajuan->penilaianEtik->count() }} Asesor</strong> telah memberikan rekomendasi telaah.
+                    </span>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    @foreach ($suratPengajuan->penilaianEtik as $p)
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-bold border shadow-2xs {{ $p->badge_rekomendasi }}">
+                            <span class="font-normal text-slate-500">{{ $p->penilai->name ?? 'Asesor' }}:</span>
+                            <span>{{ $p->label_rekomendasi }}</span>
+                        </span>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
         @endif
     </div>

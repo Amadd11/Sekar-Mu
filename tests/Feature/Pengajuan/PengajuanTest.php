@@ -1,5 +1,6 @@
 <?php
 
+use App\Livewire\HasilAkreditasi\Index as HasilAkreditasiIndex;
 use App\Livewire\Pengajuan\Create;
 use App\Livewire\Pengajuan\Dokumen as DokumenLivewire;
 use App\Livewire\Pengajuan\EvaluasiDiri;
@@ -197,7 +198,7 @@ test('alur lengkap: penugasan penilai, review rekomendasi asesor secara real-tim
 
     // 3. Admin menetapkan keputusan akhir (Terakreditasi / Approved)
     Livewire::actingAs($admin)
-        ->test(Show::class, ['suratPengajuan' => $surat])
+        ->test(HasilAkreditasiIndex::class, ['suratPengajuan' => $surat])
         ->call('putuskanStatus', 'approved')
         ->assertHasNoErrors();
 
@@ -233,16 +234,28 @@ test('asessor dicegah membuat pengajuan dan menugaskan penilai', function () {
     $this->actingAs($asessor)->get(route('penilaian.tugaskan', $surat))->assertForbidden();
 });
 
-test('asessor dapat membuka dan menilai berkas secara real time pada status draft', function () {
+test('asessor yang ditugaskan dapat membuka lembar penilaian sedangkan yang belum ditugaskan ditolak', function () {
     $ketua = User::factory()->ketuaKepk()->create();
     $asessor = User::factory()->asessor()->create();
+    $asessorLain = User::factory()->asessor()->create();
     $surat = SuratPengajuan::create([
         'user_id' => $ketua->id,
         'kepk_id' => $this->kepk->id,
         'status' => 'draft',
     ]);
 
-    $this->actingAs($asessor)->get(route('penilaian.show', $surat))->assertSuccessful();
+    // Asesor yang belum ditugaskan melihat layar peringatan belum ditugaskan
+    $this->actingAs($asessorLain)
+        ->get(route('penilaian.show', $surat))
+        ->assertSuccessful()
+        ->assertSee('Akses Lembar Kerja Penilaian Belum Ditugaskan');
+
+    // Asesor yang resmi ditugaskan berhasil mengakses lembar kerja
+    $surat->penilai()->attach($asessor->id);
+    $this->actingAs($asessor)
+        ->get(route('penilaian.show', $surat))
+        ->assertSuccessful()
+        ->assertDontSee('Akses Lembar Kerja Penilaian Belum Ditugaskan');
 });
 
 test('role yang berhak dapat mengakses route masing-masing', function () {
@@ -255,6 +268,8 @@ test('role yang berhak dapat mengakses route masing-masing', function () {
         'kepk_id' => $this->kepk->id,
         'status' => 'draft',
     ]);
+
+    $surat->penilai()->attach($asessor->id);
 
     $this->actingAs($asessor)->get(route('penilaian.show', $surat))->assertSuccessful();
     $this->actingAs($admin)->get(route('penilaian.tugaskan', $surat))->assertSuccessful();

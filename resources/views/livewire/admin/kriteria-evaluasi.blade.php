@@ -229,8 +229,7 @@
 
                                 <button
                                     type="button"
-                                    wire:click="hapusKriteria({{ $b->id }})"
-                                    wire:confirm="Apakah Anda yakin ingin menghapus butir kriteria {{ $b->kode }} ini?"
+                                    wire:click="konfirmasiHapusKriteria({{ $b->id }})"
                                     class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
                                     title="Hapus Kriteria">
                                     <span class="material-symbols-outlined text-[18px]">delete</span>
@@ -543,8 +542,7 @@
 
                                     <button
                                         type="button"
-                                        wire:click="hapusKelompok({{ $kel->id }})"
-                                        wire:confirm="Yakin ingin menghapus kelompok standar '{{ $kel->nama }}'{{ $kel->butir_count > 0 ? ' beserta ' . $kel->butir_count . ' butir kriteria di dalamnya' : '' }}?"
+                                        wire:click="konfirmasiHapusKelompok({{ $kel->id }})"
                                         class="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer flex items-center justify-center"
                                         title="Hapus Kelompok Standar">
                                         <span class="material-symbols-outlined text-[18px]">delete</span>
@@ -572,4 +570,24 @@
         </div>
     </div>
     @endif
+
+    <!-- Reusable Modal Konfirmasi Hapus Kriteria & Kelompok -->
+    <x-confirm-modal
+        :show="$showDeleteModal"
+        title="Hapus Data Standar?"
+        type="danger"
+        icon="delete_forever"
+        confirmText="Ya, Hapus Data"
+        cancelText="Batalkan"
+        onConfirm="prosesHapus"
+        onCancel="batalHapus"
+    >
+        <p>
+            Apakah Anda yakin ingin menghapus <strong class="text-slate-900 font-semibold">{{ $deletingTitle }}</strong>?
+        </p>
+        <div class="p-3 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-800 text-[11px] font-semibold text-left flex items-start gap-2 mt-2">
+            <span class="material-symbols-outlined text-amber-600 text-[16px] shrink-0 mt-0.5">warning</span>
+            <span>Tindakan ini tidak dapat dibatalkan. Data terkait akan dihapus secara permanen.</span>
+        </div>
+    </x-confirm-modal>
 </div>

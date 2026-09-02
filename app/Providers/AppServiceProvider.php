@@ -34,7 +34,7 @@ class AppServiceProvider extends ServiceProvider
                 } elseif ($user->isAsessor()) {
                     $latestApp = SuratPengajuan::whereHas('penilai', function ($q) use ($user) {
                         $q->where('user_id', $user->id);
-                    })->latest()->first() ?? SuratPengajuan::latest()->first();
+                    })->latest()->first();
                 }
             }
 
