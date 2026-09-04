@@ -147,6 +147,20 @@ test('pemohon dapat mengelola list protokol dan dokumen lampiran', function () {
         'nomor_protokol' => 'PR-001',
     ]);
 
+    // Hapus Protokol
+    $protokol = \App\Models\ListProtokol::where('nomor_protokol', 'PR-001')->first();
+    Livewire::actingAs($pemohon)
+        ->test(ListProtokol::class, ['suratPengajuan' => $surat])
+        ->call('konfirmasiHapus', $protokol->id)
+        ->assertSet('showDeleteModal', true)
+        ->assertSet('selectedDeleteId', $protokol->id)
+        ->call('eksekusiHapus')
+        ->assertSet('showDeleteModal', false);
+
+    $this->assertDatabaseMissing('list_protokol', [
+        'id' => $protokol->id,
+    ]);
+
     // Dokumen Evaluasi Diri per Bagian
     $butir1 = BagianEvaluasi::first()->butir()->first();
     $surat->jawabanEvaluasi()->create([
@@ -352,7 +366,7 @@ test('asesor dapat menilai independen dan menghasilkan matriks komparasi gap', f
     expect($matrix['total_gaps'])->toBeGreaterThanOrEqual(1);
 });
 
-test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol', function () {
+test('anggota kepk dapat membuka dan mengisi evaluasi diri tetapi dibatasi dari list protokol', function () {
     $ketua = User::factory()->ketuaKepk()->create();
     $anggota = User::factory()->anggota()->create();
 
@@ -370,10 +384,15 @@ test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol',
         ->set("catatan.{$butirPertama->id}", 'Diisi oleh Anggota KEPK')
         ->assertHasNoErrors();
 
-    // Anggota KEPK dapat membuka dan menambah list protokol
-    Livewire::actingAs($anggota)
+    // Anggota KEPK dibatasi dari membuka List Protokol (403)
+    $this->actingAs($anggota)
+        ->get(route('pengajuan.list-protokol', $surat))
+        ->assertForbidden();
+
+    // Ketua KEPK dapat membuka dan menambah list protokol
+    Livewire::actingAs($ketua)
         ->test(ListProtokol::class, ['suratPengajuan' => $surat])
-        ->set('nomor_protokol', 'PROT-ANGGOTA-001')
+        ->set('nomor_protokol', 'PROT-KETUA-001')
         ->set('judul', 'Penelitian Klinis Vaksin Baru')
         ->set('peneliti_utama', 'Dr. Siti, Sp.A')
         ->call('simpan')
@@ -381,7 +400,7 @@ test('anggota kepk dapat membuka dan mengisi evaluasi diri serta list protokol',
 
     $this->assertDatabaseHas('list_protokol', [
         'surat_pengajuan_id' => $surat->id,
-        'nomor_protokol' => 'PROT-ANGGOTA-001',
+        'nomor_protokol' => 'PROT-KETUA-001',
     ]);
 });
 
@@ -419,8 +438,8 @@ test('status kelengkapan butir evaluasi diri: 1 berkas belum lengkap dan 2 berka
     expect($ans2->kelengkapan_status)->toBe('lengkap');
     expect($ans2->kelengkapan_label)->toBe('Lengkap');
 
-    $progress = $evaluasiService->calculateProgress($surat);
-    $bagianA = $progress[BagianEvaluasi::first()->kode];
+    $progress = $evaluasiService->calculateProgress($surat, BagianEvaluasi::where('kode', 'A')->get());
+    $bagianA = $progress['A'];
     expect($bagianA['terjawab'])->toBe(1);
     expect($bagianA['belum_lengkap'])->toBe(1);
 });
@@ -438,8 +457,8 @@ test('role anggota dapat mengakses evaluasi diri dan hasil akreditasi', function
     $this->actingAs($anggota)
         ->get(route('pengajuan.show', $surat))
         ->assertOk()
-        ->assertSee('Evaluasi Diri (164 Butir)')
-        ->assertSee('Hasil Penilaian & Prediksi Akreditasi');
+        ->assertSee('Buka Evaluasi Diri')
+        ->assertSee('Hasil Akreditasi');
 
     // Anggota dapat mengakses halaman evaluasi diri
     $this->actingAs($anggota)

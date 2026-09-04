@@ -118,10 +118,10 @@ class EvaluasiDiri extends Component
         $this->simpanCatatan((int) $key, $service);
     }
 
-    public function updatedUploadedFiles($value, $key): void
+    public function updatedUploadedFiles($value, $key, EvaluasiDiriService $service): void
     {
         $butirId = (int) $key;
-        $this->prosesUploadBerkas($butirId, app(EvaluasiDiriService::class));
+        $this->prosesUploadBerkas($butirId, $service);
     }
 
     public function uploadBerkas(int $butirId, EvaluasiDiriService $service): void

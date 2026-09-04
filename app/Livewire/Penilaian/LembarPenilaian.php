@@ -10,6 +10,7 @@ use App\Models\SuratPengajuan;
 use App\Services\ComplianceService;
 use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -40,7 +41,7 @@ class LembarPenilaian extends Component
         'anggotaKepk',
         'listProtokol',
         'dokumen.pengunggah',
-        'jawabanEvaluasi.butir',
+        'jawabanEvaluasi.butir.kelompok',
         'penilaianEtik.penilai',
         'penilaianEtik.catatanPenilaian.user',
         'penilaianButirAsesor',
@@ -56,6 +57,9 @@ class LembarPenilaian extends Component
 
     #[Url(as: 'section')]
     public string $activeSection = 'A';
+
+    public string $dokumenSearch = '';
+    public string $dokumenFilterStatus = 'all'; // all, lengkap, belum_lengkap
 
     public string $rekomendasi = 'approved';
     public string $catatan = '';
@@ -187,14 +191,14 @@ class LembarPenilaian extends Component
         }
     }
 
-    public function updatedItemCatatan($value, $key): void
+    public function updatedItemCatatan($value, $key, PenilaianService $service): void
     {
-        $this->saveItemNotes((int) $key, app(PenilaianService::class));
+        $this->saveItemNotes((int) $key, $service);
     }
 
-    public function updatedItemTemuan($value, $key): void
+    public function updatedItemTemuan($value, $key, PenilaianService $service): void
     {
-        $this->saveItemNotes((int) $key, app(PenilaianService::class));
+        $this->saveItemNotes((int) $key, $service);
     }
 
     public function setItemSkor(int $butirId, string $skorValue, PenilaianService $service): void
@@ -321,6 +325,16 @@ class LembarPenilaian extends Component
         $this->activeTab = $this->normalizeTab($tab);
     }
 
+    public function resetDokumenSearch(): void
+    {
+        $this->dokumenSearch = '';
+    }
+
+    public function setDokumenFilterStatus(string $status): void
+    {
+        $this->dokumenFilterStatus = in_array($status, ['all', 'lengkap', 'belum_lengkap'], true) ? $status : 'all';
+    }
+
     public function render(ComplianceService $complianceService, PenilaianService $penilaianService): View
     {
         $this->suratPengajuan->load(self::EAGER_RELATIONS);
@@ -336,6 +350,12 @@ class LembarPenilaian extends Component
                 'activeBagian' => null,
                 'sectionProgress' => [],
                 'semuaPenilaian' => collect(),
+                'dokumenTotalFilesAll' => 0,
+                'dokumenTotalButirWithFilesAll' => 0,
+                'dokumenFileCountsPerBagian' => [],
+                'dokumenButirCountsPerBagian' => [],
+                'dokumenAllSectionsData' => [],
+                'dokumenActiveSectionData' => ['items' => [], 'total_files' => 0, 'total_butir' => 0],
             ])->layout('layouts.app');
         }
 
@@ -347,6 +367,100 @@ class LembarPenilaian extends Component
 
         $sectionProgress = $this->calculateSectionProgress($bagianList);
 
+        // Prepare Document Data for Tab Dokumen (matching Pengajuan\Dokumen)
+        $jawabanMap = $this->suratPengajuan->jawabanEvaluasi
+            ->filter(fn ($j) => ! empty($j->file_attachments))
+            ->keyBy('butir_evaluasi_id');
+
+        $dokumenTotalFilesAll = 0;
+        $dokumenTotalButirWithFilesAll = 0;
+        $dokumenFileCountsPerBagian = [];
+        $dokumenButirCountsPerBagian = [];
+        $dokumenAllSectionsData = [];
+
+        $searchTerm = trim(strtolower($this->dokumenSearch));
+
+        foreach ($bagianList as $bagian) {
+            $itemsWithFiles = [];
+            $sectionFilesCount = 0;
+            $sectionButirCount = 0;
+
+            foreach ($bagian->kelompok as $kelompok) {
+                foreach ($kelompok->butir as $butir) {
+                    $ans = $jawabanMap->get($butir->id);
+                    $attachments = $ans ? $ans->getAttachments() : [];
+                    $attCount = count($attachments);
+
+                    if ($attCount > 0) {
+                        $sectionFilesCount += $attCount;
+                        $sectionButirCount++;
+                        $dokumenTotalFilesAll += $attCount;
+                        $dokumenTotalButirWithFilesAll++;
+
+                        // Apply Status Filter
+                        if ($this->dokumenFilterStatus === 'lengkap' && $attCount < 2) {
+                            continue;
+                        }
+                        if ($this->dokumenFilterStatus === 'belum_lengkap' && $attCount !== 1) {
+                            continue;
+                        }
+
+                        // Apply Search Filter
+                        if ($searchTerm !== '') {
+                            $matchesCode = str_contains(strtolower($butir->kode ?? ''), $searchTerm);
+                            $matchesQuestion = str_contains(strtolower($butir->pertanyaan ?? ''), $searchTerm);
+                            $matchesBukti = str_contains(strtolower($ans->bukti ?? ''), $searchTerm);
+                            $matchesFiles = false;
+
+                            foreach ($attachments as $att) {
+                                if (str_contains(strtolower($att['name'] ?? ''), $searchTerm)) {
+                                    $matchesFiles = true;
+                                    break;
+                                }
+                            }
+
+                            if (! $matchesCode && ! $matchesQuestion && ! $matchesBukti && ! $matchesFiles) {
+                                continue;
+                            }
+                        }
+
+                        $itemsWithFiles[] = [
+                            'butir_id' => $butir->id,
+                            'kode' => $butir->kode ?? ('#' . $butir->id),
+                            'pertanyaan' => $butir->pertanyaan,
+                            'standar' => $butir->standar ?? 'Standar',
+                            'kelompok_nama' => $kelompok->nama,
+                            'bukti' => $ans->bukti ?? null,
+                            'catatan' => $ans->catatan ?? null,
+                            'attachments' => array_map(function ($att) {
+                                $path = $att['path'] ?? '';
+                                return [
+                                    'name' => $att['name'] ?? 'Dokumen',
+                                    'path' => $path,
+                                    'url' => Storage::url($path),
+                                    'size' => (int) ($att['size'] ?? 0),
+                                    'size_formatted' => format_bytes((int) ($att['size'] ?? 0)),
+                                    'is_pdf' => str_ends_with(strtolower($path), '.pdf') || str_ends_with(strtolower($att['name'] ?? ''), '.pdf'),
+                                    'is_image' => in_array(strtolower(pathinfo($path, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'webp'], true),
+                                ];
+                            }, $attachments),
+                            'count' => $attCount,
+                        ];
+                    }
+                }
+            }
+
+            $dokumenFileCountsPerBagian[$bagian->kode] = $sectionFilesCount;
+            $dokumenButirCountsPerBagian[$bagian->kode] = $sectionButirCount;
+
+            $dokumenAllSectionsData[$bagian->kode] = [
+                'bagian' => $bagian,
+                'items' => $itemsWithFiles,
+                'total_files' => $sectionFilesCount,
+                'total_butir' => $sectionButirCount,
+            ];
+        }
+
         return view('livewire.penilaian.lembar-penilaian', [
             'isAssigned' => $this->isAssigned,
             'metrics' => $metrics,
@@ -355,6 +469,12 @@ class LembarPenilaian extends Component
             'activeBagian' => $activeBagian,
             'sectionProgress' => $sectionProgress,
             'semuaPenilaian' => $this->suratPengajuan->penilaianEtik()->with(['penilai', 'catatanPenilaian.user'])->get(),
+            'dokumenTotalFilesAll' => $dokumenTotalFilesAll,
+            'dokumenTotalButirWithFilesAll' => $dokumenTotalButirWithFilesAll,
+            'dokumenFileCountsPerBagian' => $dokumenFileCountsPerBagian,
+            'dokumenButirCountsPerBagian' => $dokumenButirCountsPerBagian,
+            'dokumenAllSectionsData' => $dokumenAllSectionsData,
+            'dokumenActiveSectionData' => $dokumenAllSectionsData[$this->activeSection] ?? ['items' => [], 'total_files' => 0, 'total_butir' => 0],
         ])->layout('layouts.app');
     }
 

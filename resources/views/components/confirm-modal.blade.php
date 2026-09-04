@@ -34,12 +34,12 @@
 @endphp
 
 @if ($show)
-    <div class="fixed inset-0 z-50 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <div class="fixed inset-0 z-[70] overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
         <!-- Backdrop Overlay -->
         <div class="fixed inset-0 bg-slate-900/60 transition-opacity" @if($onCancel) wire:click="{{ $onCancel }}" @endif></div>
 
         <!-- Modal Dialog Box -->
-        <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
+        <div class="relative z-10 flex min-h-full items-center justify-center p-4 text-center sm:p-0">
             <div class="relative z-10 transform overflow-hidden rounded-3xl bg-white text-left shadow-2xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-slate-200 p-6 sm:p-7 text-center space-y-5">
                 <!-- Icon Chip -->
                 <div class="w-16 h-16 rounded-2xl border flex items-center justify-center mx-auto shadow-2xs {{ $typeClasses['icon_bg'] }}">

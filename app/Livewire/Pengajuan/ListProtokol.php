@@ -121,14 +121,15 @@ class ListProtokol extends Component
     public ?int $selectedDeleteId = null;
     public string $selectedDeleteJudul = '';
 
-    public function konfirmasiHapus(int $id, string $judul): void
+    public function konfirmasiHapus(int $id): void
     {
         if (! $this->suratPengajuan->isEditable()) {
             return;
         }
 
-        $this->selectedDeleteId = $id;
-        $this->selectedDeleteJudul = $judul;
+        $protokol = ListProtokolModel::findOrFail($id);
+        $this->selectedDeleteId = $protokol->id;
+        $this->selectedDeleteJudul = $protokol->judul;
         $this->showDeleteModal = true;
     }
 
@@ -142,10 +143,13 @@ class ListProtokol extends Component
     public function eksekusiHapus(ListProtokolService $service): void
     {
         if ($this->selectedDeleteId && $this->suratPengajuan->isEditable()) {
-            $protokol = ListProtokolModel::findOrFail($this->selectedDeleteId);
-            $service->delete($protokol);
-            $this->suratPengajuan->refresh();
-            session()->flash('status', 'Protokol riset berhasil dihapus.');
+            $protokol = ListProtokolModel::find($this->selectedDeleteId);
+            if ($protokol) {
+                $service->delete($protokol);
+                $this->suratPengajuan->refresh();
+                $this->suratPengajuan->unsetRelation('listProtokol');
+                session()->flash('status', 'Protokol riset berhasil dihapus.');
+            }
         }
 
         $this->batalHapus();
@@ -157,11 +161,13 @@ class ListProtokol extends Component
             return;
         }
 
-        $protokol = ListProtokolModel::findOrFail($id);
-        $service->delete($protokol);
-        $this->suratPengajuan->refresh();
-
-        session()->flash('status', 'Protokol riset berhasil dihapus.');
+        $protokol = ListProtokolModel::find($id);
+        if ($protokol) {
+            $service->delete($protokol);
+            $this->suratPengajuan->refresh();
+            $this->suratPengajuan->unsetRelation('listProtokol');
+            session()->flash('status', 'Protokol riset berhasil dihapus.');
+        }
     }
 
     public function resetForm(): void

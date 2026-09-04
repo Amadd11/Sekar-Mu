@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire;
+namespace App\Livewire\Dashboard;
 
 use App\Models\ButirEvaluasi;
 use App\Models\Kepk;
@@ -12,7 +12,7 @@ use App\Services\PenilaianService;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 
-class Dashboard extends Component
+class Index extends Component
 {
     public function render(ComplianceService $complianceService, PenilaianService $penilaianService): View
     {
@@ -170,6 +170,6 @@ class Dashboard extends Component
             $data['totalAttachedItems'] = $totalAttachedItems;
         }
 
-        return view('livewire.dashboard', $data)->layout('layouts.app');
+        return view('livewire.dashboard.index', $data)->layout('layouts.app');
     }
 }

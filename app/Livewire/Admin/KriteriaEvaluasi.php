@@ -37,11 +37,62 @@ class KriteriaEvaluasi extends Component
     public bool $showKelompokModal = false;
     public ?int $kelompok_bagian_id = null;
     public string $kelompok_nama = '';
+    public int $kelompok_urutan = 1;
+
     public function mount(): void
     {
         if (! auth()->user()?->isAdmin()) {
             abort(403, 'Halaman Master Kriteria & Acuan Standar hanya dapat diakses oleh Administrator.');
         }
+    }
+
+    public function bukaModalKelompok(): void
+    {
+        $this->resetValidation();
+        $this->kelompok_bagian_id = BagianEvaluasi::orderBy('urutan')->value('id');
+        $this->kelompok_nama = '';
+        $this->updateNextKelompokUrutan();
+        $this->showKelompokModal = true;
+    }
+
+    public function updatedKelompokBagianId(): void
+    {
+        $this->updateNextKelompokUrutan();
+    }
+
+    public function updateNextKelompokUrutan(): void
+    {
+        if ($this->kelompok_bagian_id) {
+            $this->kelompok_urutan = (KelompokEvaluasi::where('bagian_evaluasi_id', $this->kelompok_bagian_id)->max('urutan') ?? 0) + 1;
+        } else {
+            $this->kelompok_urutan = 1;
+        }
+    }
+
+    public function tutupModalKelompok(): void
+    {
+        $this->showKelompokModal = false;
+        $this->resetValidation();
+    }
+
+    public function simpanKelompok(): void
+    {
+        $this->validate([
+            'kelompok_bagian_id' => ['required', 'exists:bagian_evaluasi,id'],
+            'kelompok_nama' => ['required', 'string', 'max:255'],
+            'kelompok_urutan' => ['required', 'integer', 'min:1'],
+        ]);
+
+        KelompokEvaluasi::create([
+            'bagian_evaluasi_id' => $this->kelompok_bagian_id,
+            'nama' => $this->kelompok_nama,
+            'urutan' => $this->kelompok_urutan,
+        ]);
+
+        $this->kelompok_nama = '';
+        $this->updateNextKelompokUrutan();
+
+        session()->flash('status', 'Kelompok acuan standar baru berhasil ditambahkan!');
     }
 
     /**

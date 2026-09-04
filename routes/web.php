@@ -3,7 +3,7 @@
 use App\Livewire\Admin\KriteriaEvaluasi as AdminKriteriaEvaluasi;
 use App\Livewire\Admin\ManajemenAkun as AdminManajemenAkun;
 use App\Livewire\Admin\TugaskanPenilai as AdminTugaskanPenilai;
-use App\Livewire\Dashboard;
+use App\Livewire\Dashboard\Index as DashboardIndex;
 use App\Livewire\HasilAkreditasi\Index as HasilAkreditasiIndex;
 use App\Livewire\HasilAkreditasi\MatriksTabulasi as HasilAkreditasiMatriksTabulasi;
 use App\Livewire\Pengajuan\Create as PengajuanCreate;
@@ -21,7 +21,7 @@ Route::get('/', function () {
     return auth()->check() ? redirect()->route('dashboard') : redirect()->route('login');
 });
 
-Route::get('/dashboard', Dashboard::class)
+Route::get('/dashboard', DashboardIndex::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
@@ -40,12 +40,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}', HasilAkreditasiIndex::class)->name('pengajuan.show');
 });
 
-// 3. Modul Pengisian Berkas & Rekap Matriks (Ketua KEPK, Anggota, Admin)
-Route::middleware(['auth', 'role:ketua_kepk|anggota|admin'])->group(function () {
+// 3. Modul Berkas Institusi & Protokol Riset (Ketua KEPK & Admin)
+Route::middleware(['auth', 'role:ketua_kepk|admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/formulir-aplikasi', PengajuanFormulirAplikasi::class)->name('pengajuan.formulir-aplikasi');
+    Route::get('/pengajuan/{suratPengajuan}/list-protokol', PengajuanListProtokol::class)->name('pengajuan.list-protokol');
+});
+
+// 4. Modul Kolaborasi Evaluasi Mandiri & Rekap Matriks (Ketua KEPK, Anggota, Admin)
+Route::middleware(['auth', 'role:ketua_kepk|anggota|admin'])->group(function () {
     Route::get('/pengajuan/{suratPengajuan}/profil', PengajuanProfil::class)->name('pengajuan.profil');
     Route::get('/pengajuan/{suratPengajuan}/evaluasi-diri', PengajuanEvaluasiDiri::class)->name('pengajuan.evaluasi-diri');
-    Route::get('/pengajuan/{suratPengajuan}/list-protokol', PengajuanListProtokol::class)->name('pengajuan.list-protokol');
     Route::get('/pengajuan/{suratPengajuan}/dokumen', PengajuanDokumen::class)->name('pengajuan.dokumen');
     Route::get('/pengajuan/{suratPengajuan}/matriks', HasilAkreditasiMatriksTabulasi::class)->name('pengajuan.matriks');
 });
