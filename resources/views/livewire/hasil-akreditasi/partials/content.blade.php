@@ -15,11 +15,11 @@
     <div class="space-y-4 text-xs">
         @php
             $defaultSections = [
-                'A' => ['nama' => 'Regulasi, Kelembagaan, dan Tata Kelola', 'total' => 29],
-                'B' => ['nama' => 'Keanggotaan dan Kompetensi', 'total' => 35],
-                'C' => ['nama' => 'Operasional dan Prosedur', 'total' => 74],
-                'D' => ['nama' => 'Fasilitas dan Sumber Daya', 'total' => 12],
-                'E' => ['nama' => 'Penelitian Khusus', 'total' => 14],
+                'A' => ['nama' => 'Struktur dan Komposisi KEP', 'total' => 29],
+                'B' => ['nama' => 'Kepatuhan terhadap Kebijakan Khusus', 'total' => 35],
+                'C' => ['nama' => 'Kelengkapan Proses Telaah', 'total' => 74],
+                'D' => ['nama' => 'Setelah Proses Peninjauan', 'total' => 12],
+                'E' => ['nama' => 'Dokumentasi dan Pengarsipan', 'total' => 14],
             ];
         @endphp
 
@@ -34,7 +34,7 @@
             @endphp
         <div class="space-y-1.5 p-3 rounded-2xl bg-slate-50/70 border border-slate-100">
             <div class="flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-800">Bagian {{ $secCode }}: {{ $secMeta['nama'] }}</span>
+                <span class="font-bold text-slate-800">Bagian {{ $secCode }}: {{ $sData['nama'] ?? $secMeta['nama'] }}</span>
                 <span class="font-bold font-mono text-primary-700">{{ $sData['compliance_percentage'] }}% <span class="text-slate-400 font-normal">({{ $sData['answered_items'] }}/{{ $sData['total_items'] }})</span></span>
             </div>
             <div class="w-full bg-slate-200/70 rounded-full h-2 overflow-hidden">

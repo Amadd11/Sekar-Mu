@@ -66,6 +66,7 @@
                         <th class="px-5 py-4 whitespace-nowrap">Peneliti Utama</th>
                         <th class="px-5 py-4">Institusi Asal</th>
                         <th class="px-5 py-4 whitespace-nowrap">Tanggal Masuk</th>
+                        <th class="px-5 py-4 whitespace-nowrap">Dokumen</th>
                         <th class="px-5 py-4 text-center whitespace-nowrap">Status Etik</th>
                         @if ($suratPengajuan->isEditable())
                         <th class="px-5 py-4 text-right whitespace-nowrap">Aksi</th>
@@ -132,7 +133,30 @@
                             {{ $p->tanggal_pengajuan?->format('d M Y') ?? '-' }}
                         </td>
 
-                        <!-- Column 8: Status Etik -->
+                        <!-- Column 8: Dokumen Protokol -->
+                        <td class="px-5 py-4 whitespace-nowrap">
+                            @if ($p->dokumen_path)
+                            <a
+                                href="{{ Storage::url($p->dokumen_path) }}"
+                                target="_blank"
+                                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-primary-50 text-slate-700 hover:text-primary-700 border border-slate-200/80 hover:border-primary-200 text-xs font-medium transition group cursor-pointer"
+                                title="{{ $p->dokumen_nama ?? 'Buka / Unduh Dokumen' }}">
+                                <span class="material-symbols-outlined text-[16px] text-slate-500 group-hover:text-primary-600">description</span>
+                                <span class="truncate max-w-[130px] font-semibold text-slate-800 group-hover:text-primary-700">{{ $p->dokumen_nama ?: 'Dokumen Protokol' }}</span>
+                                @if ($p->dokumen_ukuran)
+                                <span class="text-[10px] text-slate-400 font-mono">({{ $p->formatUkuranDokumen() }})</span>
+                                @endif
+                                <span class="material-symbols-outlined text-[13px] text-slate-400 group-hover:text-primary-500">open_in_new</span>
+                            </a>
+                            @else
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] text-slate-400 bg-slate-50 border border-slate-200/60 font-medium">
+                                <span class="material-symbols-outlined text-[13px] text-slate-400">attachment_off</span>
+                                <span>Belum ada</span>
+                            </span>
+                            @endif
+                        </td>
+
+                        <!-- Column 9: Status Etik -->
                         <td class="px-5 py-4 text-center whitespace-nowrap">
                             @if ($p->status === 'approved')
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -186,7 +210,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="{{ $suratPengajuan->isEditable() ? 9 : 8 }}" class="px-6 py-16 text-center text-slate-400">
+                        <td colspan="{{ $suratPengajuan->isEditable() ? 10 : 9 }}" class="px-6 py-16 text-center text-slate-400">
                             <div class="w-12 h-12 rounded-2xl bg-slate-100 text-slate-400 flex items-center justify-center mx-auto mb-3">
                                 <span class="material-symbols-outlined text-[24px]">description</span>
                             </div>
@@ -335,6 +359,123 @@
                             </select>
                             @error('status_protokol') <span class="text-rose-600 text-[10px] block mt-0.5">{{ $message }}</span> @enderror
                         </div>
+                    </div>
+
+                    <!-- Upload Dokumen Protokol -->
+                    <div class="border-t border-slate-100 pt-4 space-y-2">
+                        <label class="block font-semibold text-slate-700">
+                            Dokumen / Berkas Protokol Riset
+                            <span class="text-[11px] font-normal text-slate-400 block mt-0.5">
+                                Lampirkan berkas protokol, proposal riset, atau surat izin telaah etik (PDF, DOCX, ZIP, maks. 20MB).
+                            </span>
+                        </label>
+
+                        @if ($existingDokumenPath && ! $hapusDokumenLama && ! $dokumen)
+                        <!-- Berkas yang tersimpan sebelumnya -->
+                        <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-8 h-8 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">description</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-semibold text-slate-900 text-xs truncate" title="{{ $existingDokumenNama }}">
+                                        {{ $existingDokumenNama }}
+                                    </div>
+                                    <div class="text-[10px] text-slate-400 font-mono mt-0.5">
+                                        @if ($existingDokumenUkuran)
+                                            @if ($existingDokumenUkuran >= 1048576)
+                                                {{ number_format($existingDokumenUkuran / 1048576, 2) }} MB
+                                            @elseif ($existingDokumenUkuran >= 1024)
+                                                {{ number_format($existingDokumenUkuran / 1024, 1) }} KB
+                                            @else
+                                                {{ $existingDokumenUkuran }} B
+                                            @endif
+                                            • Tersimpan
+                                        @else
+                                            Berkas tersimpan
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-1.5 shrink-0">
+                                <a
+                                    href="{{ Storage::url($existingDokumenPath) }}"
+                                    target="_blank"
+                                    class="px-2.5 py-1 text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded-lg transition inline-flex items-center gap-1 cursor-pointer">
+                                    <span class="material-symbols-outlined text-[14px]">visibility</span>
+                                    <span>Lihat</span>
+                                </a>
+                                <button
+                                    type="button"
+                                    wire:click="hapusDokumenSaatIni"
+                                    class="px-2.5 py-1 text-xs font-semibold bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-lg transition inline-flex items-center gap-1 cursor-pointer"
+                                    title="Hapus berkas ini">
+                                    <span class="material-symbols-outlined text-[14px]">delete</span>
+                                    <span>Hapus</span>
+                                </button>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if ($dokumen)
+                        <!-- Berkas baru yang dipilih -->
+                        <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center justify-between gap-3">
+                            <div class="flex items-center gap-2.5 min-w-0">
+                                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                                    <span class="material-symbols-outlined text-[18px]">upload_file</span>
+                                </div>
+                                <div class="min-w-0">
+                                    <div class="font-semibold text-emerald-900 text-xs truncate">
+                                        {{ $dokumen->getClientOriginalName() }}
+                                    </div>
+                                    <div class="text-[10px] text-emerald-600 font-mono mt-0.5">
+                                        {{ number_format(($dokumen->getSize() ?: 0) / 1024, 1) }} KB (Siap disimpan)
+                                    </div>
+                                </div>
+                            </div>
+                            <button
+                                type="button"
+                                wire:click="batalUploadDokumen"
+                                class="p-1 text-slate-400 hover:text-rose-600 transition cursor-pointer"
+                                title="Batal pilih berkas">
+                                <span class="material-symbols-outlined text-[18px]">close</span>
+                            </button>
+                        </div>
+                        @endif
+
+                        @if (! $dokumen && (! $existingDokumenPath || $hapusDokumenLama))
+                        <!-- Input Upload Dropzone -->
+                        <div>
+                            <label class="relative flex flex-col items-center justify-center p-4 border-2 border-dashed border-slate-300 hover:border-primary-500 rounded-xl bg-slate-50/50 hover:bg-primary-50/20 cursor-pointer transition group">
+                                <input
+                                    type="file"
+                                    wire:model="dokumen"
+                                    class="sr-only"
+                                    accept=".pdf,.doc,.docx,.xls,.xlsx,.zip,.jpg,.jpeg,.png" />
+                                <div class="flex flex-col items-center text-center">
+                                    <span class="material-symbols-outlined text-[26px] text-slate-400 group-hover:text-primary-600 transition mb-1">
+                                        cloud_upload
+                                    </span>
+                                    <span class="text-xs font-semibold text-slate-700 group-hover:text-primary-700">
+                                        Pilih dokumen atau seret ke sini
+                                    </span>
+                                    <span class="text-[10px] text-slate-400 mt-0.5">
+                                        Format: PDF, DOC, DOCX, XLS, XLSX, ZIP, Gambar (Maks. 20MB)
+                                    </span>
+                                </div>
+                            </label>
+                        </div>
+                        @endif
+
+                        <!-- Upload Loading State Indicator -->
+                        <div wire:loading wire:target="dokumen" class="text-xs text-primary-600 flex items-center gap-2 pt-1 font-medium">
+                            <span class="inline-block animate-spin material-symbols-outlined text-[16px]">progress_activity</span>
+                            <span>Mengunggah dokumen ke server...</span>
+                        </div>
+
+                        @error('dokumen')
+                        <span class="text-rose-600 text-[10px] block font-medium mt-1">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
 

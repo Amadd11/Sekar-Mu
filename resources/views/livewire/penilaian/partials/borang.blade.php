@@ -144,7 +144,7 @@
                                     'A' => ['bg' => 'bg-emerald-600', 'title' => 'A: Lengkap / 100%'],
                                     'B' => ['bg' => 'bg-amber-500', 'title' => 'B: Sebagian / 50%'],
                                     'C' => ['bg' => 'bg-rose-600', 'title' => 'C: Tidak Ada / 0%'],
-                                    'D' => ['bg' => 'bg-[#174668]', 'title' => 'D: Tidak Dapat Dinilai'],
+                                    'D' => ['bg' => 'bg-primary-700', 'title' => 'D: Tidak Dapat Dinilai'],
                                     ] as $opt => $optMeta)
                                     <button
                                         type="button"
@@ -172,7 +172,7 @@
                                         type="button"
                                         wire:click="setStrength({{ $butir->id }}, '{{ $eCode }}')"
                                         title="{{ $eDesc }}"
-                                        class="py-1 rounded-lg text-center font-mono font-bold text-[10px] transition-all cursor-pointer {{ $selStrength === $eCode ? 'bg-[#174668] text-white border border-[#174668] shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200' }}">
+                                        class="py-1 rounded-lg text-center font-mono font-bold text-[10px] transition-all cursor-pointer {{ $selStrength === $eCode ? 'bg-primary-700 text-white border border-primary-700 shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200' }}">
                                         {{ $eCode }}
                                     </button>
                                     @endforeach
@@ -187,14 +187,14 @@
                                     type="text"
                                     wire:model.blur="itemTemuan.{{ $butir->id }}"
                                     placeholder="Temuan ketidaksesuaian..."
-                                    class="w-full text-xs rounded-xl border-slate-300 px-3 py-2 bg-white text-slate-800 placeholder-slate-400 focus:border-[#174668] focus:ring-2 focus:ring-[#174668]/15 shadow-2xs" />
+                                    class="w-full text-xs rounded-xl border-slate-300 px-3 py-2 bg-white text-slate-800 placeholder-slate-400 focus:border-primary-700 focus:ring-2 focus:ring-primary-700/15 shadow-2xs" />
                             </div>
                             <div>
                                 <textarea
                                     wire:model.blur="itemCatatan.{{ $butir->id }}"
                                     rows="2"
                                     placeholder="Catatan / rekomendasi perbaikan asesor..."
-                                    class="w-full text-xs rounded-xl border-slate-300 p-2.5 bg-white text-slate-800 placeholder-slate-400 focus:border-[#174668] focus:ring-2 focus:ring-[#174668]/15 shadow-2xs resize-y"></textarea>
+                                    class="w-full text-xs rounded-xl border-slate-300 p-2.5 bg-white text-slate-800 placeholder-slate-400 focus:border-primary-700 focus:ring-2 focus:ring-primary-700/15 shadow-2xs resize-y"></textarea>
                             </div>
                         </td>
                     </tr>

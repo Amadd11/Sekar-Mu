@@ -2,7 +2,6 @@
 
 use App\Livewire\Admin\KriteriaEvaluasi;
 use App\Models\BagianEvaluasi;
-use App\Models\ButirEvaluasi;
 use App\Models\KelompokEvaluasi;
 use App\Models\User;
 use Database\Seeders\InstrumenEvaluasiSeeder;
@@ -71,4 +70,22 @@ test('admin dapat menambah butir kriteria evaluasi baru', function () {
         'kode' => 'Z9.9',
         'kelompok_evaluasi_id' => $kelompok->id,
     ]);
+});
+
+test('admin dapat membuka modal kelola bagian dan mengedit bagian standar', function () {
+    $admin = User::factory()->admin()->create();
+    $bagianA = BagianEvaluasi::where('kode', 'A')->first();
+
+    Livewire::actingAs($admin)
+        ->test(KriteriaEvaluasi::class)
+        ->call('bukaModalBagian')
+        ->assertSet('showBagianModal', true)
+        ->call('editBagian', $bagianA->id)
+        ->assertSet('editingBagianId', $bagianA->id)
+        ->assertSet('bagian_kode', 'A')
+        ->set('bagian_nama', 'Struktur dan Tata Kelola KEPK Terpadu')
+        ->call('simpanBagian')
+        ->assertHasNoErrors();
+
+    expect($bagianA->fresh()->nama)->toBe('Struktur dan Tata Kelola KEPK Terpadu');
 });

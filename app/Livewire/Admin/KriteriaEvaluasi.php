@@ -15,29 +15,54 @@ class KriteriaEvaluasi extends Component
 
     // Filters
     public string $search = '';
+
     public string $selectedBagian = '';
+
     public string $selectedKelompok = '';
+
     public int $perPage = 15;
 
     // Modal State for Butir (Kriteria & Acuan)
     public bool $showModal = false;
+
     public bool $isEditing = false;
+
     public ?int $editingId = null;
 
     // Form fields for Butir
     public ?int $bagian_evaluasi_id = null;
+
     public ?int $kelompok_evaluasi_id = null;
+
     public string $kode = '';
+
     public string $pertanyaan = '';
+
     public string $standar = '';
+
     public string $parameter = '';
+
     public string $evidence_required = '';
 
     // Modal State for Kelompok (Acuan Kategori)
     public bool $showKelompokModal = false;
+
     public ?int $kelompok_bagian_id = null;
+
     public string $kelompok_nama = '';
+
     public int $kelompok_urutan = 1;
+
+    // Modal State for Bagian (Komponen Standar)
+    public bool $showBagianModal = false;
+
+    public ?int $editingBagianId = null;
+
+    public string $bagian_kode = '';
+
+    public string $bagian_nama = '';
+
+    public int $bagian_urutan = 1;
 
     public function mount(): void
     {
@@ -93,6 +118,69 @@ class KriteriaEvaluasi extends Component
         $this->updateNextKelompokUrutan();
 
         session()->flash('status', 'Kelompok acuan standar baru berhasil ditambahkan!');
+    }
+
+    public function bukaModalBagian(): void
+    {
+        $this->resetValidation();
+        $this->editingBagianId = null;
+        $this->bagian_kode = '';
+        $this->bagian_nama = '';
+        $this->bagian_urutan = (BagianEvaluasi::max('urutan') ?? 0) + 1;
+        $this->showBagianModal = true;
+    }
+
+    public function tutupModalBagian(): void
+    {
+        $this->showBagianModal = false;
+        $this->batalEditBagian();
+    }
+
+    public function editBagian(int $id): void
+    {
+        $this->resetValidation();
+        $bagian = BagianEvaluasi::findOrFail($id);
+        $this->editingBagianId = $bagian->id;
+        $this->bagian_kode = $bagian->kode;
+        $this->bagian_nama = $bagian->nama;
+        $this->bagian_urutan = $bagian->urutan;
+    }
+
+    public function batalEditBagian(): void
+    {
+        $this->editingBagianId = null;
+        $this->bagian_kode = '';
+        $this->bagian_nama = '';
+        $this->bagian_urutan = 1;
+        $this->resetValidation();
+    }
+
+    public function simpanBagian(): void
+    {
+        $this->validate([
+            'bagian_kode' => ['required', 'string', 'max:10'],
+            'bagian_nama' => ['required', 'string', 'max:255'],
+            'bagian_urutan' => ['required', 'integer', 'min:1'],
+        ]);
+
+        if ($this->editingBagianId) {
+            $bagian = BagianEvaluasi::findOrFail($this->editingBagianId);
+            $bagian->update([
+                'kode' => $this->bagian_kode,
+                'nama' => $this->bagian_nama,
+                'urutan' => $this->bagian_urutan,
+            ]);
+            session()->flash('status', "Bagian {$bagian->kode} berhasil diperbarui!");
+        } else {
+            BagianEvaluasi::create([
+                'kode' => $this->bagian_kode,
+                'nama' => $this->bagian_nama,
+                'urutan' => $this->bagian_urutan,
+            ]);
+            session()->flash('status', "Bagian {$this->bagian_kode} baru berhasil ditambahkan!");
+        }
+
+        $this->batalEditBagian();
     }
 
     /**
@@ -187,7 +275,7 @@ class KriteriaEvaluasi extends Component
         if (empty($validated['kode'])) {
             $kelompok = KelompokEvaluasi::with('bagian')->find($this->kelompok_evaluasi_id);
             $countInKelompok = ButirEvaluasi::where('kelompok_evaluasi_id', $this->kelompok_evaluasi_id)->count();
-            $validated['kode'] = ($kelompok?->bagian?->kode ?? 'A') . ($kelompok?->urutan ?? 1) . '.' . ($countInKelompok + 1);
+            $validated['kode'] = ($kelompok?->bagian?->kode ?? 'A').($kelompok?->urutan ?? 1).'.'.($countInKelompok + 1);
         }
 
         if ($this->isEditing && $this->editingId) {
@@ -206,8 +294,11 @@ class KriteriaEvaluasi extends Component
 
     // Modal Delete State
     public bool $showDeleteModal = false;
+
     public string $deleteType = ''; // 'kriteria' or 'kelompok'
+
     public ?int $deletingId = null;
+
     public string $deletingTitle = '';
 
     public function konfirmasiHapusKriteria(int $id): void
@@ -223,7 +314,7 @@ class KriteriaEvaluasi extends Component
     {
         $kelompok = KelompokEvaluasi::withCount('butir')->findOrFail($id);
         $this->deletingId = $kelompok->id;
-        $this->deletingTitle = "Kelompok Acuan Standar '{$kelompok->nama}'" . ($kelompok->butir_count > 0 ? " ({$kelompok->butir_count} butir)" : "");
+        $this->deletingTitle = "Kelompok Acuan Standar '{$kelompok->nama}'".($kelompok->butir_count > 0 ? " ({$kelompok->butir_count} butir)" : '');
         $this->deleteType = 'kelompok';
         $this->showDeleteModal = true;
     }
@@ -254,23 +345,23 @@ class KriteriaEvaluasi extends Component
             $butirCount = $kelompok->butir_count;
             $kelompok->delete();
 
-            session()->flash('status', "Kelompok Acuan Standar '{$nama}'" . ($butirCount > 0 ? " beserta {$butirCount} butir kriteria" : "") . " berhasil dihapus.");
+            session()->flash('status', "Kelompok Acuan Standar '{$nama}'".($butirCount > 0 ? " beserta {$butirCount} butir kriteria" : '').' berhasil dihapus.');
         }
 
         $this->batalHapus();
     }
-    
+
     public function render(): View
     {
         // Bagian & Kelompok for dropdowns
-        $daftarBagian = BagianEvaluasi::orderBy('urutan')->get();
+        $daftarBagian = BagianEvaluasi::withCount('kelompok')->orderBy('urutan')->get();
         $daftarKelompok = KelompokEvaluasi::query()
-            ->when($this->selectedBagian, fn($q) => $q->where('bagian_evaluasi_id', $this->selectedBagian))
+            ->when($this->selectedBagian, fn ($q) => $q->where('bagian_evaluasi_id', $this->selectedBagian))
             ->orderBy('urutan')
             ->get();
 
         $modalKelompokOptions = KelompokEvaluasi::query()
-            ->when($this->bagian_evaluasi_id, fn($q) => $q->where('bagian_evaluasi_id', $this->bagian_evaluasi_id))
+            ->when($this->bagian_evaluasi_id, fn ($q) => $q->where('bagian_evaluasi_id', $this->bagian_evaluasi_id))
             ->orderBy('urutan')
             ->get();
 

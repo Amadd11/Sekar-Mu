@@ -17,7 +17,7 @@ class InstrumenEvaluasiSeeder extends Seeder
         $dataBagian = [
             [
                 'kode' => 'A',
-                'nama' => 'Regulasi, Kelembagaan, dan Tata Kelola',
+                'nama' => 'Struktur dan Komposisi KEP',
                 'urutan' => 1,
                 'kelompok' => [
                     [
@@ -36,7 +36,7 @@ class InstrumenEvaluasiSeeder extends Seeder
             ],
             [
                 'kode' => 'B',
-                'nama' => 'Keanggotaan dan Kompetensi',
+                'nama' => 'Kepatuhan terhadap Kebijakan Khusus',
                 'urutan' => 2,
                 'kelompok' => [
                     [
@@ -55,7 +55,7 @@ class InstrumenEvaluasiSeeder extends Seeder
             ],
             [
                 'kode' => 'C',
-                'nama' => 'Operasional dan Prosedur',
+                'nama' => 'Kelengkapan Proses Telaah',
                 'urutan' => 3,
                 'kelompok' => [
                     [
@@ -78,7 +78,7 @@ class InstrumenEvaluasiSeeder extends Seeder
             ],
             [
                 'kode' => 'D',
-                'nama' => 'Fasilitas dan Sumber Daya',
+                'nama' => 'Setelah Proses Peninjauan',
                 'urutan' => 4,
                 'kelompok' => [
                     [
@@ -93,7 +93,7 @@ class InstrumenEvaluasiSeeder extends Seeder
             ],
             [
                 'kode' => 'E',
-                'nama' => 'Penelitian Khusus',
+                'nama' => 'Dokumentasi dan Pengarsipan',
                 'urutan' => 5,
                 'kelompok' => [
                     [
@@ -132,7 +132,7 @@ class InstrumenEvaluasiSeeder extends Seeder
                 );
 
                 for ($i = 1; $i <= $kData['jumlah_butir']; $i++) {
-                    $kodeItem = $bData['kode'] . $kelompokUrutan . '.' . $i;
+                    $kodeItem = $bData['kode'].$kelompokUrutan.'.'.$i;
 
                     $bRecord = ButirEvaluasi::updateOrCreate(
                         [
@@ -140,10 +140,10 @@ class InstrumenEvaluasiSeeder extends Seeder
                             'kode' => $kodeItem,
                         ],
                         [
-                            'pertanyaan' => "Pemenuhan standar baku etik penelitian terkait " . strtolower($kData['nama']) . " (Kriteria parameter {$kodeItem}).",
+                            'pertanyaan' => 'Pemenuhan standar baku etik penelitian terkait '.strtolower($kData['nama'])." (Kriteria parameter {$kodeItem}).",
                             'standar' => "Standar {$bData['kode']}",
                             'parameter' => "Parameter {$kodeItem}",
-                            'evidence_required' => "Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.",
+                            'evidence_required' => 'Dokumen SOP/Panduan/Logbook/Bukti pendukung pelaksanaan.',
                         ]
                     );
 

@@ -1,12 +1,12 @@
 <?php
 
+use App\Livewire\Admin\TugaskanPenilai;
 use App\Livewire\HasilAkreditasi\Index as HasilAkreditasiIndex;
 use App\Livewire\Pengajuan\Create;
 use App\Livewire\Pengajuan\Dokumen as DokumenLivewire;
 use App\Livewire\Pengajuan\EvaluasiDiri;
 use App\Livewire\Pengajuan\ListProtokol;
 use App\Livewire\Penilaian\LembarPenilaian;
-use App\Livewire\Admin\TugaskanPenilai;
 use App\Models\BagianEvaluasi;
 use App\Models\ButirEvaluasi;
 use App\Models\Institusi;
@@ -148,7 +148,7 @@ test('pemohon dapat mengelola list protokol dan dokumen lampiran', function () {
     ]);
 
     // Hapus Protokol
-    $protokol = \App\Models\ListProtokol::where('nomor_protokol', 'PR-001')->first();
+    $protokol = App\Models\ListProtokol::where('nomor_protokol', 'PR-001')->first();
     Livewire::actingAs($pemohon)
         ->test(ListProtokol::class, ['suratPengajuan' => $surat])
         ->call('konfirmasiHapus', $protokol->id)
@@ -464,4 +464,55 @@ test('role anggota dapat mengakses evaluasi diri dan hasil akreditasi', function
     $this->actingAs($anggota)
         ->get(route('pengajuan.evaluasi-diri', $surat))
         ->assertOk();
+});
+
+test('ketua kepk dapat mengunggah, melihat, dan menghapus dokumen pada list protokol', function () {
+    Storage::fake('public');
+
+    $ketua = User::factory()->ketuaKepk()->create();
+    $surat = SuratPengajuan::create([
+        'user_id' => $ketua->id,
+        'kepk_id' => $this->kepk->id,
+        'status' => 'draft',
+    ]);
+
+    $file = UploadedFile::fake()->create('protokol_uji_klinis.pdf', 500, 'application/pdf');
+
+    Livewire::actingAs($ketua)
+        ->test(ListProtokol::class, ['suratPengajuan' => $surat])
+        ->set('nomor_protokol', 'PROT-DOC-001')
+        ->set('judul', 'Penelitian Efektivitas Terapi')
+        ->set('peneliti_utama', 'Prof. Budi')
+        ->set('dokumen', $file)
+        ->call('simpan')
+        ->assertHasNoErrors();
+
+    $protokol = App\Models\ListProtokol::where('nomor_protokol', 'PROT-DOC-001')->first();
+    expect($protokol)->not->toBeNull();
+    expect($protokol->dokumen_nama)->toBe('protokol_uji_klinis.pdf');
+    expect($protokol->dokumen_path)->not->toBeNull();
+    expect($protokol->hasDokumen())->toBeTrue();
+    expect($protokol->formatUkuranDokumen())->toContain('KB');
+    Storage::disk('public')->assertExists($protokol->dokumen_path);
+
+    // Buka halaman dan pastikan dokumen terlihat
+    Livewire::actingAs($ketua)
+        ->test(ListProtokol::class, ['suratPengajuan' => $surat])
+        ->assertSee('protokol_uji_klinis.pdf');
+
+    // Hapus dokumen via edit
+    $oldPath = $protokol->dokumen_path;
+    Livewire::actingAs($ketua)
+        ->test(ListProtokol::class, ['suratPengajuan' => $surat])
+        ->call('edit', $protokol->id)
+        ->assertSet('existingDokumenNama', 'protokol_uji_klinis.pdf')
+        ->call('hapusDokumenSaatIni')
+        ->assertSet('hapusDokumenLama', true)
+        ->call('simpan')
+        ->assertHasNoErrors();
+
+    $protokol->refresh();
+    expect($protokol->dokumen_path)->toBeNull();
+    expect($protokol->dokumen_nama)->toBeNull();
+    Storage::disk('public')->assertMissing($oldPath);
 });

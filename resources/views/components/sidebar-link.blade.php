@@ -24,8 +24,8 @@
         }
     }
 
-    $activeClass = 'bg-gradient-to-r from-[#225c84] to-[#1e5276] text-white font-bold border-l-4 border-teal-300 shadow-xs';
-    $inactiveClass = 'text-teal-100/80 hover:bg-[#1f5379]/80 hover:text-white hover:translate-x-1';
+    $activeClass = 'bg-gradient-to-r from-primary-600 to-primary-700 text-white font-bold border-l-4 border-teal-300 shadow-xs';
+    $inactiveClass = 'text-teal-100/80 hover:bg-primary-600/70 hover:text-white hover:translate-x-1';
     $iconActiveClass = 'text-teal-300 scale-105';
     $iconInactiveClass = 'text-teal-200/70 group-hover:text-teal-200 group-hover:scale-110';
 @endphp

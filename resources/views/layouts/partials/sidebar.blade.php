@@ -1,9 +1,9 @@
 <!-- Left Sidebar (Classic Sekar-Mu Navy Theme) -->
 <aside
     :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'"
-    class="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#174668] text-white flex flex-col transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen shrink-0 shadow-lg border-r border-[#133a57]">
+    class="fixed inset-y-0 left-0 z-50 w-[280px] bg-primary-700 text-white flex flex-col transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:h-screen shrink-0 shadow-lg border-r border-primary-900">
     <!-- Brand Header -->
-    <div class="p-5 border-b border-[#1f557c]/60 bg-[#133e5f]">
+    <div class="p-5 border-b border-primary-600/40 bg-primary-800">
         <div class="flex items-center gap-3">
             <div class="text-3xl select-none">🌸</div>
             <div>
@@ -93,8 +93,8 @@
     </div>
 
     <!-- User Profile Footer -->
-    <div class="p-3.5 border-t border-[#1f557c]/60 bg-[#133e5f]">
-        <div class="flex items-center justify-between px-3 py-2 bg-[#174668]/80 rounded-xl hover:bg-[#225c84] transition-colors">
+    <div class="p-3.5 border-t border-primary-600/40 bg-primary-800">
+        <div class="flex items-center justify-between px-3 py-2 bg-primary-700/80 rounded-xl hover:bg-primary-600/80 transition-colors">
             <div class="flex items-center gap-2.5 overflow-hidden">
                 <div class="w-8 h-8 rounded-full bg-teal-500 flex items-center justify-center text-white font-bold text-xs shrink-0 shadow-2xs">
                     {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
@@ -108,7 +108,7 @@
                 type="button"
                 @click="logoutModalOpen = true"
                 title="Keluar dari Aplikasi"
-                class="p-1.5 rounded-lg text-teal-200 hover:text-white hover:bg-[#1f5379] transition cursor-pointer">
+                class="p-1.5 rounded-lg text-teal-200 hover:text-white hover:bg-primary-600/90 transition cursor-pointer">
                 <span class="material-symbols-outlined text-[18px]">logout</span>
             </button>
         </div>

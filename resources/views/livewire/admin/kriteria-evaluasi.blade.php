@@ -29,6 +29,14 @@
                 <div class="flex items-center gap-2.5 flex-wrap w-full sm:w-auto shrink-0">
                     <button
                         type="button"
+                        wire:click="bukaModalBagian"
+                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer shadow-2xs">
+                        <span class="material-symbols-outlined text-[18px]">folder_copy</span>
+                        <span>Kelola Bagian</span>
+                    </button>
+
+                    <button
+                        type="button"
                         wire:click="bukaModalKelompok"
                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition cursor-pointer shadow-2xs">
                         <span class="material-symbols-outlined text-[18px]">category</span>

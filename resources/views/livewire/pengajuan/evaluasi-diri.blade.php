@@ -54,6 +54,7 @@
 
         <button
             type="button"
+            wire:key="section-tab-{{ $b->kode }}"
             wire:click="switchSection('{{ $b->kode }}')"
             class="rounded-xl px-3 py-2.5 text-left transition-all flex flex-col justify-between gap-1.5 cursor-pointer {{ $isActive ? 'bg-white text-slate-900 shadow-xs border border-slate-200/80' : 'text-slate-600 hover:text-slate-900 hover:bg-white/50' }}">
             <div class="flex items-center justify-between w-full">
@@ -218,7 +219,7 @@
                         default => '',
                         };
                         @endphp
-                        <tr class="hover:bg-slate-50/60 transition-colors align-top {{ $rowBg }}">
+                        <tr wire:key="butir-row-{{ $butir->id }}" class="hover:bg-slate-50/60 transition-colors align-top {{ $rowBg }}">
                             <!-- Column 1: Kode -->
                             <td class="py-4 px-4 text-center">
                                 <span class="font-mono font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded text-xs border border-slate-200/70">
